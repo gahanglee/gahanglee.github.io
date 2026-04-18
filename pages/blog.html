@@ -1,0 +1,27 @@
+---
+layout: default
+title: 部落格
+permalink: /blog/
+---
+<div class="wrap">
+  <section class="section" style="border-top:none;padding-top:7rem">
+    <span class="section-tag">教學日誌與資源分享</span>
+    <h2 class="section-title">部落格文章</h2>
+    <p style="color:var(--text-muted);margin-bottom:2.5rem;font-size:0.95rem;line-height:1.85">分享幼兒特教教學心得、SEL 實踐策略，以及用科技做教育的各種嘗試。</p>
+    <div class="blog-stack">
+      {% for post in site.posts %}
+      <a href="{{ post.url | relative_url }}" class="b-card">
+        <div class="b-icon" style="background:{{ post.emoji_bg | default: 'rgba(107,155,138,0.12)' }}">{{ post.emoji | default: '📝' }}</div>
+        <div>
+          <h4>{{ post.title }}</h4>
+          <p>{{ post.excerpt | strip_html | truncate: 90 }}</p>
+          <div class="b-meta">
+            {{ post.date | date: "%Y 年 %m 月 %d 日" }}{% if post.reading_time %} · {{ post.reading_time }} 分鐘{% endif %}
+            {% if post.tags %}{% for tag in post.tags %} · <span class="tag tag-teal" style="font-size:0.68rem">{{ tag }}</span>{% endfor %}{% endif %}
+          </div>
+        </div>
+      </a>
+      {% endfor %}
+    </div>
+  </section>
+</div>
