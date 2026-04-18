@@ -1,0 +1,26 @@
+title: "嘉晃 · James"
+description: "多元接納的心理空間 × 幼兒特教 × SEL 教育資源"
+author: "李嘉晃 James"
+email: "gahanglee@gmail.com"
+github_username: gahanglee
+location: "臺南市"
+baseurl: ""
+url: "https://gahanglee.github.io"
+
+markdown: kramdown
+highlighter: rouge
+permalink: /blog/:year/:month/:day/:title/
+
+plugins:
+  - jekyll-feed
+  - jekyll-sitemap
+
+sass:
+  sass_dir: assets/css
+  style: compressed
+
+exclude:
+  - Gemfile
+  - Gemfile.lock
+  - README.md
+  - "*.md"
