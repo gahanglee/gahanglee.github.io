@@ -1,0 +1,13 @@
+---
+layout: default
+---
+<article>
+  <div class="post-header">
+    <span class="post-eyebrow">{{ page.category | default: '部落格' }}</span>
+    <h1>{{ page.title }}</h1>
+    <p class="post-meta">
+      {{ page.date | date: "%Y 年 %m 月 %d 日" }}{% if page.reading_time %} · {{ page.reading_time }} 分鐘閱讀{% endif %}
+    </p>
+  </div>
+  <div class="post-content">{{ content }}</div>
+</article>
