@@ -3,148 +3,374 @@ layout: default
 title: 首頁
 ---
 
-<div class="wrap">
+<!-- ===== 自訂首頁樣式 ===== -->
+<style>
+  /* 覆蓋 layout 的 wrap 限制，讓這頁全寬 */
+  main { max-width: none !important; padding: 0 !important; }
 
-  <!-- ── HERO ── -->
-  <section class="hero">
-    <p class="hero-eyebrow">你好，我是</p>
-    <h1 class="hero-name">嘉晃 · James</h1>
-    <div class="hero-divider"></div>
-    <p class="hero-sub">
-      我在兩個世界同時存在——一個是多元接納的心理空間，一個是陪孩子學會情緒的幼兒特教角落。<br>
-      這裡是我的交會點。
-    </p>
-    <div class="hero-btns">
-      <a href="/about/" class="btn btn-teal">認識我</a>
-      <a href="/portfolio/" class="btn btn-orange">教材作品集</a>
+  :root {
+    --cream: #FFF9F4;
+    --orange: #C85A2B;
+    --orange-dark: #A8481F;
+    --orange-light: #FDECD8;
+    --orange-border: #F5C9A8;
+    --warm-bg: #FFF2E8;
+    --warm-divider: #F5DDD0;
+    --text-dark: #1E140E;
+    --text-mid: #6B4C3B;
+    --text-muted: #7A5748;
+    --text-hint: #B09080;
+  }
+
+  /* ── HERO ── */
+  .hero {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    min-height: 88vh;
+    align-items: center;
+    padding: 4rem 2.5rem;
+    gap: 3rem;
+    max-width: 1100px;
+    margin: 0 auto;
+  }
+  .hero-text { animation: fadeUp 0.7s ease both; }
+  .hero-badge {
+    display: inline-block;
+    background: var(--orange-light);
+    color: var(--orange);
+    font-size: 0.78rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    padding: 0.35rem 0.9rem;
+    border-radius: 99px;
+    margin-bottom: 1.4rem;
+    border: 1.5px solid var(--orange-border);
+  }
+  .hero-name { font-size: clamp(2.4rem, 5vw, 3.6rem); font-weight: 900; line-height: 1.1; letter-spacing: -1.5px; color: var(--text-dark); margin-bottom: 0.6rem; }
+  .hero-name span { color: var(--orange); }
+  .hero-tagline { font-family: "Noto Serif TC", serif; font-style: italic; font-size: 1.15rem; color: var(--text-muted); margin-bottom: 1.8rem; line-height: 1.6; }
+  .hero-desc { font-size: 0.95rem; color: var(--text-mid); line-height: 1.75; max-width: 420px; margin-bottom: 2.2rem; }
+  .hero-cta { display: flex; gap: 1rem; flex-wrap: wrap; }
+  .btn-primary { background: var(--orange); color: var(--cream); border: none; padding: 0.8rem 1.8rem; border-radius: 99px; font-weight: 700; font-size: 0.95rem; cursor: pointer; transition: background 0.2s, transform 0.15s; text-decoration: none; display: inline-block; }
+  .btn-primary:hover { background: var(--orange-dark); transform: translateY(-2px); }
+  .btn-outline { background: transparent; color: var(--orange); border: 2px solid var(--orange); padding: 0.75rem 1.7rem; border-radius: 99px; font-weight: 700; font-size: 0.95rem; cursor: pointer; transition: all 0.2s; text-decoration: none; display: inline-block; }
+  .btn-outline:hover { background: var(--orange); color: var(--cream); transform: translateY(-2px); }
+
+  /* Hero card */
+  .hero-visual { display: flex; align-items: center; justify-content: center; animation: fadeUp 0.7s 0.15s ease both; }
+  .hero-card { background: var(--warm-bg); border-radius: 28px; border: 2px solid var(--orange-border); padding: 2.5rem 2.2rem; width: 100%; max-width: 340px; position: relative; overflow: hidden; }
+  .hero-card::before { content: ""; position: absolute; top: -30px; right: -30px; width: 120px; height: 120px; border-radius: 50%; background: var(--warm-divider); opacity: 0.6; }
+  .avatar-circle { width: 80px; height: 80px; border-radius: 50%; background: var(--orange); display: flex; align-items: center; justify-content: center; font-size: 2rem; margin-bottom: 1.2rem; border: 3px solid var(--cream); box-shadow: 0 0 0 3px var(--orange-border); }
+  .card-name { font-size: 1.2rem; font-weight: 900; color: var(--text-dark); margin-bottom: 0.2rem; }
+  .card-role { font-size: 0.82rem; color: var(--text-muted); font-weight: 600; margin-bottom: 1.4rem; }
+  .card-tags { display: flex; flex-wrap: wrap; gap: 0.5rem; }
+  .hp-tag { background: var(--orange-light); color: var(--orange); font-size: 0.75rem; font-weight: 700; padding: 0.3rem 0.75rem; border-radius: 99px; border: 1px solid var(--orange-border); }
+  .card-stats { display: grid; grid-template-columns: 1fr 1fr; gap: 0.8rem; margin-top: 1.4rem; padding-top: 1.2rem; border-top: 1.5px solid var(--warm-divider); }
+  .stat-box { background: white; border-radius: 12px; padding: 0.7rem 0.9rem; border: 1px solid var(--warm-divider); }
+  .stat-num { font-size: 1.3rem; font-weight: 900; color: var(--orange); line-height: 1; }
+  .stat-label { font-size: 0.7rem; color: var(--text-muted); font-weight: 600; margin-top: 0.2rem; }
+
+  /* ── SECTIONS ── */
+  .hp-section { max-width: 1100px; margin: 0 auto; padding: 4rem 2.5rem; }
+  .section-eyebrow { font-size: 0.75rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--orange); margin-bottom: 0.6rem; }
+  .hp-section-title { font-size: clamp(1.6rem, 3vw, 2.2rem); font-weight: 900; letter-spacing: -0.5px; color: var(--text-dark); margin-bottom: 0.5rem; }
+  .hp-section-sub { font-family: "Noto Serif TC", serif; font-style: italic; color: var(--text-muted); font-size: 1rem; margin-bottom: 2.5rem; }
+  .hp-divider { height: 1.5px; background: var(--warm-divider); margin: 0 2.5rem; }
+
+  /* ── ABOUT ── */
+  .about-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 3rem; align-items: center; }
+  .about-bubbles { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+  .bubble { background: white; border: 1.5px solid var(--warm-divider); border-radius: 20px; padding: 1.2rem; transition: border-color 0.2s, transform 0.2s; }
+  .bubble:hover { border-color: var(--orange); transform: translateY(-3px); }
+  .bubble-icon { font-size: 1.8rem; margin-bottom: 0.5rem; }
+  .bubble-title { font-size: 0.88rem; font-weight: 700; color: var(--text-dark); margin-bottom: 0.2rem; }
+  .bubble-desc { font-size: 0.78rem; color: var(--text-muted); line-height: 1.5; }
+  .bubble.tall { grid-row: span 2; display: flex; flex-direction: column; justify-content: center; background: var(--warm-bg); }
+
+  /* ── EMOTION WHEEL ── */
+  .wheel-section { max-width: 1100px; margin: 0 auto; padding: 4rem 2.5rem; }
+  .wheel-wrap { display: flex; flex-direction: column; align-items: center; }
+  #emotionWheel { cursor: pointer; display: block; max-width: 420px; width: 100%; }
+  .info-box { margin-top: 1.5rem; width: 100%; max-width: 440px; background: white; border: 1.5px solid var(--warm-divider); border-radius: 20px; padding: 1.4rem 1.6rem; text-align: center; min-height: 110px; display: flex; flex-direction: column; align-items: center; justify-content: center; transition: border-color 0.3s; }
+  .info-emoji { font-size: 2.4rem; margin-bottom: 0.4rem; line-height: 1; }
+  .info-name { font-size: 1.4rem; font-weight: 900; color: var(--text-dark); margin-bottom: 0.25rem; }
+  .info-name-zh { font-size: 1rem; font-weight: 700; color: var(--orange); margin-bottom: 0.5rem; }
+  .info-desc { font-size: 0.82rem; color: var(--text-muted); line-height: 1.6; }
+  .wheel-hint { font-size: 0.78rem; color: var(--text-hint); margin-top: 1rem; }
+  .strategy-tags { display: flex; flex-wrap: wrap; gap: 0.4rem; justify-content: center; margin-top: 0.6rem; }
+  .stag { background: var(--orange-light); color: var(--orange); font-size: 0.7rem; font-weight: 700; padding: 0.25rem 0.65rem; border-radius: 99px; border: 1px solid var(--orange-border); }
+
+  /* ── WORKS ── */
+  .filters { display: flex; gap: 0.5rem; flex-wrap: wrap; margin-bottom: 1.8rem; }
+  .filter-btn { background: white; border: 1.5px solid var(--warm-divider); color: var(--text-muted); font-size: 0.78rem; font-weight: 700; padding: 0.35rem 1rem; border-radius: 99px; cursor: pointer; transition: all 0.18s; }
+  .filter-btn:hover { border-color: var(--orange); color: var(--orange); }
+  .filter-btn.active { background: var(--orange); border-color: var(--orange); color: white; }
+  .works-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 1.2rem; }
+  .work-card { background: white; border: 1.5px solid var(--warm-divider); border-radius: 20px; padding: 1.4rem; cursor: pointer; transition: border-color 0.2s, transform 0.2s; display: flex; flex-direction: column; }
+  .work-card:hover { border-color: var(--orange); transform: translateY(-4px); }
+  .work-card.featured { background: var(--warm-bg); border-color: var(--orange-border); }
+  .work-top { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1rem; }
+  .work-icon { width: 48px; height: 48px; border-radius: 14px; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; flex-shrink: 0; }
+  .cat-badge { font-size: 0.65rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.07em; padding: 0.25rem 0.65rem; border-radius: 99px; }
+  .work-title { font-size: 1rem; font-weight: 900; color: var(--text-dark); margin-bottom: 0.4rem; }
+  .work-desc { font-size: 0.8rem; color: var(--text-mid); line-height: 1.65; flex: 1; margin-bottom: 1rem; }
+  .work-chip { background: var(--orange-light); color: var(--orange); font-size: 0.68rem; font-weight: 700; padding: 0.2rem 0.55rem; border-radius: 99px; border: 1px solid var(--orange-border); }
+  .work-footer { display: flex; justify-content: space-between; align-items: center; padding-top: 0.8rem; border-top: 1px solid var(--warm-divider); font-size: 0.72rem; font-weight: 700; color: var(--text-hint); }
+  .work-link { color: var(--orange); font-size: 0.78rem; font-weight: 700; background: var(--orange-light); padding: 0.25rem 0.7rem; border-radius: 99px; border: 1px solid var(--orange-border); cursor: pointer; transition: background 0.15s; text-decoration: none; }
+  .work-link:hover { background: var(--orange-border); }
+
+  /* ── CONTACT BLOCK ── */
+  .hp-contact { background: #1E140E; color: var(--cream); border-radius: 28px; padding: 3.5rem 3rem; text-align: center; margin: 0 2.5rem 4rem; position: relative; overflow: hidden; }
+  .hp-contact::before { content: ""; position: absolute; top: -60px; left: -60px; width: 200px; height: 200px; border-radius: 50%; background: var(--orange); opacity: 0.15; }
+  .hp-contact::after { content: ""; position: absolute; bottom: -40px; right: -40px; width: 150px; height: 150px; border-radius: 50%; background: var(--orange-border); opacity: 0.1; }
+  .hp-contact-title { font-size: clamp(1.6rem, 3vw, 2.2rem); font-weight: 900; letter-spacing: -0.5px; margin-bottom: 0.7rem; position: relative; z-index: 1; }
+  .hp-contact-sub { font-family: "Noto Serif TC", serif; font-style: italic; color: #C9A898; margin-bottom: 2rem; font-size: 1rem; position: relative; z-index: 1; }
+  .hp-contact-links { display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap; position: relative; z-index: 1; }
+  .contact-btn { background: var(--orange); color: var(--cream); border: none; padding: 0.8rem 1.8rem; border-radius: 99px; font-weight: 700; font-size: 0.9rem; cursor: pointer; transition: background 0.2s, transform 0.15s; text-decoration: none; display: inline-block; }
+  .contact-btn:hover { background: #E06830; transform: translateY(-2px); }
+  .contact-btn.ghost { background: transparent; border: 1.5px solid rgba(255,249,244,0.3); color: var(--cream); }
+  .contact-btn.ghost:hover { background: rgba(255,249,244,0.08); }
+
+  @keyframes fadeUp { from { opacity: 0; transform: translateY(24px); } to { opacity: 1; transform: translateY(0); } }
+
+  @media (max-width: 700px) {
+    .hero { grid-template-columns: 1fr; min-height: auto; padding: 2.5rem 1.2rem; }
+    .hero-visual { display: none; }
+    .hp-section { padding: 3rem 1.2rem; }
+    .hp-divider { margin: 0 1.2rem; }
+    .about-grid { grid-template-columns: 1fr; gap: 2rem; }
+    .hp-contact { margin: 0 1.2rem 3rem; padding: 2.5rem 1.5rem; }
+    .wheel-section { padding: 3rem 1.2rem; }
+  }
+</style>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-text">
+    <div class="hero-badge">✦ 學前巡迴特殊教育教師</div>
+    <h1 class="hero-name">Hi, 我是<br><span>James。</span></h1>
+    <p class="hero-tagline">教小小孩認識自己的感受。</p>
+    <p class="hero-desc">我是一位在台灣台南工作的學前巡迴特殊教育教師，在各班級支援 3–6 歲孩子的社會情緒學習（SEL），也自學開發行動應用程式，打造別人沒有的教材。</p>
+    <div class="hero-cta">
+      <a class="btn-primary" href="#works">看看我的作品 →</a>
+      <a class="btn-outline" href="/contact/">聯絡我</a>
     </div>
-  </section>
-
-  <!-- ── DUAL IDENTITY ── -->
-  <section class="section">
-    <span class="section-tag">01 — 兩個身份，一個人</span>
-    <h2 class="section-title">我是誰</h2>
-    <div class="identity-grid">
-      <div class="id-card">
-        <div class="id-card-icon">🌿</div>
-        <h3 class="id-card-title"><span class="t">心理空間</span></h3>
-        <p>我相信每個人都值得被理解、被接納。透過跨領域整合——心理輔導、輔助科技、教育與系統合作——我致力於讓支持更完整、更貼近真實需求。</p>
+  </div>
+  <div class="hero-visual">
+    <div class="hero-card">
+      <div class="avatar-circle">🌱</div>
+      <div class="card-name">James</div>
+      <div class="card-role">學前巡迴特教老師 · 台南，台灣</div>
+      <div class="card-tags">
+        <span class="hp-tag">SEL</span>
+        <span class="hp-tag">3–6 歲</span>
+        <span class="hp-tag">教育科技</span>
+        <span class="hp-tag">App 開發</span>
       </div>
-      <div class="id-card">
-        <div class="id-card-icon">🏝️</div>
-        <h3 class="id-card-title"><span class="o">特教老師</span></h3>
-        <p>我是臺南市幼兒巡迴輔導特教老師，專注 3–6 歲兒童的社會情緒學習（SEL）。從課堂教材到自製 App，我用各種方式陪孩子學習認識與照顧自己的情緒。</p>
+      <div class="card-stats">
+        <div class="stat-box"><div class="stat-num">47</div><div class="stat-label">情緒卡牌</div></div>
+        <div class="stat-box"><div class="stat-num">10</div><div class="stat-label">生活情境</div></div>
+        <div class="stat-box"><div class="stat-num">3</div><div class="stat-label">SEL 步驟</div></div>
+        <div class="stat-box"><div class="stat-num">∞</div><div class="stat-label">孩子的笑容</div></div>
       </div>
     </div>
-  </section>
-
-  <!-- ── SPECIALTIES ── -->
-  <section class="section">
-    <span class="section-tag">02 — 專長與興趣</span>
-    <h2 class="section-title">我擅長的事</h2>
-    <ul class="skill-list">
-      <li><a href="/specialties/integration/" class="skill-link"><span class="skill-dot"></span>跨領域整合</a></li>
-      <li><a href="/specialties/education/" class="skill-link"><span class="skill-dot"></span>教育</a></li>
-      <li><a href="/specialties/assistive-tech/" class="skill-link"><span class="skill-dot"></span>輔助科技</a></li>
-      <li><a href="/specialties/finance/" class="skill-link"><span class="skill-dot"></span>金融</a></li>
-      <li><a href="/specialties/system-cooperation/" class="skill-link"><span class="skill-dot"></span>系統合作</a></li>
-      <li><a href="/specialties/counseling/" class="skill-link"><span class="skill-dot"></span>心理輔導</a></li>
-    </ul>
-  </section>
-
+  </div>
 </div>
 
-<!-- ── ZONE DIVIDER ── -->
-<div class="zone-divider">
-  <span class="zone-label">教育資源專區</span>
-</div>
+<div class="hp-divider"></div>
 
-<!-- ── STATS ── -->
-<div class="stats-bar">
-  <div class="stat-item"><span class="stat-num">47</span><span class="stat-label">情緒卡片</span></div>
-  <div class="stat-item"><span class="stat-num">10</span><span class="stat-label">情境場景</span></div>
-  <div class="stat-item"><span class="stat-num">3</span><span class="stat-label">SEL 步驟</span></div>
-  <div class="stat-item"><span class="stat-num">∞</span><span class="stat-label">對孩子的愛</span></div>
-</div>
-
-<div class="wrap">
-
-  <!-- ── PORTFOLIO PREVIEW ── -->
-  <section class="section">
-    <span class="section-tag">03 — 教材作品</span>
-    <h2 class="section-title">近期教材作品集</h2>
-    <div class="portfolio-grid">
-      <a href="/app/" class="p-card">
-        <div class="p-thumb" style="background:linear-gradient(135deg,rgba(107,155,138,0.12),rgba(217,115,66,0.10))">🏝️</div>
-        <div class="p-body"><h4>我的情緒，我會照顧</h4><p>SEL 互動 App，47 張情緒卡、10 情境場景</p></div>
-        <div class="p-foot"><span class="p-tag p-tag-orange">App</span><span style="font-size:0.68rem;color:var(--text-muted)">React Native</span></div>
-      </a>
-      <a href="/portfolio/" class="p-card">
-        <div class="p-thumb" style="background:rgba(107,155,138,0.08)">😊</div>
-        <div class="p-body"><h4>情緒臉譜卡片組</h4><p>可列印情緒辨識教具，3–5 歲幼兒適用</p></div>
-        <div class="p-foot"><span class="p-tag p-tag-teal">教具</span><span style="font-size:0.68rem;color:var(--text-muted)">可下載</span></div>
-      </a>
-      <a href="/portfolio/" class="p-card">
-        <div class="p-thumb" style="background:rgba(120,100,180,0.07)">🧘</div>
-        <div class="p-body"><h4>我的平靜策略手冊</h4><p>呼吸練習 + 平靜策略，家長版 / 教師版</p></div>
-        <div class="p-foot"><span class="p-tag p-tag-purple">教材</span><span style="font-size:0.68rem;color:var(--text-muted)">PDF</span></div>
-      </a>
+<!-- ABOUT -->
+<div class="hp-section" id="about">
+  <p class="section-eyebrow">關於我</p>
+  <h2 class="hp-section-title">不只是一位老師。</h2>
+  <p class="hp-section-sub">一個建造者、創作者，相信小小突破的力量。</p>
+  <div class="about-grid">
+    <div>
+      <p style="font-size:0.95rem; color:var(--text-mid); line-height:1.8; margin-bottom:1.2rem;">我在台南的幼兒園環境中與班級老師合作，支援有多元需求的孩子發展日常所需的社會與情緒技能。</p>
+      <p style="font-size:0.95rem; color:var(--text-mid); line-height:1.8; margin-bottom:1.2rem;">在沒有任何程式背景的情況下，我透過 AI 工具自學開發行動應用程式，創造出市面上找不到的教育資源。</p>
+      <p style="font-size:0.95rem; color:var(--text-mid); line-height:1.8;">我相信每個人都有獨特性、每個人都有價值。以系統觀的視角，用不批判、多元接納、不評價的方式，陪伴每一個孩子與家庭。</p>
     </div>
-    <div style="margin-top:1.5rem">
-      <a href="/portfolio/" class="btn btn-orange">查看全部作品</a>
+    <div class="about-bubbles">
+      <div class="bubble tall">
+        <div class="bubble-icon">🎯</div>
+        <div class="bubble-title">以 SEL 為核心</div>
+        <div class="bubble-desc">每一件工具都從孩子的情緒經驗出發。</div>
+      </div>
+      <div class="bubble">
+        <div class="bubble-icon">📱</div>
+        <div class="bubble-title">自學開發者</div>
+        <div class="bubble-desc">React Native、Expo、TypeScript，從零開始學。</div>
+      </div>
+      <div class="bubble">
+        <div class="bubble-icon">🏆</div>
+        <div class="bubble-title">競賽參賽者</div>
+        <div class="bubble-desc">臺南市第九屆特殊教育教材教具競賽。</div>
+      </div>
     </div>
-  </section>
+  </div>
+</div>
 
-  <!-- ── APP PREVIEW ── -->
-  <section class="section">
-    <span class="section-tag">04 — 情緒島嶼 App</span>
-    <h2 class="section-title">🏝️ 我的情緒，我會照顧</h2>
-    <div class="app-card">
-      <div>
-        <p>專為 3–6 歲幼兒設計的 SEL 互動 App。透過宥宥、星星、樂樂三位角色，引導孩子學習辨識行為、認識情緒、練習平靜策略。</p>
-        <div class="tag-row" style="margin-bottom:1.25rem">
-          <span class="tag tag-teal">宥宥 / 星星 / 樂樂</span>
-          <span class="tag tag-orange">47 張情緒卡</span>
-          <span class="tag tag-purple">三步驟 SEL</span>
+<div class="hp-divider"></div>
+
+<!-- EMOTION WHEEL -->
+<div class="wheel-section" id="wheel">
+  <p class="section-eyebrow">互動小工具</p>
+  <h2 class="hp-section-title">情緒輪盤。</h2>
+  <p class="hp-section-sub">點選扇形，探索不同的感受與安撫策略。</p>
+  <div class="wheel-wrap">
+    <canvas id="emotionWheel" width="420" height="420"></canvas>
+    <div class="info-box" id="infoBox">
+      <div class="info-emoji">👆</div>
+      <div class="info-name" style="color:var(--text-muted)">點選輪盤探索情緒</div>
+      <div class="info-desc">每個色塊代表一種感受，點擊後了解更多</div>
+    </div>
+    <p class="wheel-hint">✦ 情緒輪盤 · 我的情緒，我會照顧</p>
+  </div>
+</div>
+
+<div class="hp-divider"></div>
+
+<!-- WORKS -->
+<div class="hp-section" id="works">
+  <p class="section-eyebrow">作品集</p>
+  <h2 class="hp-section-title">我做過的東西。</h2>
+  <p class="hp-section-sub">每一件作品背後，都有一個想幫助孩子的心。</p>
+  <div class="filters" id="filters">
+    <button class="filter-btn active" data-cat="all">全部</button>
+    <button class="filter-btn" data-cat="app">行動應用</button>
+    <button class="filter-btn" data-cat="curriculum">課程設計</button>
+    <button class="filter-btn" data-cat="material">教材教具</button>
+    <button class="filter-btn" data-cat="doc">文件撰寫</button>
+  </div>
+  <div class="works-grid" id="worksGrid"></div>
+</div>
+
+<!-- CONTACT -->
+<div class="hp-contact" id="contact">
+  <h2 class="hp-contact-title">一起連結吧。</h2>
+  <p class="hp-contact-sub">無論你是同行教育者、研究者，或只是好奇的人——都歡迎聯絡我。</p>
+  <div class="hp-contact-links">
+    <a class="contact-btn" href="/contact/">傳訊息給我 ✉</a>
+    <a class="contact-btn ghost" href="/blog/">閱讀部落格 →</a>
+    <a class="contact-btn ghost" href="https://github.com/gahanglee" target="_blank" rel="noopener">GitHub →</a>
+  </div>
+</div>
+
+<script>
+  /* ── EMOTION WHEEL ── */
+  const emotions = [
+    { name: 'Happy', zh: '開心', emoji: '😄', color: '#F9C74F', desc: '感到快樂和滿足，想要微笑或大笑！', strategies: ['分享心情', '說謝謝', '給擁抱'] },
+    { name: 'Excited', zh: '興奮', emoji: '🤩', color: '#F4A261', desc: '精力充沛，期待某件好事即將發生！', strategies: ['深呼吸', '跳一跳', '告訴朋友'] },
+    { name: 'Proud', zh: '驕傲', emoji: '🌟', color: '#E76F51', desc: '完成了一件很棒的事，為自己感到自豪。', strategies: ['分享成果', '給自己鼓掌', '繼續努力'] },
+    { name: 'Calm', zh: '平靜', emoji: '😌', color: '#90BE6D', desc: '感覺安靜放鬆，心裡很舒服。', strategies: ['繼續保持', '深呼吸', '聽音樂'] },
+    { name: 'Loved', zh: '被愛', emoji: '🥰', color: '#F38DAB', desc: '感受到別人的關心和溫暖，心裡暖暖的。', strategies: ['說謝謝', '給擁抱', '畫一張卡片'] },
+    { name: 'Scared', zh: '害怕', emoji: '😨', color: '#9B72CF', desc: '遇到了讓你擔心或害怕的事情。', strategies: ['告訴大人', '深呼吸', '抱抱玩具'] },
+    { name: 'Sad', zh: '難過', emoji: '😢', color: '#577590', desc: '心裡覺得不開心，想哭也沒關係。', strategies: ['說出來', '找朋友', '哭一哭'] },
+    { name: 'Angry', zh: '生氣', emoji: '😠', color: '#E63946', desc: '某件事讓你很不高興，感覺火氣很大。', strategies: ['先離開', '數到十', '深呼吸'] },
+    { name: 'Worried', zh: '擔心', emoji: '😟', color: '#E9C46A', desc: '對某件事情感到不安心，一直在想著它。', strategies: ['說出來', '深呼吸', '找大人聊'] },
+    { name: 'Surprised', zh: '驚訝', emoji: '😲', color: '#43AA8B', desc: '突然發生了出乎意料的事，讓你嚇一跳。', strategies: ['先停一下', '想一想', '問為什麼'] },
+    { name: 'Bored', zh: '無聊', emoji: '😑', color: '#B8B8B8', desc: '沒有好玩的事情可以做，感覺時間過很慢。', strategies: ['找朋友玩', '試試新事物', '畫畫看'] },
+    { name: 'Shy', zh: '害羞', emoji: '🙈', color: '#F4ACB7', desc: '見到新朋友或在人前說話時感到不好意思。', strategies: ['慢慢來', '深呼吸', '先說你好'] },
+  ];
+  const canvas = document.getElementById('emotionWheel');
+  const ctx = canvas.getContext('2d');
+  const cx = 210, cy = 210, outerR = 190, innerR = 65;
+  const total = emotions.length, arc = (2 * Math.PI) / total, startOffset = -Math.PI / 2;
+  let selected = -1;
+
+  function drawWheel(hoveredIdx) {
+    ctx.clearRect(0, 0, 420, 420);
+    emotions.forEach((e, i) => {
+      const start = startOffset + i * arc, end = start + arc, isHov = hoveredIdx === i;
+      ctx.beginPath(); ctx.moveTo(cx, cy);
+      ctx.arc(cx, cy, isHov ? outerR + 10 : outerR, start, end);
+      ctx.closePath(); ctx.fillStyle = e.color; ctx.fill();
+      ctx.strokeStyle = '#FFF9F4'; ctx.lineWidth = 2.5; ctx.stroke();
+      const midA = start + arc / 2, labelR = (outerR + innerR) / 2 + (isHov ? 5 : 0);
+      const lx = cx + labelR * Math.cos(midA), ly = cy + labelR * Math.sin(midA);
+      ctx.save(); ctx.translate(lx, ly); ctx.rotate(midA + Math.PI / 2);
+      ctx.textAlign = 'center'; ctx.fillStyle = 'rgba(255,255,255,0.95)';
+      ctx.font = '700 13px Nunito, sans-serif'; ctx.fillText(e.zh, 0, 0); ctx.restore();
+    });
+    ctx.beginPath(); ctx.arc(cx, cy, innerR, 0, 2 * Math.PI);
+    ctx.fillStyle = '#FFF2E8'; ctx.fill();
+    ctx.strokeStyle = '#F5C9A8'; ctx.lineWidth = 2; ctx.stroke();
+    ctx.textAlign = 'center'; ctx.fillStyle = '#C85A2B';
+    ctx.font = '900 15px Nunito, sans-serif'; ctx.fillText('情緒', cx, cy - 6);
+    ctx.font = '700 11px Nunito, sans-serif'; ctx.fillStyle = '#7A5748'; ctx.fillText('輪盤', cx, cy + 11);
+  }
+
+  function getSegment(x, y) {
+    const dx = x - cx, dy = y - cy, dist = Math.sqrt(dx*dx + dy*dy);
+    if (dist < innerR || dist > outerR + 12) return -1;
+    let angle = Math.atan2(dy, dx) - startOffset;
+    if (angle < 0) angle += 2 * Math.PI;
+    return Math.floor(angle / arc) % total;
+  }
+
+  function showEmotion(i) {
+    const e = emotions[i], box = document.getElementById('infoBox');
+    box.style.borderColor = e.color;
+    box.innerHTML = `<div class="info-emoji">${e.emoji}</div><div class="info-name">${e.name}</div><div class="info-name-zh">${e.zh}</div><div class="info-desc">${e.desc}</div><div class="strategy-tags">${e.strategies.map(s=>`<span class="stag">${s}</span>`).join('')}</div>`;
+  }
+
+  canvas.addEventListener('mousemove', ev => {
+    const r = canvas.getBoundingClientRect();
+    const sx = (ev.clientX - r.left) * (420 / r.width), sy = (ev.clientY - r.top) * (420 / r.height);
+    const idx = getSegment(sx, sy);
+    drawWheel(idx); canvas.style.cursor = idx >= 0 ? 'pointer' : 'default';
+  });
+  canvas.addEventListener('mouseleave', () => drawWheel(selected));
+  canvas.addEventListener('click', ev => {
+    const r = canvas.getBoundingClientRect();
+    const sx = (ev.clientX - r.left) * (420 / r.width), sy = (ev.clientY - r.top) * (420 / r.height);
+    const idx = getSegment(sx, sy);
+    if (idx >= 0) { selected = idx; showEmotion(idx); drawWheel(idx); }
+  });
+  drawWheel(-1);
+
+  /* ── WORKS ── */
+  const works = [
+    { cat:'app', icon:'🏝️', iconBg:'#FDECD8', title:'我的情緒，我會照顧', desc:'為學齡前兒童設計的 SEL 行動應用程式，涵蓋 47 張情緒卡、10 個生活情境、3 位虛擬角色與安撫策略引導。', year:'2025', tags:['React Native','TypeScript','Expo'], badge:'競賽作品', badgeColor:'#C85A2B', featured:true, link:'https://github.com/gahanglee/emotion-island' },
+    { cat:'curriculum', icon:'📋', iconBg:'#E1F5EE', title:'SEL 三節課教案', desc:'對應應用程式三步驟 SEL 架構的完整教案，每節 20 分鐘，適用於學前巡迴輔導情境。', year:'2025', tags:['3–6 歲','三節課','結構化教學'], badge:'課程設計', badgeColor:'#0F6E56', featured:false, link:'/portfolio/' },
+    { cat:'material', icon:'🃏', iconBg:'#FBEAF0', title:'情緒卡牌庫（47 張）', desc:'涵蓋多種情緒的插圖卡牌組，可縮放瀏覽，設計用於課堂 SEL 介入活動，支援數位與印刷使用。', year:'2024–25', tags:['印刷','數位','47 張'], badge:'教材教具', badgeColor:'#993556', featured:false, link:'/portfolio/' },
+    { cat:'material', icon:'🎭', iconBg:'#FAEEDA', title:'行為情境卡（10 張）', desc:'10 張隨機出現的生活情境圖卡，引導孩子辨識行為、連結情緒，適合小組討論使用。', year:'2025', tags:['情境教學','隨機排序','小組活動'], badge:'教材教具', badgeColor:'#854F0B', featured:false, link:'/portfolio/' },
+    { cat:'material', icon:'🌬️', iconBg:'#E6F1FB', title:'安撫策略卡', desc:'搭配應用程式第三步驟的安撫策略視覺卡，包含深呼吸、肌肉放鬆等具體方法的圖文引導。', year:'2025', tags:['情緒調節','視覺提示','自我照顧'], badge:'教材教具', badgeColor:'#0C447C', featured:false, link:'/portfolio/' },
+    { cat:'doc', icon:'📝', iconBg:'#EAF3DE', title:'競賽創作說明書', desc:'為臺南市第九屆特殊教育教材教具競賽撰寫的完整說明文件，包含設計理念、使用說明與操作手冊。', year:'2025', tags:['臺南市競賽','特殊教育','文件撰寫'], badge:'文件撰寫', badgeColor:'#3B6D11', featured:false, link:'/portfolio/' },
+  ];
+
+  const grid = document.getElementById('worksGrid');
+  const filters = document.getElementById('filters');
+
+  function renderWorks(cat) {
+    const list = cat === 'all' ? works : works.filter(w => w.cat === cat);
+    grid.innerHTML = list.map(w => `
+      <div class="work-card${w.featured ? ' featured' : ''}">
+        <div class="work-top">
+          <div class="work-icon" style="background:${w.iconBg}">${w.icon}</div>
+          <span class="cat-badge" style="background:${w.badgeColor}22; color:${w.badgeColor}">${w.badge}</span>
         </div>
-        <a href="/app/" class="btn btn-teal">了解更多</a>
-      </div>
-      <div class="app-phone">🏝️</div>
-    </div>
-  </section>
-
-  <!-- ── BLOG PREVIEW ── -->
-  <section class="section">
-    <span class="section-tag">05 — 最新文章</span>
-    <h2 class="section-title">部落格</h2>
-    <div class="blog-stack">
-      {% for post in site.posts limit:3 %}
-      <a href="{{ post.url | relative_url }}" class="b-card">
-        <div class="b-icon" style="background:{{ post.emoji_bg | default: 'rgba(107,155,138,0.12)' }}">{{ post.emoji | default: '📝' }}</div>
-        <div>
-          <h4>{{ post.title }}</h4>
-          <p>{{ post.excerpt | strip_html | truncate: 70 }}</p>
-          <div class="b-meta">{{ post.date | date: "%Y 年 %m 月" }}{% if post.reading_time %} · {{ post.reading_time }} 分鐘{% endif %}</div>
+        <div class="work-title">${w.title}</div>
+        <div class="work-desc">${w.desc}</div>
+        <div style="display:flex; flex-wrap:wrap; gap:0.35rem; margin-bottom:0.9rem;">
+          ${w.tags.map(t => `<span class="work-chip">${t}</span>`).join('')}
         </div>
-      </a>
-      {% endfor %}
-    </div>
-    <div style="margin-top:1.5rem">
-      <a href="/blog/" class="btn btn-teal">查看所有文章</a>
-    </div>
-  </section>
+        <div class="work-footer">
+          <span>${w.year}</span>
+          <a class="work-link" href="${w.link}" target="_blank" rel="noopener">查看 →</a>
+        </div>
+      </div>
+    `).join('');
+  }
 
-  <!-- ── CONTACT PREVIEW ── -->
-  <section class="section" id="contact">
-    <span class="section-tag">06 — 聯絡</span>
-    <h2 class="section-title">保持聯繫</h2>
-    <p style="color:var(--text-muted);margin-bottom:1.5rem;font-size:0.95rem">歡迎透過以下方式與我聯絡，無論是教學資源交流或心理空間相關合作都歡迎。</p>
-    <div class="contact-grid">
-      <div class="c-item"><div class="c-icon">📧</div><div><h4>Email</h4><p>gahanglee@gmail.com</p></div></div>
-      <div class="c-item"><div class="c-icon">💼</div><div><h4>GitHub</h4><p><a href="https://github.com/gahanglee" target="_blank">gahanglee</a></p></div></div>
-      <div class="c-item"><div class="c-icon">🏫</div><div><h4>服務單位</h4><p>臺南市幼兒特教巡迴輔導</p></div></div>
-      <div class="c-item"><div class="c-icon">📍</div><div><h4>地區</h4><p>臺南市</p></div></div>
-    </div>
-  </section>
+  filters.addEventListener('click', e => {
+    const btn = e.target.closest('.filter-btn');
+    if (!btn) return;
+    const cat = btn.dataset.cat;
+    filters.querySelectorAll('.filter-btn').forEach(b => b.classList.toggle('active', b === btn));
+    renderWorks(cat);
+  });
 
-</div>
+  renderWorks('all');
+</script>
