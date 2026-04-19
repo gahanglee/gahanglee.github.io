@@ -11,3 +11,19 @@ layout: default
   </div>
   <div class="post-content">{{ content }}</div>
 </article>
+
+<!-- 留言區 -->
+<div style="max-width:760px;margin:0 auto;padding:0 2rem 4rem">
+  <div style="border-top:1px solid var(--border);padding-top:2.5rem;margin-top:1rem">
+    <h3 style="font-family:var(--serif);font-size:1.2rem;font-weight:700;margin-bottom:0.5rem;color:var(--text)">💬 留言討論</h3>
+    <p style="font-size:0.85rem;color:var(--text-muted);margin-bottom:1.5rem">需要 GitHub 帳號才能留言。如果你沒有帳號，歡迎透過 <a href="/contact/">聯絡頁面</a> 與我分享想法。</p>
+    <script src="https://utteranc.es/client.js"
+            repo="gahanglee/gahanglee.github.io"
+            issue-term="pathname"
+            label="💬 留言"
+            theme="github-light"
+            crossorigin="anonymous"
+            async>
+    </script>
+  </div>
+</div>
