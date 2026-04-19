@@ -8,6 +8,10 @@ permalink: /blog/
     <span class="section-tag">教學日誌與資源分享</span>
     <h2 class="section-title">部落格文章</h2>
     <p style="color:var(--text-muted);margin-bottom:2.5rem;font-size:0.95rem;line-height:1.85">分享幼兒特教教學心得、SEL 實踐策略，以及用科技做教育的各種嘗試。</p>
+
+    {% if site.posts.size == 0 %}
+    <p style="color:var(--text-muted);font-style:italic">目前還沒有文章，敬請期待！</p>
+    {% else %}
     <div class="blog-stack">
       {% for post in site.posts %}
       <a href="{{ post.url | relative_url }}" class="b-card">
@@ -22,6 +26,15 @@ permalink: /blog/
         </div>
       </a>
       {% endfor %}
+    </div>
+    {% endif %}
+
+    <div style="margin-top:3rem;padding:1.75rem;background:var(--bg-soft);border-radius:var(--radius);border:1px solid var(--border)">
+      <h3 style="font-family:var(--serif);font-size:1rem;font-weight:700;margin-bottom:0.5rem">✍️ 如何新增文章？</h3>
+      <p style="font-size:0.85rem;color:var(--text-muted);line-height:1.8">
+        在 GitHub repo 的 <code>_posts/</code> 資料夾新增 <code>YYYY-MM-DD-標題.md</code> 檔案即可發文。<br>
+        <a href="https://github.com/gahanglee/gahanglee.github.io/new/main/_posts" target="_blank" style="color:var(--teal);font-weight:600">→ 點這裡直接在 GitHub 新增文章</a>
+      </p>
     </div>
   </section>
 </div>
