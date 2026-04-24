@@ -143,6 +143,30 @@ title: 首頁
     .hp-contact { margin: 0 1.2rem 3rem; padding: 2.5rem 1.5rem; }
     .wheel-section { padding: 3rem 1.2rem; }
   }
+
+  /* ── REWARD SYSTEM ── */
+  .wheel-reward-bar { display:flex; align-items:center; gap:0.75rem; margin-top:1.2rem; width:100%; max-width:440px; background:white; border:1.5px solid var(--orange-border); border-radius:16px; padding:0.85rem 1.2rem; }
+  .reward-stars { display:flex; gap:4px; flex:1; }
+  .reward-star { font-size:1.4rem; transition:transform 0.3s, filter 0.3s; filter:grayscale(1) opacity(0.3); }
+  .reward-star.earned { filter:none; transform:scale(1.15); }
+  .reward-label { font-size:0.875rem; font-weight:700; color:var(--orange); min-width:60px; text-align:right; }
+  .badge-grid { display:flex; flex-wrap:wrap; gap:0.5rem; margin-top:0.75rem; width:100%; max-width:440px; justify-content:center; }
+  .emotion-badge { font-size:1.1rem; width:38px; height:38px; border-radius:50%; display:flex; align-items:center; justify-content:center; background:white; border:2px solid var(--orange-border); filter:grayscale(1) opacity(0.35); transition:all 0.4s; cursor:default; position:relative; }
+  .emotion-badge.unlocked { filter:none; border-color:var(--orange); box-shadow:0 0 0 3px var(--orange-light); transform:scale(1.1); }
+  .emotion-badge .badge-tip { display:none; position:absolute; bottom:110%; left:50%; transform:translateX(-50%); background:#1E140E; color:white; font-size:0.75rem; padding:3px 8px; border-radius:6px; white-space:nowrap; z-index:10; }
+  .emotion-badge:hover .badge-tip { display:block; }
+  /* Celebration overlay */
+  #rewardOverlay { display:none; position:fixed; inset:0; z-index:9999; align-items:center; justify-content:center; background:rgba(0,0,0,0.45); flex-direction:column; gap:1rem; }
+  #rewardOverlay.show { display:flex; }
+  .reward-popup { background:white; border-radius:28px; padding:2.5rem 2rem; text-align:center; max-width:320px; box-shadow:0 20px 60px rgba(0,0,0,0.3); animation:popIn 0.4s cubic-bezier(0.34,1.56,0.64,1); }
+  @keyframes popIn { from{opacity:0;transform:scale(0.7)} to{opacity:1;transform:scale(1)} }
+  .reward-popup-emoji { font-size:4rem; margin-bottom:0.5rem; }
+  .reward-popup-title { font-size:1.4rem; font-weight:900; color:var(--text-dark); margin-bottom:0.4rem; }
+  .reward-popup-msg { font-size:0.9rem; color:var(--text-muted); margin-bottom:1.25rem; }
+  .reward-popup-close { background:var(--orange); color:white; border:none; padding:0.6rem 1.6rem; border-radius:99px; font-weight:700; cursor:pointer; font-size:0.9rem; }
+  .confetti-piece { position:fixed; width:8px; height:8px; border-radius:2px; animation:confettiFall linear forwards; z-index:10000; }
+  @keyframes confettiFall { to{transform:translateY(100vh) rotate(720deg); opacity:0;} }
+
 </style>
 
 <!-- HERO -->
@@ -225,6 +249,15 @@ title: 首頁
       <div class="info-name" style="color:var(--text-muted)">點選輪盤探索情緒</div>
       <div class="info-desc">每個色塊代表一種感受，點擊後了解更多</div>
     </div>
+    
+    <!-- REWARD BAR -->
+    <div class="wheel-reward-bar" id="rewardBar">
+      <div class="reward-stars" id="rewardStars"></div>
+      <div class="reward-label" id="rewardLabel">0 / 12</div>
+    </div>
+    <!-- BADGE GRID -->
+    <div class="badge-grid" id="badgeGrid"></div>
+
     <p class="wheel-hint">✦ 情緒輪盤 · 我的情緒，我會照顧</p>
   </div>
 </div>
@@ -373,4 +406,122 @@ title: 首頁
   });
 
   renderWorks('all');
+
+
+  /* ── REWARD SYSTEM JS ── */
+  const TOTAL = 12;
+  let discovered = new Set();
+  let streakCount = 0;
+  let lastSelected = -1;
+
+  // Build star bar
+  function buildStars() {
+    const bar = document.getElementById('rewardStars');
+    bar.innerHTML = '';
+    for(let i=0;i<TOTAL;i++){
+      const s = document.createElement('span');
+      s.className = 'reward-star';
+      s.textContent = '⭐';
+      s.id = 'star_' + i;
+      bar.appendChild(s);
+    }
+  }
+
+  // Build badge grid
+  function buildBadges() {
+    const grid = document.getElementById('badgeGrid');
+    grid.innerHTML = '';
+    emotions.forEach((e,i) => {
+      const b = document.createElement('div');
+      b.className = 'emotion-badge';
+      b.id = 'badge_' + i;
+      b.innerHTML = e.emoji + '<span class="badge-tip">' + e.zh + '</span>';
+      grid.appendChild(b);
+    });
+  }
+
+  // Update star bar
+  function updateStars(count) {
+    for(let i=0;i<TOTAL;i++){
+      const s = document.getElementById('star_' + i);
+      if(s) s.className = 'reward-star' + (i < count ? ' earned' : '');
+    }
+    document.getElementById('rewardLabel').textContent = count + ' / ' + TOTAL;
+  }
+
+  // Unlock badge
+  function unlockBadge(i) {
+    const b = document.getElementById('badge_' + i);
+    if(b) b.className = 'emotion-badge unlocked';
+  }
+
+  // Confetti
+  function launchConfetti(count) {
+    const colors = ['#C85A2B','#F4A261','#90BE6D','#577590','#F38DAB','#9B72CF','#F9C74F'];
+    for(let i=0;i<count;i++){
+      const c = document.createElement('div');
+      c.className = 'confetti-piece';
+      c.style.cssText = 'left:' + Math.random()*100 + 'vw;top:-10px;background:' + colors[i%colors.length] + ';animation-duration:' + (1.2+Math.random()*1.5) + 's;animation-delay:' + Math.random()*0.5 + 's';
+      document.body.appendChild(c);
+      setTimeout(()=>c.remove(), 3000);
+    }
+  }
+
+  // Show popup
+  function showPopup(emoji, title, msg) {
+    const ov = document.getElementById('rewardOverlay');
+    document.getElementById('popupEmoji').textContent = emoji;
+    document.getElementById('popupTitle').textContent = title;
+    document.getElementById('popupMsg').textContent = msg;
+    ov.className = 'show';
+    launchConfetti(30);
+  }
+
+  // Hook into showEmotion
+  const _origShowEmotion = showEmotion;
+  showEmotion = function(i) {
+    _origShowEmotion(i);
+
+    // Streak check
+    if(lastSelected !== -1 && lastSelected !== i) {
+      streakCount++;
+    } else if(lastSelected === i) {
+      streakCount = 1;
+    } else {
+      streakCount = 1;
+    }
+    lastSelected = i;
+
+    // Badge unlock (first discovery)
+    const isNew = !discovered.has(i);
+    if(isNew) {
+      discovered.add(i);
+      unlockBadge(i);
+      updateStars(discovered.size);
+
+      // Bottom toast for new badge
+      const toast = document.createElement('div');
+      toast.style.cssText = 'position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:#1E140E;color:white;padding:0.6rem 1.4rem;border-radius:99px;font-size:0.875rem;font-weight:700;z-index:9998;animation:fadeUp 0.3s ease;';
+      toast.textContent = '🏅 解鎖「' + emotions[i].zh + '」徽章！';
+      document.body.appendChild(toast);
+      setTimeout(()=>toast.remove(), 2500);
+
+      // Milestone celebrations
+      if(discovered.size === TOTAL) {
+        setTimeout(()=>showPopup('🎊','恭喜你！全部探索完成！','你已經認識了所有 12 種情緒，真棒！'), 400);
+      } else if(discovered.size === 6) {
+        setTimeout(()=>showPopup('🌟','探索一半了！','你已經認識 6 種情緒，繼續加油！'), 400);
+      }
+    }
+
+    // Streak milestone
+    if(streakCount === 5 && isNew) {
+      setTimeout(()=>showPopup('🔥','連擊 x5！','你連續探索了 5 個不同情緒，太厲害了！'), 200);
+    }
+  };
+
+  // Init
+  buildStars();
+  buildBadges();
+
 </script>
