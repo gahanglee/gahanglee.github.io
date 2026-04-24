@@ -490,7 +490,7 @@ title: 首頁
     document.getElementById('popupEmoji').textContent = emoji;
     document.getElementById('popupTitle').textContent = title;
     document.getElementById('popupMsg').textContent = msg;
-    ov.className = 'show';
+    ov.style.cssText='display:flex;align-items:center;justify-content:center;position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,0.5)';
     launchConfetti(30);
   }
 
