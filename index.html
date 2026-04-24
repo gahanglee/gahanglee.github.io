@@ -485,13 +485,15 @@ title: 首頁
   }
 
   // Show popup
-  function showPopup(emoji, title, msg) {
-    const ov = document.getElementById('rewardOverlay');
-    document.getElementById('popupEmoji').textContent = emoji;
-    document.getElementById('popupTitle').textContent = title;
-    document.getElementById('popupMsg').textContent = msg;
-    ov.style.cssText='display:flex;align-items:center;justify-content:center;position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,0.5)';
-    launchConfetti(30);
+    function showPopup(emoji, title, msg) {
+    var old = document.getElementById('rewardOverlay');
+    if(old) old.remove();
+    var ov = document.createElement('div');
+    ov.id = 'rewardOverlay';
+    ov.style.cssText = 'display:flex;align-items:center;justify-content:center;position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,0.5)';
+    ov.innerHTML = '<div style="background:white;border-radius:28px;padding:2.5rem 2rem;text-align:center;max-width:320px;box-shadow:0 20px 60px rgba(0,0,0,0.3);animation:popIn 0.4s cubic-bezier(0.34,1.56,0.64,1)"><div style="font-size:4rem;margin-bottom:0.5rem">'+emoji+'</div><div style="font-size:1.4rem;font-weight:900;color:#1E140E;margin-bottom:0.4rem">'+title+'</div><div style="font-size:0.9rem;color:#7A5748;margin-bottom:1.25rem">'+msg+'</div><button onclick="document.getElementById(\x27rewardOverlay\x27).remove()" style="background:#C85A2B;color:white;border:none;padding:0.6rem 1.6rem;border-radius:99px;font-weight:700;cursor:pointer;font-size:0.9rem">繼續探索 →</button></div>';
+    document.body.appendChild(ov);
+    launchConfetti(60);
   }
 
   // Hook into showEmotion
