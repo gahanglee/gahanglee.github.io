@@ -461,9 +461,15 @@ title: 首頁
   function updateStars(count) {
     for(let i=0;i<TOTAL;i++){
       const s = document.getElementById('star_' + i);
-      if(s) s.className = 'reward-star' + (i < count ? ' earned' : '');
+      if (s) s.className = 'reward-star' + (i < count ? ' earned' : '');
     }
-    document.getElementById('rewardLabel').textContent = count + ' / ' + TOTAL;
+    var lbl = document.getElementById('rewardLabel');
+    if(lbl) lbl.textContent = count + ' / ' + TOTAL;
+    // Update side progress bar
+    var sf = document.getElementById('sideFill');
+    var sn = document.getElementById('sideNum');
+    if(sf) sf.style.height = (count/TOTAL*100) + '%';
+    if(sn) sn.textContent = count;
   }
 
   // Unlock badge
