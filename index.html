@@ -168,14 +168,15 @@ title: 首頁
   @keyframes confettiFall { to{transform:translateY(100vh) rotate(720deg); opacity:0;} }
 
 
-  .wheel-layout{display:flex;align-items:flex-start;gap:1.5rem;justify-content:center;flex-wrap:wrap;}
-  .wheel-progress-col{display:flex;flex-direction:column;align-items:center;gap:6px;padding-top:20px;}
-  .progress-track{width:16px;height:300px;background:rgba(200,90,43,0.12);border-radius:99px;overflow:hidden;position:relative;}
-  .progress-fill{position:absolute;bottom:0;width:100%;background:linear-gradient(to top,var(--orange),#F4A261);border-radius:99px;transition:height 0.5s cubic-bezier(0.34,1.56,0.64,1);}
-  .progress-num{font-size:0.875rem;font-weight:900;color:var(--orange);}
-  .progress-lbl{font-size:0.75rem;color:var(--text-muted);writing-mode:vertical-rl;transform:rotate(180deg);height:80px;line-height:1.4;text-align:center;}
-  #rewardOverlay{display:none;position:fixed;inset:0;z-index:9999;align-items:center;justify-content:center;background:rgba(0,0,0,0.5);}
-  #rewardOverlay.show{display:flex;}
+  /* side progress bar */
+  .wheel-outer { display:flex; align-items:center; justify-content:center; gap:1.5rem; }
+  .side-progress { display:flex; flex-direction:column; align-items:center; gap:8px; }
+  .side-track { width:14px; height:300px; background:rgba(200,90,43,0.12); border-radius:99px; overflow:hidden; position:relative; }
+  .side-fill { position:absolute; bottom:0; left:0; width:100%; background:linear-gradient(to top,#C85A2B,#F4A261); border-radius:99px; height:0%; transition:height 0.5s cubic-bezier(0.34,1.56,0.64,1); }
+  .side-num { font-size:0.875rem; font-weight:900; color:#C85A2B; }
+  .side-lbl { font-size:0.75rem; color:#7A5748; writing-mode:vertical-rl; transform:rotate(180deg); }
+  #rewardOverlay { display:none; position:fixed; inset:0; z-index:9999; align-items:center; justify-content:center; background:rgba(0,0,0,0.5); }
+  #rewardOverlay.show { display:flex; }
 </style>
 
 <!-- HERO -->
@@ -251,11 +252,11 @@ title: 首頁
   <p class="section-eyebrow">互動小工具</p>
   <h2 class="hp-section-title">情緒輪盤。</h2>
   <p class="hp-section-sub">點選扇形，探索不同的感受與安撫策略。</p>
-  <div class="wheel-layout">
-  <div class="wheel-progress-col">
-    <div class="progress-num" id="progressNum">0</div>
-    <div class="progress-track"><div class="progress-fill" id="progressFill" style="height:0%"></div></div>
-    <div class="progress-lbl">探索進度</div>
+  <div class="wheel-outer">
+  <div class="side-progress">
+    <div class="side-num" id="sideNum">0</div>
+    <div class="side-track"><div class="side-fill" id="sideFill"></div></div>
+    <div class="side-lbl">探索進度</div>
   </div>
   <div class="wheel-wrap">
     <canvas id="emotionWheel" width="420" height="420"></canvas>
@@ -457,20 +458,12 @@ title: 首頁
   }
 
   // Update star bar
-  
-  function updateProgressBar(n){
-    const f=document.getElementById('progressFill');
-    const p=document.getElementById('progressNum');
-    if(f)f.style.height=(n/TOTAL*100)+'%';
-    if(p)p.textContent=n;
-  }
-
   function updateStars(count) {
     for(let i=0;i<TOTAL;i++){
       const s = document.getElementById('star_' + i);
       if(s) s.className = 'reward-star' + (i < count ? ' earned' : '');
     }
-    document.getElementById('rewardLabel').textContent = count + ' / ' + TOTAL; updateProgressBar(count);
+    document.getElementById('rewardLabel').textContent = count + ' / ' + TOTAL;
   }
 
   // Unlock badge
