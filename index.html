@@ -155,7 +155,6 @@ title: 首頁
   .emotion-badge.unlocked { filter:none; border-color:var(--orange); box-shadow:0 0 0 3px var(--orange-light); transform:scale(1.1); }
   .emotion-badge .badge-tip { display:none; position:absolute; bottom:110%; left:50%; transform:translateX(-50%); background:#1E140E; color:white; font-size:0.75rem; padding:3px 8px; border-radius:6px; white-space:nowrap; z-index:10; }
   .emotion-badge:hover .badge-tip { display:block; }
-  /* Celebration overlay */
   #rewardOverlay { display:none; position:fixed; inset:0; z-index:9999; align-items:center; justify-content:center; background:rgba(0,0,0,0.45); flex-direction:column; gap:1rem; }
   #rewardOverlay.show { display:flex; }
   .reward-popup { background:white; border-radius:28px; padding:2.5rem 2rem; text-align:center; max-width:320px; box-shadow:0 20px 60px rgba(0,0,0,0.3); animation:popIn 0.4s cubic-bezier(0.34,1.56,0.64,1); }
@@ -167,8 +166,6 @@ title: 首頁
   .confetti-piece { position:fixed; width:8px; height:8px; border-radius:2px; animation:confettiFall linear forwards; z-index:10000; }
   @keyframes confettiFall { to{transform:translateY(100vh) rotate(720deg); opacity:0;} }
 
-
-  /* side progress bar */
   .wheel-outer { display:flex; align-items:center; justify-content:center; gap:1.5rem; }
   .side-progress { display:flex; flex-direction:column; align-items:center; gap:8px; }
   .side-track { width:14px; height:300px; background:rgba(200,90,43,0.12); border-radius:99px; overflow:hidden; position:relative; }
@@ -265,15 +262,11 @@ title: 首頁
       <div class="info-name" style="color:var(--text-muted)">點選輪盤探索情緒</div>
       <div class="info-desc">每個色塊代表一種感受，點擊後了解更多</div>
     </div>
-    
-    <!-- REWARD BAR -->
     <div class="wheel-reward-bar" id="rewardBar">
       <div class="reward-stars" id="rewardStars"></div>
       <div class="reward-label" id="rewardLabel">0 / 12</div>
     </div>
-    <!-- BADGE GRID -->
     <div class="badge-grid" id="badgeGrid"></div>
-
     </div>
     <p class="wheel-hint">✦ 情緒輪盤 · 我的情緒，我會照顧</p>
   </div>
@@ -308,7 +301,6 @@ title: 首頁
 </div>
 
 <script>
-  /* ── EMOTION WHEEL ── */
   const emotions = [
     { name: 'Happy', zh: '開心', emoji: '😄', color: '#F9C74F', desc: '感到快樂和滿足，想要微笑或大笑！', strategies: ['分享心情', '說謝謝', '給擁抱'] },
     { name: 'Excited', zh: '興奮', emoji: '🤩', color: '#F4A261', desc: '精力充沛，期待某件好事即將發生！', strategies: ['深呼吸', '跳一跳', '告訴朋友'] },
@@ -408,7 +400,7 @@ title: 首頁
         </div>
         <div class="work-footer">
           <span>${w.year}</span>
-          <a class="work-link" href="${w.link}" target="_blank" rel="noopener">查看 →</a>
+          <a class="work-link" href="${w.link}">查看 →</a>
         </div>
       </div>
     `).join('');
@@ -424,14 +416,12 @@ title: 首頁
 
   renderWorks('all');
 
-
   /* ── REWARD SYSTEM JS ── */
   const TOTAL = 12;
   let discovered = new Set();
   let streakCount = 0;
   let lastSelected = -1;
 
-  // Build star bar
   function buildStars() {
     const bar = document.getElementById('rewardStars');
     bar.innerHTML = '';
@@ -444,7 +434,6 @@ title: 首頁
     }
   }
 
-  // Build badge grid
   function buildBadges() {
     const grid = document.getElementById('badgeGrid');
     grid.innerHTML = '';
@@ -457,7 +446,6 @@ title: 首頁
     });
   }
 
-  // Update star bar
   function updateStars(count) {
     for(let i=0;i<TOTAL;i++){
       const s = document.getElementById('star_' + i);
@@ -465,20 +453,17 @@ title: 首頁
     }
     var lbl = document.getElementById('rewardLabel');
     if(lbl) lbl.textContent = count + ' / ' + TOTAL;
-    // Update side progress bar
     var sf = document.getElementById('sideFill');
     var sn = document.getElementById('sideNum');
     if(sf) sf.style.height = (count/TOTAL*100) + '%';
     if(sn) sn.textContent = count;
   }
 
-  // Unlock badge
   function unlockBadge(i) {
     const b = document.getElementById('badge_' + i);
     if(b) b.className = 'emotion-badge unlocked';
   }
 
-  // Confetti
   function launchConfetti(count) {
     const colors = ['#C85A2B','#F4A261','#90BE6D','#577590','#F38DAB','#9B72CF','#F9C74F'];
     for(let i=0;i<count;i++){
@@ -490,8 +475,7 @@ title: 首頁
     }
   }
 
-  // Show popup
-    function showPopup(emoji, title, msg) {
+  function showPopup(emoji, title, msg) {
     var old = document.getElementById('rewardOverlay');
     if(old) old.remove();
     var ov = document.createElement('div');
@@ -502,12 +486,9 @@ title: 首頁
     launchConfetti(60);
   }
 
-  // Hook into showEmotion
   const _origShowEmotion = showEmotion;
   showEmotion = function(i) {
     _origShowEmotion(i);
-
-    // Streak check
     if(lastSelected !== -1 && lastSelected !== i) {
       streakCount++;
     } else if(lastSelected === i) {
@@ -516,37 +497,27 @@ title: 首頁
       streakCount = 1;
     }
     lastSelected = i;
-
-    // Badge unlock (first discovery)
     const isNew = !discovered.has(i);
     if(isNew) {
       discovered.add(i);
       unlockBadge(i);
       updateStars(discovered.size);
-
-      // Bottom toast for new badge
       const toast = document.createElement('div');
       toast.style.cssText = 'position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:#1E140E;color:white;padding:0.6rem 1.4rem;border-radius:99px;font-size:0.875rem;font-weight:700;z-index:9998;animation:fadeUp 0.3s ease;';
       toast.textContent = '🏅 解鎖「' + emotions[i].zh + '」徽章！';
       document.body.appendChild(toast);
       setTimeout(()=>toast.remove(), 2500);
-
-      // Milestone celebrations
       if(discovered.size === TOTAL) {
         setTimeout(()=>showPopup('🎊','恭喜你！全部探索完成！','你已經認識了所有 12 種情緒，真棒！'), 400);
       } else if(discovered.size === 6) {
         setTimeout(()=>showPopup('🌟','探索一半了！','你已經認識 6 種情緒，繼續加油！'), 400);
       }
     }
-
-    // Streak milestone
     if(streakCount === 5 && isNew) {
       setTimeout(()=>showPopup('🔥','連擊 x5！','你連續探索了 5 個不同情緒，太厲害了！'), 200);
     }
   };
 
-  // Init
   buildStars();
   buildBadges();
-
 </script>
