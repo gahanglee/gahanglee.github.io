@@ -366,6 +366,7 @@ permalink: /sunflower-breathing/
     <div class="breathing-actions">
       <button class="breathing-btn breathing-btn-primary" id="start-button" type="button">播放語音引導</button>
       <button class="breathing-btn breathing-btn-secondary" id="replay-button" type="button">再練習一次</button>
+      <button class="breathing-btn breathing-btn-secondary" id="sound-button" type="button">背景音：開</button>
     </div>
 
     <section class="mantra-card">
@@ -410,9 +411,14 @@ permalink: /sunflower-breathing/
   const sentence = document.getElementById('guide-sentence');
   const startButton = document.getElementById('start-button');
   const replayButton = document.getElementById('replay-button');
+  const soundButton = document.getElementById('sound-button');
   let timer = null;
   let currentIndex = 0;
   let practiceRun = 0;
+  let ambientEnabled = true;
+  let audioContext = null;
+  let ambientGain = null;
+  let ambientNodes = [];
 
   function getChineseVoice() {
     const synth = window.speechSynthesis;
@@ -426,6 +432,54 @@ permalink: /sunflower-breathing/
     return new Promise(resolve => {
       timer = window.setTimeout(resolve, ms);
     });
+  }
+
+  function startAmbientSound() {
+    if (!ambientEnabled || ambientNodes.length) return;
+    const AudioContext = window.AudioContext || window.webkitAudioContext;
+    if (!AudioContext) return;
+    audioContext = audioContext || new AudioContext();
+    audioContext.resume?.();
+
+    ambientGain = audioContext.createGain();
+    ambientGain.gain.setValueAtTime(0.0001, audioContext.currentTime);
+    ambientGain.gain.exponentialRampToValueAtTime(0.018, audioContext.currentTime + 1.8);
+    ambientGain.connect(audioContext.destination);
+
+    [196, 246.94, 329.63].forEach((frequency, index) => {
+      const osc = audioContext.createOscillator();
+      const gain = audioContext.createGain();
+      osc.type = 'sine';
+      osc.frequency.value = frequency;
+      gain.gain.value = index === 0 ? 0.55 : 0.32;
+      osc.connect(gain);
+      gain.connect(ambientGain);
+      osc.start();
+      ambientNodes.push(osc, gain);
+    });
+  }
+
+  function stopAmbientSound() {
+    if (!audioContext || !ambientGain) return;
+    ambientGain.gain.cancelScheduledValues(audioContext.currentTime);
+    ambientGain.gain.setTargetAtTime(0.0001, audioContext.currentTime, 0.7);
+    window.setTimeout(() => {
+      ambientNodes.forEach(node => {
+        if (typeof node.stop === 'function') {
+          try { node.stop(); } catch (error) {}
+        }
+        if (typeof node.disconnect === 'function') {
+          try { node.disconnect(); } catch (error) {}
+        }
+      });
+      ambientNodes = [];
+      ambientGain?.disconnect();
+      ambientGain = null;
+    }, 1200);
+  }
+
+  function updateSoundButton() {
+    soundButton.textContent = `背景音：${ambientEnabled ? '開' : '關'}`;
   }
 
   function speakText(text, cancel = true) {
@@ -465,6 +519,7 @@ permalink: /sunflower-breathing/
   }
 
   async function startVoicedPractice(runId) {
+    startAmbientSound();
     await speakText(introText, false);
     if (runId !== practiceRun) return;
     await wait(900);
@@ -485,6 +540,7 @@ permalink: /sunflower-breathing/
     if (runId !== practiceRun) return;
     showFinish();
     await speakText(finishText, false);
+    stopAmbientSound();
   }
 
   function startSilentPractice(runId) {
@@ -510,6 +566,7 @@ permalink: /sunflower-breathing/
     const runId = practiceRun;
     window.clearTimeout(timer);
     window.speechSynthesis?.cancel();
+    stopAmbientSound();
     currentIndex = 0;
     setStep(currentIndex);
     if (withVoice) {
@@ -521,10 +578,17 @@ permalink: /sunflower-breathing/
 
   startButton.addEventListener('click', () => startPractice(true));
   replayButton.addEventListener('click', () => startPractice(true));
+  soundButton.addEventListener('click', () => {
+    ambientEnabled = !ambientEnabled;
+    updateSoundButton();
+    if (!ambientEnabled) stopAmbientSound();
+  });
   window.addEventListener('beforeunload', () => {
     practiceRun += 1;
     window.clearTimeout(timer);
     window.speechSynthesis?.cancel();
+    stopAmbientSound();
   });
+  updateSoundButton();
   startPractice(false);
 </script>
