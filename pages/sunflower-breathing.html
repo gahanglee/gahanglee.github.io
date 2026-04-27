@@ -1,0 +1,455 @@
+---
+layout: default
+title: 太陽花呼吸練習
+permalink: /sunflower-breathing/
+---
+
+<style>
+  .breathing-page {
+    position: relative;
+    z-index: 1;
+    min-height: 100vh;
+    padding: 7rem 1.25rem 5rem;
+    background: #fff8ec;
+  }
+
+  .breathing-shell {
+    width: min(100%, 760px);
+    margin: 0 auto;
+    text-align: center;
+  }
+
+  .breathing-title {
+    font-family: var(--serif);
+    font-size: clamp(2rem, 7vw, 3rem);
+    color: #0b3d34;
+    line-height: 1.2;
+    margin-bottom: 0.7rem;
+  }
+
+  .breathing-subtitle {
+    color: #6a5d50;
+    font-size: 1.05rem;
+    line-height: 1.8;
+    max-width: 34rem;
+    margin: 0 auto;
+  }
+
+  .breathing-scene {
+    position: relative;
+    width: min(100%, 560px);
+    height: min(76vw, 430px);
+    min-height: 350px;
+    margin: 1.75rem auto 1.25rem;
+    overflow: hidden;
+  }
+
+  .breathing-sun-glow {
+    position: absolute;
+    top: 1.2rem;
+    right: 3.4rem;
+    width: 6rem;
+    height: 6rem;
+    border-radius: 999px;
+    background: #ffe27a;
+    opacity: 0.55;
+    animation: sunGlow 3.6s ease-in-out infinite;
+  }
+
+  .breathing-sun {
+    position: absolute;
+    top: 2rem;
+    right: 4.15rem;
+    width: 4.4rem;
+    height: 4.4rem;
+    border-radius: 999px;
+    display: grid;
+    place-items: center;
+    background: #fff7c8;
+    border: 2px solid #f6c23a;
+    font-size: 2rem;
+  }
+
+  .flower-wrap {
+    position: absolute;
+    left: 50%;
+    bottom: 1.45rem;
+    width: 15.5rem;
+    transform: translateX(-50%);
+  }
+
+  .flower-head {
+    position: relative;
+    width: 14.2rem;
+    height: 14.2rem;
+    margin: 0 auto;
+    animation: flowerBreath 8.4s ease-in-out infinite;
+    z-index: 3;
+  }
+
+  .petal {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: 2.55rem;
+    height: 5.7rem;
+    margin-left: -1.275rem;
+    margin-top: -2.85rem;
+    border-radius: 999px;
+    background: #ffd84d;
+    border: 1px solid #f5bd2f;
+    transform-origin: 50% 50%;
+  }
+
+  .petal:nth-child(odd) {
+    width: 2.25rem;
+    height: 4.9rem;
+    margin-left: -1.125rem;
+    margin-top: -2.45rem;
+    background: #ffe06a;
+  }
+
+  .flower-center {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: 5.1rem;
+    height: 5.1rem;
+    border-radius: 999px;
+    transform: translate(-50%, -50%);
+    display: grid;
+    place-items: center;
+    background: #d98a1f;
+    border: 4px solid #e9a331;
+    box-shadow: 0 8px 22px rgba(80, 52, 15, 0.18);
+    color: #fff;
+    font-weight: 900;
+    font-size: 1.25rem;
+    z-index: 4;
+  }
+
+  .stem {
+    width: 0.8rem;
+    height: 8.5rem;
+    margin: -1.35rem auto 0;
+    border-radius: 999px;
+    background: #3a8d45;
+    position: relative;
+    z-index: 1;
+  }
+
+  .leaf {
+    position: absolute;
+    width: 4.8rem;
+    height: 2.35rem;
+    background: #5cb95f;
+  }
+
+  .leaf-left {
+    left: 3.6rem;
+    bottom: 3.7rem;
+    border-radius: 3rem 0.4rem 3rem 0.4rem;
+    transform: rotate(-38deg);
+  }
+
+  .leaf-right {
+    right: 3.4rem;
+    bottom: 5.7rem;
+    border-radius: 0.4rem 3rem 0.4rem 3rem;
+    transform: rotate(34deg);
+    background: #4fae54;
+  }
+
+  .breathing-child {
+    position: absolute;
+    left: 0.4rem;
+    bottom: 1.75rem;
+    width: 8.8rem;
+    min-height: 7.5rem;
+    border-radius: 1.35rem;
+    display: grid;
+    place-items: center;
+    gap: 0.1rem;
+    padding: 0.9rem;
+    background: #fff;
+    border: 1px solid #f4d6b8;
+    animation: childBreath 3.8s ease-in-out infinite;
+  }
+
+  .breathing-child-face {
+    font-size: 2.8rem;
+    line-height: 1;
+  }
+
+  .breathing-child-text {
+    color: #0f6e56;
+    font-weight: 800;
+    font-size: 0.92rem;
+  }
+
+  .guide-card,
+  .mantra-card {
+    width: min(100%, 620px);
+    margin: 0 auto;
+    border-radius: 1.1rem;
+    background: #fff;
+    border: 2px solid #f6c23a;
+    padding: 1.2rem;
+  }
+
+  .round-text {
+    color: #b77b16;
+    font-weight: 800;
+    font-size: 0.95rem;
+  }
+
+  .guide-title {
+    color: #0b3d34;
+    font-size: clamp(1.45rem, 5vw, 2rem);
+    line-height: 1.35;
+    font-weight: 900;
+    margin-top: 0.25rem;
+  }
+
+  .guide-sentence {
+    color: #51463b;
+    font-size: 1.12rem;
+    line-height: 1.8;
+    margin-top: 0.45rem;
+  }
+
+  .breathing-actions {
+    display: flex;
+    justify-content: center;
+    gap: 0.85rem;
+    flex-wrap: wrap;
+    margin: 1.1rem 0 0;
+  }
+
+  .breathing-btn {
+    border: none;
+    border-radius: 999px;
+    padding: 0.9rem 1.35rem;
+    font-family: var(--sans);
+    font-weight: 900;
+    font-size: 1rem;
+    cursor: pointer;
+  }
+
+  .breathing-btn-primary {
+    background: #1d9e75;
+    color: #fff;
+  }
+
+  .breathing-btn-secondary {
+    background: #fff;
+    color: #0f6e56;
+    border: 1.5px solid #9adfc7;
+  }
+
+  .mantra-card {
+    border: 1px solid #f4d6b8;
+    background: #fffdf8;
+    margin-top: 1rem;
+  }
+
+  .mantra-card h3 {
+    color: #0f6e56;
+    font-size: 1rem;
+    font-weight: 900;
+    margin-bottom: 0.45rem;
+  }
+
+  .mantra-card p {
+    color: #333;
+    font-size: 1.08rem;
+    line-height: 1.8;
+    margin: 0.25rem 0;
+  }
+
+  @keyframes flowerBreath {
+    0%, 100% { transform: scale(0.9) rotate(-2deg); }
+    38% { transform: scale(1.12) rotate(2deg); }
+    50% { transform: scale(1.12) rotate(2deg); }
+  }
+
+  @keyframes sunGlow {
+    0%, 100% { transform: scale(0.9); opacity: 0.35; }
+    50% { transform: scale(1.14); opacity: 0.72; }
+  }
+
+  @keyframes childBreath {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+  }
+
+  @media (max-width: 560px) {
+    .breathing-page {
+      padding-top: 6.25rem;
+    }
+
+    .breathing-scene {
+      height: 410px;
+      min-height: 410px;
+    }
+
+    .flower-wrap {
+      bottom: 0.6rem;
+      transform: translateX(-50%) scale(0.88);
+    }
+
+    .breathing-child {
+      left: 50%;
+      bottom: 0.35rem;
+      transform: translateX(-50%);
+      width: 9.3rem;
+      min-height: 6.5rem;
+    }
+
+    .breathing-child {
+      animation: childMobileBreath 3.8s ease-in-out infinite;
+    }
+
+    @keyframes childMobileBreath {
+      0%, 100% { transform: translateX(-50%) scale(1); }
+      50% { transform: translateX(-50%) scale(1.04); }
+    }
+  }
+</style>
+
+<div class="breathing-page">
+  <div class="breathing-shell">
+    <h1 class="breathing-title">太陽花呼吸</h1>
+    <p class="breathing-subtitle">想像自己站在暖暖的花旁邊，跟著花一起慢慢呼吸。</p>
+
+    <section class="breathing-scene" aria-label="太陽花呼吸動畫">
+      <div class="breathing-sun-glow"></div>
+      <div class="breathing-sun">☀️</div>
+
+      <div class="flower-wrap">
+        <div class="flower-head" aria-hidden="true">
+          <span class="petal" style="transform: rotate(0deg) translateY(-4.15rem);"></span>
+          <span class="petal" style="transform: rotate(22.5deg) translateY(-3.65rem);"></span>
+          <span class="petal" style="transform: rotate(45deg) translateY(-4.15rem);"></span>
+          <span class="petal" style="transform: rotate(67.5deg) translateY(-3.65rem);"></span>
+          <span class="petal" style="transform: rotate(90deg) translateY(-4.15rem);"></span>
+          <span class="petal" style="transform: rotate(112.5deg) translateY(-3.65rem);"></span>
+          <span class="petal" style="transform: rotate(135deg) translateY(-4.15rem);"></span>
+          <span class="petal" style="transform: rotate(157.5deg) translateY(-3.65rem);"></span>
+          <span class="petal" style="transform: rotate(180deg) translateY(-4.15rem);"></span>
+          <span class="petal" style="transform: rotate(202.5deg) translateY(-3.65rem);"></span>
+          <span class="petal" style="transform: rotate(225deg) translateY(-4.15rem);"></span>
+          <span class="petal" style="transform: rotate(247.5deg) translateY(-3.65rem);"></span>
+          <span class="petal" style="transform: rotate(270deg) translateY(-4.15rem);"></span>
+          <span class="petal" style="transform: rotate(292.5deg) translateY(-3.65rem);"></span>
+          <span class="petal" style="transform: rotate(315deg) translateY(-4.15rem);"></span>
+          <span class="petal" style="transform: rotate(337.5deg) translateY(-3.65rem);"></span>
+          <span class="flower-center" id="breath-label">吸氣</span>
+        </div>
+        <div class="stem"></div>
+        <div class="leaf leaf-left"></div>
+        <div class="leaf leaf-right"></div>
+      </div>
+
+      <div class="breathing-child">
+        <div class="breathing-child-face">😊</div>
+        <div class="breathing-child-text">我跟著花呼吸</div>
+      </div>
+    </section>
+
+    <section class="guide-card" aria-live="polite">
+      <div class="round-text" id="round-text">第 1 回合</div>
+      <h2 class="guide-title" id="guide-title">聞一聞太陽花的香氣</h2>
+      <p class="guide-sentence" id="guide-sentence">慢慢吸氣，把溫暖的光吸進心裡。</p>
+    </section>
+
+    <div class="breathing-actions">
+      <button class="breathing-btn breathing-btn-primary" id="start-button" type="button">播放語音引導</button>
+      <button class="breathing-btn breathing-btn-secondary" id="replay-button" type="button">再練習一次</button>
+    </div>
+
+    <section class="mantra-card">
+      <h3>我可以這樣說</h3>
+      <p>我像太陽花一樣，慢慢吸氣。</p>
+      <p>陽光在我心裡，我是安全的。</p>
+      <p>我慢慢吐氣，身體放鬆了。</p>
+    </section>
+  </div>
+</div>
+
+<script>
+  const steps = [
+    {
+      label: '吸氣',
+      title: '聞一聞太陽花的香氣',
+      sentence: '慢慢吸氣，把溫暖的光吸進心裡。'
+    },
+    {
+      label: '停一下',
+      title: '讓小太陽亮在心裡',
+      sentence: '停一下，感覺自己被溫柔的光抱住。'
+    },
+    {
+      label: '吐氣',
+      title: '慢慢把氣吐出去',
+      sentence: '慢慢吐氣，緊緊的感覺也跟著放鬆。'
+    }
+  ];
+
+  const voiceText = '我們一起做太陽花呼吸。慢慢吸氣，像聞一聞花香。停一下，把陽光放進心裡。再慢慢吐氣，讓身體放鬆。';
+  const label = document.getElementById('breath-label');
+  const round = document.getElementById('round-text');
+  const title = document.getElementById('guide-title');
+  const sentence = document.getElementById('guide-sentence');
+  const startButton = document.getElementById('start-button');
+  const replayButton = document.getElementById('replay-button');
+  let timer = null;
+
+  function speakGuide() {
+    const synth = window.speechSynthesis;
+    if (!synth || !window.SpeechSynthesisUtterance) return;
+    synth.cancel();
+    const utterance = new SpeechSynthesisUtterance(voiceText);
+    utterance.lang = 'zh-TW';
+    utterance.rate = 0.62;
+    utterance.pitch = 1.08;
+    utterance.volume = 1;
+    const voice = synth.getVoices().find(item => item.lang === 'zh-TW')
+      || synth.getVoices().find(item => item.lang && item.lang.startsWith('zh'))
+      || null;
+    if (voice) utterance.voice = voice;
+    synth.speak(utterance);
+  }
+
+  function setStep(index) {
+    const step = steps[index % steps.length];
+    label.textContent = step.label;
+    title.textContent = step.title;
+    sentence.textContent = step.sentence;
+    round.textContent = `第 ${Math.min(3, Math.floor(index / steps.length) + 1)} 回合`;
+  }
+
+  function startPractice(withVoice) {
+    window.clearInterval(timer);
+    let index = 0;
+    setStep(index);
+    if (withVoice) speakGuide();
+    timer = window.setInterval(() => {
+      index += 1;
+      if (index >= 9) {
+        window.clearInterval(timer);
+        round.textContent = '完成練習';
+        title.textContent = '我像太陽花一樣，慢慢回到安定';
+        sentence.textContent = '做得很好，你已經把溫暖的光放進心裡了。';
+        label.textContent = '完成';
+        return;
+      }
+      setStep(index);
+    }, 3300);
+  }
+
+  startButton.addEventListener('click', () => startPractice(true));
+  replayButton.addEventListener('click', () => startPractice(true));
+  window.addEventListener('beforeunload', () => window.speechSynthesis?.cancel());
+  startPractice(false);
+</script>
