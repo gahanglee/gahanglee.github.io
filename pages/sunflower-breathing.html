@@ -404,7 +404,7 @@ permalink: /sunflower-breathing/
   ];
 
   const introText = '我們一起做太陽花呼吸。慢慢練習三個回合。';
-  const finishText = '完成練習。做得很好，你慢慢回來了。';
+  const finishText = '完成練習。做得很好，你完成了太陽花呼吸。';
   const label = document.getElementById('breath-label');
   const round = document.getElementById('round-text');
   const title = document.getElementById('guide-title');
@@ -443,7 +443,7 @@ permalink: /sunflower-breathing/
 
     ambientGain = audioContext.createGain();
     ambientGain.gain.setValueAtTime(0.0001, audioContext.currentTime);
-    ambientGain.gain.exponentialRampToValueAtTime(0.018, audioContext.currentTime + 1.8);
+    ambientGain.gain.exponentialRampToValueAtTime(0.04, audioContext.currentTime + 1.8);
     ambientGain.connect(audioContext.destination);
 
     [196, 246.94, 329.63].forEach((frequency, index) => {
@@ -451,7 +451,7 @@ permalink: /sunflower-breathing/
       const gain = audioContext.createGain();
       osc.type = 'sine';
       osc.frequency.value = frequency;
-      gain.gain.value = index === 0 ? 0.55 : 0.32;
+      gain.gain.value = index === 0 ? 0.72 : 0.48;
       osc.connect(gain);
       gain.connect(ambientGain);
       osc.start();
@@ -479,7 +479,7 @@ permalink: /sunflower-breathing/
   }
 
   function updateSoundButton() {
-    soundButton.textContent = `背景音：${ambientEnabled ? '開' : '關'}`;
+    soundButton.textContent = `柔和背景音：${ambientEnabled ? '開' : '關'}`;
   }
 
   function speakText(text, cancel = true) {
@@ -513,7 +513,7 @@ permalink: /sunflower-breathing/
 
   function showFinish() {
     round.textContent = '完成練習';
-    title.textContent = '我像太陽花一樣，慢慢回到安定';
+    title.textContent = '我完成了太陽花呼吸';
     sentence.textContent = '做得很好，你已經把溫暖的光放進心裡了。';
     label.textContent = '完成';
   }
