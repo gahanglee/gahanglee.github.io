@@ -411,8 +411,8 @@ permalink: /sunflower-breathing/
   const startButton = document.getElementById('start-button');
   const replayButton = document.getElementById('replay-button');
   let timer = null;
-  let voiceTimer = null;
   let currentIndex = 0;
+  let practiceRun = 0;
 
   function getChineseVoice() {
     const synth = window.speechSynthesis;
@@ -422,54 +422,82 @@ permalink: /sunflower-breathing/
       || null;
   }
 
-  function speakText(text, cancel = true) {
-    const synth = window.speechSynthesis;
-    if (!synth || !window.SpeechSynthesisUtterance) return;
-    if (cancel) synth.cancel();
-    const utterance = new SpeechSynthesisUtterance(text);
-    utterance.lang = 'zh-TW';
-    utterance.rate = 0.5;
-    utterance.pitch = 1.05;
-    utterance.volume = 1;
-    const voice = getChineseVoice();
-    if (voice) utterance.voice = voice;
-    synth.speak(utterance);
+  function wait(ms) {
+    return new Promise(resolve => {
+      timer = window.setTimeout(resolve, ms);
+    });
   }
 
-  function setStep(index, withVoice = false) {
+  function speakText(text, cancel = true) {
+    const synth = window.speechSynthesis;
+    return new Promise(resolve => {
+      if (!synth || !window.SpeechSynthesisUtterance) {
+        resolve();
+        return;
+      }
+      if (cancel) synth.cancel();
+      const utterance = new SpeechSynthesisUtterance(text);
+      utterance.lang = 'zh-TW';
+      utterance.rate = 0.48;
+      utterance.pitch = 1.05;
+      utterance.volume = 1;
+      const voice = getChineseVoice();
+      if (voice) utterance.voice = voice;
+      utterance.onend = resolve;
+      utterance.onerror = resolve;
+      synth.speak(utterance);
+    });
+  }
+
+  function setStep(index) {
     const step = steps[index % steps.length];
     label.textContent = step.label;
     title.textContent = step.title;
     sentence.textContent = step.sentence;
     round.textContent = `第 ${Math.min(3, Math.floor(index / steps.length) + 1)} 回合`;
-    if (withVoice) speakText(step.voice, false);
   }
 
-  function startPractice(withVoice) {
-    window.clearTimeout(timer);
-    window.clearTimeout(voiceTimer);
-    window.speechSynthesis?.cancel();
-    currentIndex = 0;
-    setStep(currentIndex, false);
-    if (withVoice) {
-      speakText(introText);
-      voiceTimer = window.setTimeout(() => speakText(steps[0].voice, false), 3600);
+  function showFinish() {
+    round.textContent = '完成練習';
+    title.textContent = '我像太陽花一樣，慢慢回到安定';
+    sentence.textContent = '做得很好，你已經把溫暖的光放進心裡了。';
+    label.textContent = '完成';
+  }
+
+  async function startVoicedPractice(runId) {
+    await speakText(introText, false);
+    if (runId !== practiceRun) return;
+    await wait(900);
+    if (runId !== practiceRun) return;
+
+    while (currentIndex < 9 && runId === practiceRun) {
+      const step = steps[currentIndex % steps.length];
+      const startedAt = Date.now();
+      setStep(currentIndex);
+      await speakText(step.voice, false);
+      if (runId !== practiceRun) return;
+      const remaining = Math.max(900, step.duration - (Date.now() - startedAt));
+      await wait(remaining);
+      if (runId !== practiceRun) return;
+      currentIndex += 1;
     }
 
+    if (runId !== practiceRun) return;
+    showFinish();
+    await speakText(finishText, false);
+  }
+
+  function startSilentPractice(runId) {
     const scheduleNext = () => {
       const step = steps[currentIndex % steps.length];
       timer = window.setTimeout(() => {
+        if (runId !== practiceRun) return;
         currentIndex += 1;
         if (currentIndex >= 9) {
-          window.clearTimeout(timer);
-          if (withVoice) speakText(finishText, false);
-          round.textContent = '完成練習';
-          title.textContent = '我像太陽花一樣，慢慢回到安定';
-          sentence.textContent = '做得很好，你已經把溫暖的光放進心裡了。';
-          label.textContent = '完成';
+          showFinish();
           return;
         }
-        setStep(currentIndex, withVoice);
+        setStep(currentIndex);
         scheduleNext();
       }, step.duration);
     };
@@ -477,11 +505,25 @@ permalink: /sunflower-breathing/
     scheduleNext();
   }
 
+  function startPractice(withVoice) {
+    practiceRun += 1;
+    const runId = practiceRun;
+    window.clearTimeout(timer);
+    window.speechSynthesis?.cancel();
+    currentIndex = 0;
+    setStep(currentIndex);
+    if (withVoice) {
+      void startVoicedPractice(runId);
+    } else {
+      startSilentPractice(runId);
+    }
+  }
+
   startButton.addEventListener('click', () => startPractice(true));
   replayButton.addEventListener('click', () => startPractice(true));
   window.addEventListener('beforeunload', () => {
+    practiceRun += 1;
     window.clearTimeout(timer);
-    window.clearTimeout(voiceTimer);
     window.speechSynthesis?.cancel();
   });
   startPractice(false);
