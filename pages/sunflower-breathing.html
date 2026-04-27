@@ -83,7 +83,7 @@ permalink: /sunflower-breathing/
     width: 14.2rem;
     height: 14.2rem;
     margin: 0 auto;
-    animation: flowerBreath 8.4s ease-in-out infinite;
+    animation: flowerBreath 18s ease-in-out infinite;
     z-index: 3;
   }
 
@@ -173,7 +173,7 @@ permalink: /sunflower-breathing/
     padding: 0.9rem;
     background: #fff;
     border: 1px solid #f4d6b8;
-    animation: childBreath 3.8s ease-in-out infinite;
+    animation: childBreath 18s ease-in-out infinite;
   }
 
   .breathing-child-face {
@@ -269,8 +269,8 @@ permalink: /sunflower-breathing/
 
   @keyframes flowerBreath {
     0%, 100% { transform: scale(0.9) rotate(-2deg); }
-    38% { transform: scale(1.12) rotate(2deg); }
-    50% { transform: scale(1.12) rotate(2deg); }
+    36% { transform: scale(1.12) rotate(2deg); }
+    56% { transform: scale(1.12) rotate(2deg); }
   }
 
   @keyframes sunGlow {
@@ -307,7 +307,7 @@ permalink: /sunflower-breathing/
     }
 
     .breathing-child {
-      animation: childMobileBreath 3.8s ease-in-out infinite;
+      animation: childMobileBreath 18s ease-in-out infinite;
     }
 
     @keyframes childMobileBreath {
@@ -383,23 +383,26 @@ permalink: /sunflower-breathing/
       label: '吸氣',
       title: '聞一聞太陽花的香氣',
       sentence: '慢慢吸氣，把溫暖的光吸進心裡。',
-      voice: '吸氣。聞一聞太陽花的香氣，慢慢把溫暖的光吸進心裡。'
+      voice: '吸氣。聞一聞太陽花的香氣，慢慢把溫暖的光吸進心裡。',
+      duration: 6500
     },
     {
       label: '停一下',
       title: '讓小太陽亮在心裡',
       sentence: '停一下，感覺自己被溫柔的光抱住。',
-      voice: '停一下。讓小太陽亮在心裡，感覺自己被溫柔的光抱住。'
+      voice: '停一下。讓小太陽亮在心裡，感覺自己被溫柔的光抱住。',
+      duration: 3500
     },
     {
       label: '吐氣',
       title: '慢慢把氣吐出去',
       sentence: '慢慢吐氣，緊緊的感覺也跟著放鬆。',
-      voice: '吐氣。慢慢把氣吐出去，緊緊的感覺也跟著放鬆。'
+      voice: '吐氣。慢慢把氣吐出去，緊緊的感覺也跟著放鬆。',
+      duration: 8000
     }
   ];
 
-  const introText = '我們一起做太陽花呼吸。跟著太陽花，練習三個回合。';
+  const introText = '我們一起做太陽花呼吸。跟著太陽花，慢慢練習三個回合。';
   const finishText = '完成練習。做得很好，你已經把溫暖的光放進心裡了。';
   const label = document.getElementById('breath-label');
   const round = document.getElementById('round-text');
@@ -409,6 +412,7 @@ permalink: /sunflower-breathing/
   const replayButton = document.getElementById('replay-button');
   let timer = null;
   let voiceTimer = null;
+  let currentIndex = 0;
 
   function getChineseVoice() {
     const synth = window.speechSynthesis;
@@ -424,8 +428,8 @@ permalink: /sunflower-breathing/
     if (cancel) synth.cancel();
     const utterance = new SpeechSynthesisUtterance(text);
     utterance.lang = 'zh-TW';
-    utterance.rate = 0.58;
-    utterance.pitch = 1.08;
+    utterance.rate = 0.5;
+    utterance.pitch = 1.05;
     utterance.volume = 1;
     const voice = getChineseVoice();
     if (voice) utterance.voice = voice;
@@ -442,33 +446,41 @@ permalink: /sunflower-breathing/
   }
 
   function startPractice(withVoice) {
-    window.clearInterval(timer);
+    window.clearTimeout(timer);
     window.clearTimeout(voiceTimer);
     window.speechSynthesis?.cancel();
-    let index = 0;
-    setStep(index, false);
+    currentIndex = 0;
+    setStep(currentIndex, false);
     if (withVoice) {
       speakText(introText);
       voiceTimer = window.setTimeout(() => speakText(steps[0].voice), 1700);
     }
-    timer = window.setInterval(() => {
-      index += 1;
-      if (index >= 9) {
-        window.clearInterval(timer);
-        if (withVoice) speakText(finishText);
-        round.textContent = '完成練習';
-        title.textContent = '我像太陽花一樣，慢慢回到安定';
-        sentence.textContent = '做得很好，你已經把溫暖的光放進心裡了。';
-        label.textContent = '完成';
-        return;
-      }
-      setStep(index, withVoice);
-    }, 3300);
+
+    const scheduleNext = () => {
+      const step = steps[currentIndex % steps.length];
+      timer = window.setTimeout(() => {
+        currentIndex += 1;
+        if (currentIndex >= 9) {
+          window.clearTimeout(timer);
+          if (withVoice) speakText(finishText);
+          round.textContent = '完成練習';
+          title.textContent = '我像太陽花一樣，慢慢回到安定';
+          sentence.textContent = '做得很好，你已經把溫暖的光放進心裡了。';
+          label.textContent = '完成';
+          return;
+        }
+        setStep(currentIndex, withVoice);
+        scheduleNext();
+      }, step.duration);
+    };
+
+    scheduleNext();
   }
 
   startButton.addEventListener('click', () => startPractice(true));
   replayButton.addEventListener('click', () => startPractice(true));
   window.addEventListener('beforeunload', () => {
+    window.clearTimeout(timer);
     window.clearTimeout(voiceTimer);
     window.speechSynthesis?.cancel();
   });
