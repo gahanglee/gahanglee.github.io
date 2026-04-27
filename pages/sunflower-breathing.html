@@ -383,27 +383,27 @@ permalink: /sunflower-breathing/
       label: '吸氣',
       title: '聞一聞太陽花的香氣',
       sentence: '慢慢吸氣，把溫暖的光吸進心裡。',
-      voice: '吸氣。聞一聞太陽花的香氣，慢慢把溫暖的光吸進心裡。',
+      voice: '吸氣。聞一聞花香，慢慢吸進來。',
       duration: 6500
     },
     {
       label: '停一下',
       title: '讓小太陽亮在心裡',
       sentence: '停一下，感覺自己被溫柔的光抱住。',
-      voice: '停一下。讓小太陽亮在心裡，感覺自己被溫柔的光抱住。',
+      voice: '停一下。讓小太陽，亮在心裡。',
       duration: 3500
     },
     {
       label: '吐氣',
       title: '慢慢把氣吐出去',
       sentence: '慢慢吐氣，緊緊的感覺也跟著放鬆。',
-      voice: '吐氣。慢慢把氣吐出去，緊緊的感覺也跟著放鬆。',
+      voice: '吐氣。慢慢吐出去，身體放鬆。',
       duration: 8000
     }
   ];
 
-  const introText = '我們一起做太陽花呼吸。跟著太陽花，慢慢練習三個回合。';
-  const finishText = '完成練習。做得很好，你已經把溫暖的光放進心裡了。';
+  const introText = '我們一起做太陽花呼吸。慢慢練習三個回合。';
+  const finishText = '完成練習。做得很好，你慢慢回來了。';
   const label = document.getElementById('breath-label');
   const round = document.getElementById('round-text');
   const title = document.getElementById('guide-title');
@@ -442,7 +442,7 @@ permalink: /sunflower-breathing/
     title.textContent = step.title;
     sentence.textContent = step.sentence;
     round.textContent = `第 ${Math.min(3, Math.floor(index / steps.length) + 1)} 回合`;
-    if (withVoice) speakText(step.voice);
+    if (withVoice) speakText(step.voice, false);
   }
 
   function startPractice(withVoice) {
@@ -453,7 +453,7 @@ permalink: /sunflower-breathing/
     setStep(currentIndex, false);
     if (withVoice) {
       speakText(introText);
-      voiceTimer = window.setTimeout(() => speakText(steps[0].voice), 1700);
+      voiceTimer = window.setTimeout(() => speakText(steps[0].voice, false), 3600);
     }
 
     const scheduleNext = () => {
@@ -462,7 +462,7 @@ permalink: /sunflower-breathing/
         currentIndex += 1;
         if (currentIndex >= 9) {
           window.clearTimeout(timer);
-          if (withVoice) speakText(finishText);
+          if (withVoice) speakText(finishText, false);
           round.textContent = '完成練習';
           title.textContent = '我像太陽花一樣，慢慢回到安定';
           sentence.textContent = '做得很好，你已經把溫暖的光放進心裡了。';
