@@ -584,10 +584,7 @@ permalink: /sunflower-breathing/
   }
 
   function startManualInhale() {
-    practiceRun += 1;
-    window.clearTimeout(timer);
     window.clearTimeout(manualReleaseTimer);
-    window.speechSynthesis?.cancel();
     if (ambientEnabled) startAmbientSound();
     flowerHead.classList.remove('manual-exhale');
     flowerHead.classList.add('manual-inhale');
@@ -610,7 +607,6 @@ permalink: /sunflower-breathing/
     window.clearTimeout(manualReleaseTimer);
     manualReleaseTimer = window.setTimeout(() => {
       pressButton.textContent = '按住吸氣';
-      stopAmbientSound();
     }, 3200);
   }
 
