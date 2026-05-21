@@ -428,6 +428,7 @@ permalink: /sunflower-breathing/
     <div class="breathing-actions">
       <button class="breathing-btn breathing-btn-primary" id="start-button" type="button">播放語音引導</button>
       <button class="breathing-btn breathing-btn-secondary" id="replay-button" type="button">再練習一次</button>
+      <button class="breathing-btn breathing-btn-secondary" id="music-button" type="button">柔和音樂：開</button>
     </div>
 
     <section class="mantra-card">
@@ -472,6 +473,7 @@ permalink: /sunflower-breathing/
   const sentence = document.getElementById('guide-sentence');
   const startButton = document.getElementById('start-button');
   const replayButton = document.getElementById('replay-button');
+  const musicButton = document.getElementById('music-button');
   const pressButton = document.getElementById('press-button');
   const pressHint = document.getElementById('press-hint');
   const flowerHead = document.getElementById('flower-head');
@@ -479,6 +481,9 @@ permalink: /sunflower-breathing/
   let currentIndex = 0;
   let practiceRun = 0;
   let manualReleaseTimer = null;
+  let musicEnabled = true;
+  let musicTimer = null;
+  let audioContext = null;
 
   function getChineseVoice() {
     const synth = window.speechSynthesis;
@@ -492,6 +497,49 @@ permalink: /sunflower-breathing/
     return new Promise(resolve => {
       timer = window.setTimeout(resolve, ms);
     });
+  }
+
+  function playMusicTone(frequency, startAt, duration, volume = 0.035) {
+    if (!audioContext) return;
+    const osc = audioContext.createOscillator();
+    const gain = audioContext.createGain();
+    osc.type = 'sine';
+    osc.frequency.setValueAtTime(frequency, startAt);
+    gain.gain.setValueAtTime(0.0001, startAt);
+    gain.gain.exponentialRampToValueAtTime(volume, startAt + 0.12);
+    gain.gain.exponentialRampToValueAtTime(0.0001, startAt + duration);
+    osc.connect(gain);
+    gain.connect(audioContext.destination);
+    osc.start(startAt);
+    osc.stop(startAt + duration + 0.08);
+  }
+
+  function playMusicPhrase() {
+    if (!musicEnabled || !audioContext) return;
+    const now = audioContext.currentTime;
+    [523.25, 659.25, 783.99].forEach((frequency, index) => {
+      playMusicTone(frequency, now + index * 0.42, 1.45, index === 1 ? 0.03 : 0.026);
+    });
+    playMusicTone(1046.5, now + 1.65, 1.9, 0.022);
+  }
+
+  function startMusic() {
+    if (!musicEnabled || musicTimer) return;
+    const AudioContext = window.AudioContext || window.webkitAudioContext;
+    if (!AudioContext) return;
+    audioContext = audioContext || new AudioContext();
+    audioContext.resume?.();
+    playMusicPhrase();
+    musicTimer = window.setInterval(playMusicPhrase, 9000);
+  }
+
+  function stopMusic() {
+    window.clearInterval(musicTimer);
+    musicTimer = null;
+  }
+
+  function updateMusicButton() {
+    musicButton.textContent = `柔和音樂：${musicEnabled ? '開' : '關'}`;
   }
 
   function speakText(text, cancel = true) {
@@ -555,6 +603,7 @@ permalink: /sunflower-breathing/
   }
 
   async function startVoicedPractice(runId) {
+    startMusic();
     await speakText(introText, false);
     if (runId !== practiceRun) return;
     await wait(900);
@@ -575,6 +624,7 @@ permalink: /sunflower-breathing/
     if (runId !== practiceRun) return;
     showFinish();
     await speakText(finishText, false);
+    stopMusic();
   }
 
   function startSilentPractice(runId) {
@@ -601,6 +651,7 @@ permalink: /sunflower-breathing/
     window.clearTimeout(timer);
     window.clearTimeout(manualReleaseTimer);
     window.speechSynthesis?.cancel();
+    stopMusic();
     flowerHead.classList.remove('manual-inhale', 'manual-exhale');
     pressButton.classList.remove('is-pressing');
     pressButton.textContent = '按住吸氣';
@@ -616,6 +667,11 @@ permalink: /sunflower-breathing/
 
   startButton.addEventListener('click', () => startPractice(true));
   replayButton.addEventListener('click', () => startPractice(true));
+  musicButton.addEventListener('click', () => {
+    musicEnabled = !musicEnabled;
+    updateMusicButton();
+    if (!musicEnabled) stopMusic();
+  });
   pressButton.addEventListener('pointerdown', event => {
     event.preventDefault();
     startManualInhale();
@@ -642,6 +698,8 @@ permalink: /sunflower-breathing/
     window.clearTimeout(timer);
     window.clearTimeout(manualReleaseTimer);
     window.speechSynthesis?.cancel();
+    stopMusic();
   });
+  updateMusicButton();
   startPractice(false);
 </script>
