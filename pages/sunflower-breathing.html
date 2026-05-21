@@ -218,6 +218,62 @@ permalink: /sunflower-breathing/
     margin-top: 0.45rem;
   }
 
+  .press-card {
+    width: min(100%, 620px);
+    margin: 1rem auto 0;
+    border-radius: 1.2rem;
+    background: #fffdf8;
+    border: 1.5px solid #f4d6b8;
+    padding: 1rem;
+    text-align: center;
+  }
+
+  .press-title {
+    color: #0f6e56;
+    font-weight: 900;
+    font-size: 1.05rem;
+    margin-bottom: 0.8rem;
+  }
+
+  .press-button {
+    width: min(72vw, 13rem);
+    aspect-ratio: 1;
+    border-radius: 999px;
+    border: 4px solid #f6c23a;
+    background: radial-gradient(circle at 35% 30%, #fff7c8, #ffd84d 58%, #e9a331);
+    box-shadow: 0 14px 28px rgba(153, 98, 22, 0.18);
+    color: #0b3d34;
+    font-family: var(--sans);
+    font-weight: 900;
+    font-size: clamp(1.3rem, 5vw, 1.8rem);
+    cursor: pointer;
+    touch-action: none;
+    transition: transform 1.8s ease-in-out, box-shadow 1.8s ease-in-out;
+  }
+
+  .press-button.is-pressing {
+    transform: scale(1.18);
+    box-shadow: 0 20px 38px rgba(153, 98, 22, 0.25);
+  }
+
+  .press-hint {
+    color: #6a5d50;
+    font-size: 0.98rem;
+    margin-top: 0.75rem;
+  }
+
+  .flower-head.manual-inhale {
+    animation: none;
+    transform: scale(1.16) rotate(2deg);
+    transition: transform 2.4s ease-in-out;
+  }
+
+  .flower-head.manual-exhale {
+    animation: none;
+    transform: scale(0.9) rotate(-2deg);
+    transition: transform 3.2s ease-in-out;
+  }
+
   .breathing-actions {
     display: flex;
     justify-content: center;
@@ -327,7 +383,7 @@ permalink: /sunflower-breathing/
       <div class="breathing-sun">☀️</div>
 
       <div class="flower-wrap">
-        <div class="flower-head" aria-hidden="true">
+        <div class="flower-head" id="flower-head" aria-hidden="true">
           <span class="petal" style="transform: rotate(0deg) translateY(-4.15rem);"></span>
           <span class="petal" style="transform: rotate(22.5deg) translateY(-3.65rem);"></span>
           <span class="petal" style="transform: rotate(45deg) translateY(-4.15rem);"></span>
@@ -361,6 +417,12 @@ permalink: /sunflower-breathing/
       <div class="round-text" id="round-text">第 1 回合</div>
       <h2 class="guide-title" id="guide-title">聞一聞太陽花的香氣</h2>
       <p class="guide-sentence" id="guide-sentence">慢慢吸氣，把溫暖的光吸進心裡。</p>
+    </section>
+
+    <section class="press-card">
+      <div class="press-title">用手指練習呼吸</div>
+      <button class="press-button" id="press-button" type="button">按住吸氣</button>
+      <p class="press-hint">按住時慢慢吸氣，放開時慢慢吐氣。</p>
     </section>
 
     <div class="breathing-actions">
@@ -412,9 +474,12 @@ permalink: /sunflower-breathing/
   const startButton = document.getElementById('start-button');
   const replayButton = document.getElementById('replay-button');
   const soundButton = document.getElementById('sound-button');
+  const pressButton = document.getElementById('press-button');
+  const flowerHead = document.getElementById('flower-head');
   let timer = null;
   let currentIndex = 0;
   let practiceRun = 0;
+  let manualReleaseTimer = null;
   let ambientEnabled = true;
   let audioContext = null;
   let ambientGain = null;
@@ -518,6 +583,37 @@ permalink: /sunflower-breathing/
     label.textContent = '完成';
   }
 
+  function startManualInhale() {
+    practiceRun += 1;
+    window.clearTimeout(timer);
+    window.clearTimeout(manualReleaseTimer);
+    window.speechSynthesis?.cancel();
+    if (ambientEnabled) startAmbientSound();
+    flowerHead.classList.remove('manual-exhale');
+    flowerHead.classList.add('manual-inhale');
+    pressButton.classList.add('is-pressing');
+    pressButton.textContent = '吸氣';
+    label.textContent = '吸氣';
+    round.textContent = '手指呼吸';
+    title.textContent = '按住，慢慢吸氣';
+    sentence.textContent = '感覺花慢慢打開，空氣慢慢進來。';
+  }
+
+  function startManualExhale() {
+    flowerHead.classList.remove('manual-inhale');
+    flowerHead.classList.add('manual-exhale');
+    pressButton.classList.remove('is-pressing');
+    pressButton.textContent = '放開吐氣';
+    label.textContent = '吐氣';
+    title.textContent = '放開，慢慢吐氣';
+    sentence.textContent = '感覺花慢慢收回來，身體也慢慢放鬆。';
+    window.clearTimeout(manualReleaseTimer);
+    manualReleaseTimer = window.setTimeout(() => {
+      pressButton.textContent = '按住吸氣';
+      stopAmbientSound();
+    }, 3200);
+  }
+
   async function startVoicedPractice(runId) {
     startAmbientSound();
     await speakText(introText, false);
@@ -565,8 +661,12 @@ permalink: /sunflower-breathing/
     practiceRun += 1;
     const runId = practiceRun;
     window.clearTimeout(timer);
+    window.clearTimeout(manualReleaseTimer);
     window.speechSynthesis?.cancel();
     stopAmbientSound();
+    flowerHead.classList.remove('manual-inhale', 'manual-exhale');
+    pressButton.classList.remove('is-pressing');
+    pressButton.textContent = '按住吸氣';
     currentIndex = 0;
     setStep(currentIndex);
     if (withVoice) {
@@ -583,9 +683,31 @@ permalink: /sunflower-breathing/
     updateSoundButton();
     if (!ambientEnabled) stopAmbientSound();
   });
+  pressButton.addEventListener('pointerdown', event => {
+    event.preventDefault();
+    startManualInhale();
+  });
+  pressButton.addEventListener('pointerup', startManualExhale);
+  pressButton.addEventListener('pointercancel', startManualExhale);
+  pressButton.addEventListener('pointerleave', () => {
+    if (pressButton.classList.contains('is-pressing')) startManualExhale();
+  });
+  pressButton.addEventListener('keydown', event => {
+    if ((event.key === ' ' || event.key === 'Enter') && !pressButton.classList.contains('is-pressing')) {
+      event.preventDefault();
+      startManualInhale();
+    }
+  });
+  pressButton.addEventListener('keyup', event => {
+    if (event.key === ' ' || event.key === 'Enter') {
+      event.preventDefault();
+      startManualExhale();
+    }
+  });
   window.addEventListener('beforeunload', () => {
     practiceRun += 1;
     window.clearTimeout(timer);
+    window.clearTimeout(manualReleaseTimer);
     window.speechSynthesis?.cancel();
     stopAmbientSound();
   });
