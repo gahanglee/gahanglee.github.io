@@ -538,3 +538,90 @@ title: 首頁
   buildStars();
   buildBadges();
 </script>
+
+<!-- ===== 視覺微調 ===== -->
+<style>
+  html { scroll-behavior: smooth; }
+  .hero-card { box-shadow: 0 18px 50px rgba(200,90,43,0.12); }
+  .work-card { box-shadow: 0 4px 16px rgba(200,90,43,0.05); }
+  .app-cta-card { box-shadow: 0 16px 40px rgba(200,90,43,0.10); }
+  .bubble { box-shadow: 0 4px 14px rgba(200,90,43,0.04); }
+  .btn-primary { box-shadow: 0 8px 20px rgba(200,90,43,0.22); }
+  .info-box { box-shadow: 0 6px 20px rgba(200,90,43,0.05); }
+  .hp-section-title { line-height: 1.2; }
+  @media (prefers-reduced-motion: reduce) {
+    * { animation-duration: 0.001ms !important; transition-duration: 0.001ms !important; }
+  }
+</style>
+
+<!-- ===== GSAP 動畫(細緻優雅）===== -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+<script>
+  (function () {
+    if (!window.gsap) return;
+    var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (reduce) return;
+    gsap.registerPlugin(ScrollTrigger);
+
+    // 進場:Hero 區塊文字依序浮現
+    gsap.from('.hero-text > *', { y: 24, opacity: 0, duration: 0.8, ease: 'power3.out', stagger: 0.12 });
+    gsap.from('.hero-card', { y: 30, opacity: 0, scale: 0.96, duration: 0.9, ease: 'power3.out', delay: 0.2 });
+
+    // 通用:捲動到時淡入上滑
+    function reveal(selector, vars) {
+      gsap.utils.toArray(selector).forEach(function (el) {
+        gsap.from(el, Object.assign({
+          scrollTrigger: { trigger: el, start: 'top 85%' },
+          y: 28, opacity: 0, duration: 0.7, ease: 'power3.out'
+        }, vars || {}));
+      });
+    }
+    reveal('.section-eyebrow');
+    reveal('.hp-section-title');
+    reveal('.hp-section-sub');
+
+    // 關於我:小卡片依序浮現
+    gsap.from('.about-bubbles .bubble', {
+      scrollTrigger: { trigger: '.about-bubbles', start: 'top 85%' },
+      y: 24, opacity: 0, duration: 0.6, ease: 'power3.out', stagger: 0.1
+    });
+
+    // 情緒輪盤
+    gsap.from('.wheel-outer', {
+      scrollTrigger: { trigger: '.wheel-outer', start: 'top 80%' },
+      y: 30, opacity: 0, duration: 0.8, ease: 'power3.out'
+    });
+
+    // 線上體驗 App CTA
+    gsap.from('.app-cta-card', {
+      scrollTrigger: { trigger: '.app-cta-card', start: 'top 85%' },
+      y: 30, opacity: 0, scale: 0.97, duration: 0.8, ease: 'power3.out'
+    });
+
+    // 作品集卡片:進入視窗時依序浮現(卡片由 JS 動態產生,用 batch 捕捉）
+    ScrollTrigger.batch('.work-card', {
+      start: 'top 88%',
+      onEnter: function (batch) {
+        gsap.from(batch, { y: 28, opacity: 0, duration: 0.6, ease: 'power3.out', stagger: 0.08, overwrite: true });
+      }
+    });
+
+    // 聯絡區塊
+    gsap.from('.hp-contact', {
+      scrollTrigger: { trigger: '.hp-contact', start: 'top 88%' },
+      y: 30, opacity: 0, duration: 0.8, ease: 'power3.out'
+    });
+
+    // Hero 數字跑分
+    gsap.utils.toArray('.stat-num').forEach(function (el) {
+      var target = parseInt(el.textContent.trim(), 10);
+      if (isNaN(target)) return; // ∞ 跳過
+      var obj = { v: 0 };
+      gsap.to(obj, {
+        v: target, duration: 1.2, ease: 'power1.out', delay: 0.4,
+        onUpdate: function () { el.textContent = Math.round(obj.v); }
+      });
+    });
+  })();
+</script>
