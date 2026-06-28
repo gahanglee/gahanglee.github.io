@@ -441,6 +441,10 @@ permalink: /sunflower-breathing/
 </div>
 
 <script>
+  // 自然語音來源：情緒島的 Azure Neural TTS（曉雨）。
+  // 失敗時自動退回瀏覽器內建語音，確保一定有聲音。
+  const TTS_ENDPOINT = 'https://emotion-island-nu.vercel.app/api/tts';
+
   const steps = [
     {
       label: '吸氣',
@@ -484,6 +488,8 @@ permalink: /sunflower-breathing/
   let musicEnabled = true;
   let musicTimer = null;
   let audioContext = null;
+  let currentTtsAudio = null;
+  const ttsCache = new Map();
 
   function getChineseVoice() {
     const synth = window.speechSynthesis;
@@ -542,14 +548,35 @@ permalink: /sunflower-breathing/
     musicButton.textContent = `柔和音樂：${musicEnabled ? '開' : '關'}`;
   }
 
-  function speakText(text, cancel = true) {
+  function stopSpeech() {
+    if (currentTtsAudio) {
+      try { currentTtsAudio.pause(); } catch (e) {}
+      currentTtsAudio = null;
+    }
+    window.speechSynthesis?.cancel();
+  }
+
+  async function fetchNaturalAudio(text) {
+    if (ttsCache.has(text)) return ttsCache.get(text);
+    const res = await fetch(TTS_ENDPOINT, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ text })
+    });
+    if (!res.ok) throw new Error('TTS ' + res.status);
+    const blob = await res.blob();
+    const url = URL.createObjectURL(blob);
+    ttsCache.set(text, url);
+    return url;
+  }
+
+  function speakWithBrowser(text) {
     const synth = window.speechSynthesis;
     return new Promise(resolve => {
       if (!synth || !window.SpeechSynthesisUtterance) {
         resolve();
         return;
       }
-      if (cancel) synth.cancel();
       const utterance = new SpeechSynthesisUtterance(text);
       utterance.lang = 'zh-TW';
       utterance.rate = 0.48;
@@ -560,6 +587,22 @@ permalink: /sunflower-breathing/
       utterance.onend = resolve;
       utterance.onerror = resolve;
       synth.speak(utterance);
+    });
+  }
+
+  function speakText(text, cancel = true) {
+    return new Promise(async resolve => {
+      if (cancel) stopSpeech();
+      try {
+        const url = await fetchNaturalAudio(text);
+        const audio = new Audio(url);
+        currentTtsAudio = audio;
+        audio.onended = () => { if (currentTtsAudio === audio) currentTtsAudio = null; resolve(); };
+        audio.onerror = () => { if (currentTtsAudio === audio) currentTtsAudio = null; resolve(); };
+        await audio.play();
+      } catch (e) {
+        speakWithBrowser(text).then(resolve);
+      }
     });
   }
 
@@ -650,7 +693,7 @@ permalink: /sunflower-breathing/
     const runId = practiceRun;
     window.clearTimeout(timer);
     window.clearTimeout(manualReleaseTimer);
-    window.speechSynthesis?.cancel();
+    stopSpeech();
     stopMusic();
     flowerHead.classList.remove('manual-inhale', 'manual-exhale');
     pressButton.classList.remove('is-pressing');
@@ -697,7 +740,7 @@ permalink: /sunflower-breathing/
     practiceRun += 1;
     window.clearTimeout(timer);
     window.clearTimeout(manualReleaseTimer);
-    window.speechSynthesis?.cancel();
+    stopSpeech();
     stopMusic();
   });
   updateMusicButton();
