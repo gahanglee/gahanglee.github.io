@@ -20,3 +20,59 @@ permalink: /specialties/
     </ul>
   </section>
 </div>
+
+<!-- ===== 視覺微調 ===== -->
+<style>
+  html { scroll-behavior: smooth; }
+  .id-card, .app-card { box-shadow: 0 6px 20px rgba(200,90,43,0.06); }
+  .c-item { box-shadow: 0 4px 14px rgba(200,90,43,0.04); }
+  @media (prefers-reduced-motion: reduce) {
+    * { animation-duration: 0.001ms !important; transition-duration: 0.001ms !important; }
+  }
+</style>
+
+<!-- ===== GSAP 動畫(細緻優雅，與首頁一致）===== -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+<script>
+  (function () {
+    if (!window.gsap) return;
+    var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (reduce) return;
+    gsap.registerPlugin(ScrollTrigger);
+
+    var sections = gsap.utils.toArray('.section');
+    if (sections.length) {
+      sections.forEach(function (sec) {
+        var blocks = [];
+        Array.prototype.forEach.call(sec.children, function (child) {
+          var st = child.getAttribute('style') || '';
+          var isGroup = (child.matches && child.matches('.skill-list, .identity-grid, .contact-grid, ul, .works-grid')) || /grid/.test(st);
+          if (isGroup && child.children.length) {
+            gsap.from(child.children, {
+              scrollTrigger: { trigger: child, start: 'top 85%' },
+              y: 18, opacity: 0, duration: 0.5, ease: 'power3.out', stagger: 0.06
+            });
+          } else {
+            blocks.push(child);
+          }
+        });
+        if (blocks.length) {
+          gsap.from(blocks, {
+            scrollTrigger: { trigger: sec, start: 'top 82%' },
+            y: 26, opacity: 0, duration: 0.6, ease: 'power3.out', stagger: 0.08
+          });
+        }
+      });
+    } else {
+      gsap.utils.toArray('.wrap > *').forEach(function (el) {
+        gsap.from(el, { scrollTrigger: { trigger: el, start: 'top 85%' }, y: 24, opacity: 0, duration: 0.6, ease: 'power3.out' });
+      });
+    }
+
+    // App 嵌入框(若有）
+    gsap.utils.toArray('.island-embed-frame').forEach(function (el) {
+      gsap.from(el, { scrollTrigger: { trigger: el, start: 'top 85%' }, y: 30, opacity: 0, scale: 0.97, duration: 0.8, ease: 'power3.out' });
+    });
+  })();
+</script>
