@@ -24,6 +24,55 @@ permalink: /app/
     </div>
   </section>
 
+  <!-- ★ 線上體驗：直接在網頁裡玩 App ★ -->
+  <section class="section">
+    <span class="section-tag">線上體驗</span>
+    <h2 class="section-title">直接在這裡試玩</h2>
+    <p style="color:var(--text-muted);margin-bottom:2rem;font-size:0.95rem;line-height:1.85;max-width:560px">
+      不用安裝，直接在瀏覽器體驗完整的情緒島嶼。建議使用耳機，並允許麥克風權限以體驗語音引導與說話練習。
+    </p>
+
+    <div class="island-embed-frame">
+      <iframe
+        src="https://emotion-island-nu.vercel.app"
+        title="情緒島嶼 App 線上體驗"
+        allow="microphone; autoplay; fullscreen"
+        loading="lazy"></iframe>
+    </div>
+
+    <p style="text-align:center;margin-top:1.25rem">
+      <a class="btn btn-solid-orange"
+         href="https://emotion-island-nu.vercel.app"
+         target="_blank" rel="noopener">↗ 在新分頁全螢幕開啟</a>
+    </p>
+  </section>
+
+  <style>
+    /* 手機外框造型的嵌入容器 */
+    .island-embed-frame {
+      position: relative;
+      width: 100%;
+      max-width: 390px;
+      aspect-ratio: 9 / 19;
+      margin: 0 auto;
+      padding: 10px;
+      background: #1c2b30;
+      border-radius: 36px;
+      box-shadow: 0 18px 50px rgba(11,61,73,.30);
+    }
+    .island-embed-frame iframe {
+      width: 100%;
+      height: 100%;
+      border: 0;
+      border-radius: 26px;
+      background: #eaf4f8;
+      display: block;
+    }
+    @supports not (aspect-ratio: 1) {
+      .island-embed-frame { height: 760px; }
+    }
+  </style>
+
   <section class="section">
     <span class="section-tag">學習流程</span>
     <h2 class="section-title">三步驟 SEL</h2>
