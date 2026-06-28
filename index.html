@@ -174,6 +174,13 @@ title: 首頁
   .side-lbl { font-size:0.75rem; color:#7A5748; writing-mode:vertical-rl; transform:rotate(180deg); }
   #rewardOverlay { display:none; position:fixed; inset:0; z-index:9999; align-items:center; justify-content:center; background:rgba(0,0,0,0.5); }
   #rewardOverlay.show { display:flex; }
+
+  /* ── 線上體驗 App CTA ── */
+  .app-cta-card { background: var(--warm-bg); border: 2px solid var(--orange-border); border-radius: 28px; padding: 2.75rem 2rem; max-width: 640px; margin: 0 auto; text-align: center; position: relative; overflow: hidden; }
+  .app-cta-card::before { content: ""; position: absolute; top: -40px; right: -40px; width: 140px; height: 140px; border-radius: 50%; background: var(--orange-light); opacity: 0.7; }
+  .app-cta-emoji { font-size: 2.8rem; margin-bottom: 0.6rem; position: relative; z-index: 1; }
+  .app-cta-title { font-size: clamp(1.3rem, 2.6vw, 1.75rem); font-weight: 900; color: var(--text-dark); margin-bottom: 0.5rem; position: relative; z-index: 1; }
+  .app-cta-desc { font-size: 0.95rem; color: var(--text-mid); line-height: 1.75; max-width: 440px; margin: 0 auto 1.6rem; position: relative; z-index: 1; }
 </style>
 
 <!-- HERO -->
@@ -272,6 +279,16 @@ title: 首頁
   </div>
 </div>
 
+<!-- 線上體驗 App CTA -->
+<div class="hp-section" style="padding-top:0">
+  <div class="app-cta-card">
+    <div class="app-cta-emoji">🏝️</div>
+    <h3 class="app-cta-title">想讓孩子實際玩玩看？</h3>
+    <p class="app-cta-desc">情緒島嶼 App 已經可以在瀏覽器免費體驗，不用安裝，直接開始三步驟 SEL 的互動旅程。</p>
+    <a class="btn-primary" href="/app/">🎮 線上體驗 App →</a>
+  </div>
+</div>
+
 <div class="hp-divider"></div>
 
 <!-- WORKS -->
@@ -305,7 +322,7 @@ title: 首頁
     { name: 'Happy', zh: '開心', emoji: '😄', color: '#F9C74F', desc: '感到快樂和滿足，想要微笑或大笑！', strategies: ['分享心情', '說謝謝', '給擁抱'] },
     { name: 'Excited', zh: '興奮', emoji: '🤩', color: '#F4A261', desc: '精力充沛，期待某件好事即將發生！', strategies: ['深呼吸', '跳一跳', '告訴朋友'] },
     { name: 'Proud', zh: '驕傲', emoji: '🌟', color: '#E76F51', desc: '完成了一件很棒的事，為自己感到自豪。', strategies: ['分享成果', '給自己鼓掌', '繼續努力'] },
-    { name: 'Calm', zh: '平靜', emoji: '😌', color: '#90BE6D', desc: '感覺安靜放鬆，心裡很舒服。', strategies: ['繼續保持', '深呼吸', '聽音樂'] },
+    { name: 'Calm', zh: '平靜', emoji: '😌', color: '#90BE6D', desc: '感覺安靜放鬆，忀h��很舒服。', strategies: ['繼續保持', '深呼吸', '聽音樂'] },
     { name: 'Loved', zh: '被愛', emoji: '🥰', color: '#F38DAB', desc: '感受到別人的關心和溫暖，心裡暖暖的。', strategies: ['說謝謝', '給擁抱', '畫一張卡片'] },
     { name: 'Scared', zh: '害怕', emoji: '😨', color: '#9B72CF', desc: '遇到了讓你擔心或害怕的事情。', strategies: ['告訴大人', '深呼吸', '抱抱玩具'] },
     { name: 'Sad', zh: '難過', emoji: '😢', color: '#577590', desc: '心裡覺得不開心，想哭也沒關係。', strategies: ['說出來', '找朋友', '哭一哭'] },
