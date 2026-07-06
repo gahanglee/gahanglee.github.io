@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="robots" content="noindex, nofollow">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>釜山親子5日自由行 — 兩大兩小夏季行程</title>
+<style>
+  :root {
+    --bg: #f7f5f0;
+    --card: #ffffff;
+    --ink: #1f2733;
+    --sub: #6b7280;
+    --accent: #0e7490;
+    --accent-light: #e0f2f7;
+    --warn: #b45309;
+    --warn-bg: #fef3e2;
+    --line: #e5e1d8;
+    --sea: #1d4ed8;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    background: var(--bg); color: var(--ink);
+    font-family: "PingFang TC", "Microsoft JhengHei", "Noto Sans TC", sans-serif;
+    line-height: 1.65; padding-bottom: 60px;
+  }
+  header {
+    background: linear-gradient(135deg, #0c4a6e, #0e7490 60%, #14b8a6);
+    color: #fff; padding: 34px 20px 26px; text-align: center;
+  }
+  header h1 { font-size: 26px; letter-spacing: 2px; }
+  header p { opacity: .92; font-size: 14px; margin-top: 8px; }
+  .chips { display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; margin-top: 14px; }
+  .chip { background: rgba(255,255,255,.18); border: 1px solid rgba(255,255,255,.35); border-radius: 999px; padding: 3px 12px; font-size: 12px; }
+
+  nav {
+    position: sticky; top: 0; z-index: 10;
+    background: rgba(247,245,240,.95); backdrop-filter: blur(8px);
+    display: flex; gap: 6px; padding: 10px 12px; overflow-x: auto;
+    border-bottom: 1px solid var(--line);
+  }
+  nav button {
+    flex: 0 0 auto; border: 1px solid var(--line); background: var(--card);
+    border-radius: 999px; padding: 7px 16px; font-size: 14px; cursor: pointer;
+    color: var(--ink); white-space: nowrap;
+  }
+  nav button.active { background: var(--accent); border-color: var(--accent); color: #fff; }
+
+  main { max-width: 760px; margin: 0 auto; padding: 18px 14px; }
+  section.day { display: none; }
+  section.day.show { display: block; animation: fade .25s ease; }
+  @keyframes fade { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; } }
+
+  .day-head { margin: 10px 4px 14px; }
+  .day-head h2 { font-size: 20px; color: var(--accent); }
+  .day-head p { color: var(--sub); font-size: 14px; margin-top: 2px; }
+
+  .item {
+    background: var(--card); border: 1px solid var(--line); border-radius: 14px;
+    padding: 14px 16px; margin-bottom: 10px; position: relative;
+  }
+  .time { display: inline-block; background: var(--accent-light); color: var(--accent); font-weight: 700; font-size: 12.5px; border-radius: 6px; padding: 2px 8px; margin-bottom: 6px; }
+  .item h3 { font-size: 16px; margin-bottom: 4px; }
+  .item .note { font-size: 13.5px; color: var(--sub); }
+  .item .kid { margin-top: 6px; font-size: 13px; color: #0f766e; background: #f0fdfa; border-radius: 8px; padding: 5px 10px; }
+  .item .kid::before { content: "👧👦 "; }
+  .maplink { display: inline-block; margin-top: 8px; font-size: 13px; color: var(--sea); text-decoration: none; }
+  .maplink::before { content: "📍 "; }
+  .book { display: inline-block; margin-top: 8px; margin-left: 12px; font-size: 13px; color: #9333ea; text-decoration: none; }
+  .book::before { content: "🎫 "; }
+
+  .tip { background: var(--warn-bg); border: 1px solid #f5d9ae; border-radius: 12px; padding: 12px 14px; font-size: 13.5px; color: var(--warn); margin: 14px 0; }
+  .tip b { display: block; margin-bottom: 3px; }
+
+  table { width: 100%; border-collapse: collapse; background: var(--card); border-radius: 12px; overflow: hidden; font-size: 14px; margin-top: 10px; }
+  th, td { padding: 9px 12px; border-bottom: 1px solid var(--line); text-align: left; }
+  th { background: var(--accent-light); color: var(--accent); font-size: 13px; }
+  tr:last-child td { border-bottom: none; }
+  td.num { text-align: right; font-variant-numeric: tabular-nums; }
+  .total td { font-weight: 700; background: #fafaf7; }
+
+  h4.sec { margin: 22px 4px 8px; font-size: 15px; color: var(--accent); }
+  ul.plain { list-style: none; }
+  ul.plain li { background: var(--card); border: 1px solid var(--line); border-radius: 10px; padding: 9px 13px; margin-bottom: 7px; font-size: 14px; }
+  footer { text-align: center; color: var(--sub); font-size: 12px; margin-top: 30px; padding: 0 20px; }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>釜山親子 5 日自由行</h1>
+  <p>兩大兩小（小學生）・夏季 7–8 月・海邊放鬆 × 市場美食 × 慶州一日遊</p>
+  <div class="chips">
+    <span class="chip">🏨 建議住宿：海雲台一帶</span>
+    <span class="chip">🚇 交通：地鐵 + T-money</span>
+    <span class="chip">☀️ 夏季均溫 26–31°C</span>
+  </div>
+</header>
+
+<nav id="nav">
+  <button data-d="0" class="active">總覽</button>
+  <button data-d="1">Day 1 抵達</button>
+  <button data-d="2">Day 2 海雲台</button>
+  <button data-d="3">Day 3 文化市場</button>
+  <button data-d="4">Day 4 慶州</button>
+  <button data-d="5">Day 5 廣安里</button>
+  <button data-d="6">預算</button>
+</nav>
+
+<main>
+
+<!-- ===== 總覽 ===== -->
+<section class="day show" id="d0">
+  <div class="day-head"><h2>行程總覽</h2><p>節奏以小學生體力設計：每天一個主區域、午後留彈性、晚上早點收工。</p></div>
+  <div class="item"><span class="time">Day 1</span><h3>抵達・海雲台安頓</h3><p class="note">金海機場 → 海雲台，傍晚海灘散步 + 海雲台傳統市場晚餐</p></div>
+  <div class="item"><span class="time">Day 2</span><h3>海雲台主題日</h3><p class="note">天空膠囊列車 → 青沙浦燈塔 → SEA LIFE 水族館 → 海灘玩水</p></div>
+  <div class="item"><span class="time">Day 3</span><h3>甘川洞 + 南浦洞市場日</h3><p class="note">甘川洞文化村 → 札嘎其市場 → 國際市場/BIFF → 松島海上纜車</p></div>
+  <div class="item"><span class="time">Day 4</span><h3>慶州世界遺產一日遊</h3><p class="note">佛國寺 → 大陵苑/瞻星台 → 皇理團路 → 月精橋・東宮與月池夜景</p></div>
+  <div class="item"><span class="time">Day 5</span><h3>廣安里 + 採買返程</h3><p class="note">廣安里海灘 → 樂天超市伴手禮 → 金海機場</p></div>
+
+  <div class="tip"><b>⭐ 出發前三件事</b>
+    1️⃣ 膠囊列車一定要提前線上預約（旺季現場幾乎買不到）
+    2️⃣ 若 Day 3 或 Day 5 是週六，把廣安里無人機燈光秀排進晚上（3–9 月為 20:00、22:00 兩場）
+    3️⃣ 慶州一日遊建議直接訂中文一日團，免去自駕與轉車
+  </div>
+
+  <h4 class="sec">🚇 交通備忘</h4>
+  <ul class="plain">
+    <li><b>機場 → 海雲台</b>：利木津巴士 1 號線最省力（約 9,500 韓元/人，可刷卡）；省錢版走輕軌到沙上站轉地鐵 2 號線（T-money 約 1,800 韓元）。</li>
+    <li><b>T-money</b>：機場超商就能買，小孩卡可請店員設定兒童優惠（需護照）。</li>
+    <li><b>Visit Busan Pass</b>：若確定去水族館 + 松島纜車 + 甘川洞體驗，可估算是否回本。</li>
+  </ul>
+</section>
+
+<!-- ===== Day 1 ===== -->
+<section class="day" id="d1">
+  <div class="day-head"><h2>Day 1 — 抵達・海雲台安頓</h2><p>飛行日不排重點行程，讓小孩先適應。</p></div>
+  <div class="item"><span class="time">下午</span><h3>金海機場 → 海雲台</h3>
+    <p class="note">行李多建議搭利木津巴士 1 號線直達海雲台（2025/7 已恢復營運），或包車接送。</p>
+    <a class="maplink" href="https://www.google.com/maps/search/Gimhae+International+Airport" target="_blank">金海機場</a></div>
+  <div class="item"><span class="time">16:30</span><h3>飯店 Check-in・休息</h3>
+    <p class="note">建議住海雲台站周邊：去海灘、膠囊列車、水族館都步行可達，晚上覓食方便。</p></div>
+  <div class="item"><span class="time">17:30</span><h3>海雲台海水浴場散步</h3>
+    <p class="note">夏季海水浴場開放，傍晚不曬，讓小孩踩踩水放電。</p>
+    <a class="maplink" href="https://www.google.com/maps/search/Haeundae+Beach" target="_blank">海雲台海水浴場</a>
+    <div class="kid">帶換洗衣物與夾腳拖，海灘旁有沖洗設施。</div></div>
+  <div class="item"><span class="time">18:30</span><h3>海雲台傳統市場晚餐</h3>
+    <p class="note">烤盲鰻、辣炒年糕、魚糕串、糖餅；也有適合小孩的海苔飯捲與炸物。</p>
+    <a class="maplink" href="https://www.google.com/maps/search/Haeundae+Traditional+Market" target="_blank">海雲台市場</a></div>
+  <div class="tip"><b>💡 今晚順手做</b>到超商幫全家買 T-money 並儲值，順便買隔天早餐。</div>
+</section>
+
+<!-- ===== Day 2 ===== -->
+<section class="day" id="d2">
+  <div class="day-head"><h2>Day 2 — 海雲台主題日</h2><p>全日步行圈內，行程最鬆、小孩最愛的一天。</p></div>
+  <div class="item"><span class="time">09:30</span><h3>藍線公園・天空膠囊列車</h3>
+    <p class="note">尾浦站 → 青沙浦站（約 2 公里、30 分鐘），4 人一車廂剛好全家包廂。建議去程膠囊（靠海側視野好）、回程海岸列車，體驗兩種。</p>
+    <a class="maplink" href="https://www.google.com/maps/search/Haeundae+Blueline+Park+Mipo+Station" target="_blank">尾浦站</a>
+    <a class="book" href="https://www.bluelinepark.com" target="_blank">官網預約（必訂）</a>
+    <div class="kid">黃綠紅藍四色車廂，可以讓小孩選顏色（現場依排序分配，早點到）。</div></div>
+  <div class="item"><span class="time">11:00</span><h3>青沙浦：紅白燈塔・踏石觀景台</h3>
+    <p class="note">透明地板的天空步道，走到海上看腳下的浪。附近吃烤貝或簡單午餐。</p>
+    <a class="maplink" href="https://www.google.com/maps/search/Cheongsapo+Daritdol+Observatory" target="_blank">踏石觀景台</a></div>
+  <div class="item"><span class="time">14:00</span><h3>SEA LIFE 釜山水族館</h3>
+    <p class="note">80 公尺海底隧道、鯊魚餵食秀（12:00/16:00）、企鵝餵食（15:30）。門票線上買較便宜（成人約 ₩29,000、兒童 ₩23,000）。躲中午最熱時段的完美室內行程。</p>
+    <a class="maplink" href="https://www.google.com/maps/search/SEA+LIFE+Busan+Aquarium" target="_blank">SEA LIFE 釜山</a>
+    <a class="book" href="https://www.kkday.com/zh-tw/product/17017" target="_blank">線上優惠票</a></div>
+  <div class="item"><span class="time">16:30</span><h3>海雲台海灘玩水 / 冬柏島散步</h3>
+    <p class="note">體力足就去海邊玩水；想輕鬆走冬柏島步道看 APEC 世峰樓與燈塔。</p>
+    <a class="maplink" href="https://www.google.com/maps/search/Dongbaek+Island+Busan" target="_blank">冬柏島</a></div>
+  <div class="item"><span class="time">19:00</span><h3>晚餐：豬肉湯飯或 The Bay 101 夜景</h3>
+    <p class="note">海雲台密陽血腸豬肉湯飯是在地名店；或到 The Bay 101 吃炸物配摩天樓夜景倒影。</p>
+    <a class="maplink" href="https://www.google.com/maps/search/The+Bay+101+Busan" target="_blank">The Bay 101</a></div>
+</section>
+
+<!-- ===== Day 3 ===== -->
+<section class="day" id="d3">
+  <div class="day-head"><h2>Day 3 — 甘川洞 + 南浦洞市場日</h2><p>文化 + 美食一次滿足；下午松島纜車給小孩驚喜收尾。</p></div>
+  <div class="item"><span class="time">09:00</span><h3>甘川洞文化村</h3>
+    <p class="note">趁早避人潮與烈日。彩色山城、小王子雕像打卡、蓋章地圖尋寶。地鐵札嘎其站 1 號出口轉西區 1-1/2/2-2 小巴。</p>
+    <a class="maplink" href="https://www.google.com/maps/search/Gamcheon+Culture+Village" target="_blank">甘川洞文化村</a>
+    <div class="kid">買一張 ₩2,000 尋寶地圖讓小孩集章換明信片，整個村子變成遊戲場。</div></div>
+  <div class="item"><span class="time">12:00</span><h3>札嘎其市場午餐</h3>
+    <p class="note">韓國最大海鮮市場（每月第 1、3 週二公休）。一樓挑海鮮、二樓代客料理；不吃生食可點烤魚定食。</p>
+    <a class="maplink" href="https://www.google.com/maps/search/Jagalchi+Market" target="_blank">札嘎其市場</a></div>
+  <div class="item"><span class="time">13:30</span><h3>國際市場・BIFF 廣場</h3>
+    <p class="note">BIFF 廣場吃堅果糖餅、鮮奶油雞蛋糕；國際市場逛雜貨，隔壁富平罐頭市場也可繞。</p>
+    <a class="maplink" href="https://www.google.com/maps/search/BIFF+Square+Busan" target="_blank">BIFF 廣場</a></div>
+  <div class="item"><span class="time">15:30</span><h3>松島海上纜車 + 龍宮雲橋</h3>
+    <p class="note">韓國第一條海上纜車，水晶車廂（透明地板）來回成人 ₩22,000/兒童 ₩16,000。Sky Park 有會吼叫的恐龍園區。7–8 月營業到 22:00，不用預約。</p>
+    <a class="maplink" href="https://www.google.com/maps/search/Songdo+Marine+Cable+Car" target="_blank">松島海上纜車</a>
+    <div class="kid">恐龍大冒險 + 龍宮雲橋（₩1,000）走海上吊橋，小孩通常這裡玩最瘋。</div></div>
+  <div class="item"><span class="time">19:00</span><h3>晚餐後回海雲台</h3>
+    <p class="note">南浦洞晚餐（元祖奶奶伽倻小麥冷麵、炸醬麵街）再搭地鐵 1 號線轉 2 號線回程。</p></div>
+  <div class="tip"><b>📅 週六加碼</b>若今天是週六，晚上改衝廣安里 M 無人機燈光秀（3–9 月 20:00、22:00 各一場，約 12 分鐘，雨天取消）——把松島纜車和 Day 5 廣安里對調即可。</div>
+</section>
+
+<!-- ===== Day 4 ===== -->
+<section class="day" id="d4">
+  <div class="day-head"><h2>Day 4 — 慶州世界遺產一日遊</h2><p>千年新羅古都，車程約 1–1.5 小時。建議訂中文一日團最省心。</p></div>
+  <div class="item"><span class="time">08:30</span><h3>出發（一日團 / KTX）</h3>
+    <p class="note">一日團多從釜山站或西面出發；自由行版可搭 KTX 至新慶州站（約 30 分）再包計程車。</p>
+    <a class="book" href="https://www.kkday.com/zh-tw/blog/3365/asia-korea-gyeongju-travel-guide" target="_blank">一日遊比較</a></div>
+  <div class="item"><span class="time">10:30</span><h3>佛國寺</h3>
+    <p class="note">近 1,500 年歷史的世界文化遺產，石階、迴廊與蓮池都很好拍。</p>
+    <a class="maplink" href="https://www.google.com/maps/search/Bulguksa+Temple" target="_blank">佛國寺</a></div>
+  <div class="item"><span class="time">13:00</span><h3>大陵苑（天馬塚）・瞻星台</h3>
+    <p class="note">草皮古墳群像巨大綠色饅頭，小孩可以在園區跑跳；瞻星台是東方最古老天文台。</p>
+    <a class="maplink" href="https://www.google.com/maps/search/Cheomseongdae" target="_blank">瞻星台</a>
+    <div class="kid">大陵苑門口租韓服拍古墳合照，小孩尺寸都有。</div></div>
+  <div class="item"><span class="time">15:30</span><h3>皇理團路</h3>
+    <p class="note">韓屋改建的文青街：十元麵包、慶州麵包、布丁與雜貨店，下午茶補給站。</p>
+    <a class="maplink" href="https://www.google.com/maps/search/Hwangnidan-gil" target="_blank">皇理團路</a></div>
+  <div class="item"><span class="time">17:30</span><h3>月精橋 → 東宮與月池夜景</h3>
+    <p class="note">月精橋入夜點燈超美；東宮與月池（雁鴨池）是韓國最經典的夜景之一，看完返程。</p>
+    <a class="maplink" href="https://www.google.com/maps/search/Woljeonggyo+Bridge" target="_blank">月精橋</a></div>
+  <div class="tip"><b>💡 帶小孩版調整</b>若擔心太趕，捨棄良洞村行程、佛國寺後直接進市區，把時間留給大陵苑草地和皇理團路吃點心。</div>
+</section>
+
+<!-- ===== Day 5 ===== -->
+<section class="day" id="d5">
+  <div class="day-head"><h2>Day 5 — 廣安里・採買返程</h2><p>依航班時間伸縮，以下以下午班機為例。</p></div>
+  <div class="item"><span class="time">09:30</span><h3>廣安里海水浴場</h3>
+    <p class="note">看廣安大橋的最佳位置，沙灘比海雲台細、人略少；沿岸咖啡店吃早午餐。</p>
+    <a class="maplink" href="https://www.google.com/maps/search/Gwangalli+Beach" target="_blank">廣安里海灘</a></div>
+  <div class="item"><span class="time">11:30</span><h3>樂天百貨 / 樂天超市採買</h3>
+    <p class="note">海苔、零食、辛拉麵、香蕉牛奶周邊一次補齊；退稅櫃檯記得跑。</p>
+    <a class="maplink" href="https://www.google.com/maps/search/Lotte+Mart+Busan" target="_blank">樂天超市</a></div>
+  <div class="item"><span class="time">13:30</span><h3>前往金海機場</h3>
+    <p class="note">海雲台出發抓 1.5 小時交通餘裕；行李多建議直接叫車或利木津巴士。</p></div>
+  <div class="tip"><b>📅 週六在釜山的最後一晚？</b>若航班是晚班機或隔天早班機，週六晚上留給廣安里無人機秀壓軸。</div>
+</section>
+
+<!-- ===== 預算 ===== -->
+<section class="day" id="d6">
+  <div class="day-head"><h2>預算估算（兩大兩小）</h2><p>匯率概抓 1 TWD ≈ 42 KRW，實際依訂購時間浮動。機票與住宿依季節差異大，僅列區間。</p></div>
+  <table>
+    <tr><th>項目</th><th class="num">估算 (KRW)</th><th class="num">約合 (TWD)</th></tr>
+    <tr><td>機票（台灣—釜山來回 ×4）</td><td class="num">—</td><td class="num">28,000–48,000</td></tr>
+    <tr><td>住宿（海雲台家庭房 ×4 晚）</td><td class="num">—</td><td class="num">16,000–32,000</td></tr>
+    <tr><td>膠囊列車（4 人 1 車廂單程）+ 海岸列車回程</td><td class="num">約 55,000–70,000</td><td class="num">1,300–1,700</td></tr>
+    <tr><td>SEA LIFE 水族館（線上票 2 大 2 小）</td><td class="num">約 104,000</td><td class="num">2,500</td></tr>
+    <tr><td>松島纜車水晶車廂來回（2 大 2 小）+ 雲橋</td><td class="num">約 80,000</td><td class="num">1,900</td></tr>
+    <tr><td>慶州一日團（2 大 2 小）</td><td class="num">約 240,000–320,000</td><td class="num">5,700–7,600</td></tr>
+    <tr><td>市內交通 + 機場來回（全程）</td><td class="num">約 100,000</td><td class="num">2,400</td></tr>
+    <tr><td>餐食（5 天，每日約 ₩120,000）</td><td class="num">約 600,000</td><td class="num">14,300</td></tr>
+    <tr class="total"><td>合計（不含機票住宿）</td><td class="num">≈ 1,200,000</td><td class="num">≈ 28,000–30,000</td></tr>
+  </table>
+
+  <h4 class="sec">🧳 夏季打包清單</h4>
+  <ul class="plain">
+    <li>防曬乳、帽子、太陽眼鏡；小孩泳衣 + 防磨衣 + 夾腳拖（海灘沖洗方便）</li>
+    <li>輕便雨傘（7–8 月偶有陣雨，無人機秀遇雨取消）</li>
+    <li>護照（兒童交通卡優惠設定需出示）、T-money 卡、少量現金（市場攤販）</li>
+    <li>Naver Map App（韓國 Google Maps 導航不完整，Naver 較準）</li>
+  </ul>
+</section>
+
+</main>
+
+<footer>釜山親子 5 日自由行・2026 夏季版｜票價與時間以官方公告為準</footer>
+
+<script>
+'use strict';
+var nav = document.getElementById('nav');
+nav.addEventListener('click', function (e) {
+  var btn = e.target.closest('button');
+  if (!btn) return;
+  document.querySelectorAll('nav button').forEach(function (b) { b.classList.remove('active'); });
+  btn.classList.add('active');
+  document.querySelectorAll('section.day').forEach(function (s) { s.classList.remove('show'); });
+  document.getElementById('d' + btn.dataset.d).classList.add('show');
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+});
+</script>
+</body>
+</html>
