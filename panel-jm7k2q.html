@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>📋 James 面板</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+body { font-family: "PingFang TC", "Microsoft JhengHei", sans-serif; background: #faf6f0; color: #3d3229; padding: 14px 12px 40px; max-width: 560px; margin: 0 auto; }
+h1 { font-size: 1.15rem; color: #8a5a2b; }
+.head { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin-bottom: 12px; }
+.sub { font-size: .75rem; color: #a08b74; width: 100%; }
+.wchip { font-size: .78rem; background: #fff; border: 1px solid #eaddcc; border-radius: 16px; padding: 5px 12px; color: #6b5a45; }
+.card { background: #fff; border: 1px solid #eaddcc; border-radius: 14px; padding: 14px; box-shadow: 0 1px 3px rgba(140,100,60,.08); margin-bottom: 12px; }
+.card h2 { font-size: .95rem; color: #8a5a2b; margin-bottom: 10px; }
+ul { list-style: none; }
+li { padding: 8px 0; border-bottom: 1px dashed #f0e6d8; font-size: .88rem; line-height: 1.5; }
+li:last-child { border-bottom: none; }
+.tag { display: inline-block; font-size: .68rem; padding: 1px 8px; border-radius: 10px; margin-right: 5px; background: #f4e8d7; color: #8a5a2b; white-space: nowrap; }
+.tag.done { background: #e3efe3; color: #3c6e3c; }
+.tag.c甄選 { background: #fde8d8; color: #a85717; } .tag.c研究 { background: #e3ecf7; color: #3a5f8a; }
+.tag.cApp { background: #eee5f7; color: #6b4a9c; } .tag.c學業 { background: #e3f0e6; color: #3c6e4c; }
+.tag.c生活 { background: #f7f0d8; color: #8a7a2b; } .tag.c其他 { background: #eee9e2; color: #7a6f60; }
+.muted { color: #a08b74; font-size: .76rem; }
+.due { font-size: .72rem; color: #8a7a60; margin-left: 6px; white-space: nowrap; }
+.due.over { color: #c0392b; font-weight: 700; }
+.filter { display: flex; flex-wrap: wrap; gap: 5px; margin-bottom: 8px; }
+.filter button { border: 1px solid #eaddcc; background: #fff; border-radius: 14px; padding: 4px 12px; font-size: .78rem; color: #8a5a2b; }
+.filter button.on { background: #8a5a2b; color: #fff; }
+.todo { display: flex; align-items: flex-start; gap: 9px; }
+.todo input[type=checkbox] { margin-top: 4px; accent-color: #8a5a2b; width: 17px; height: 17px; }
+.todo.checked .txt { text-decoration: line-through; color: #b8a68f; }
+.todo .del { margin-left: auto; border: none; background: none; color: #d0b9a0; font-size: 1rem; padding: 0 4px; }
+.addrow { display: flex; gap: 5px; margin-top: 10px; flex-wrap: wrap; }
+.addrow input[type=text] { flex: 1 1 130px; border: 1px solid #eaddcc; border-radius: 8px; padding: 7px 10px; font-size: .88rem; }
+.addrow select, .addrow input[type=date] { border: 1px solid #eaddcc; border-radius: 8px; padding: 6px; font-size: .8rem; color: #6b5a45; background: #fff; }
+.addrow button { border: none; background: #8a5a2b; color: #fff; border-radius: 8px; padding: 6px 16px; font-size: 1rem; }
+details { border-bottom: 1px dashed #f0e6d8; padding: 7px 0; }
+details:last-of-type { border-bottom: none; }
+summary { font-size: .88rem; list-style: none; display: flex; align-items: center; flex-wrap: wrap; }
+summary::before { content: "▸"; color: #c9a06a; margin-right: 6px; transition: transform .15s; }
+details[open] summary::before { transform: rotate(90deg); }
+.detail { padding: 6px 0 4px 16px; font-size: .82rem; color: #6b5a45; line-height: 1.6; }
+.pbar { flex-basis: 100%; height: 6px; background: #f0e6d8; border-radius: 3px; margin-top: 6px; overflow: hidden; }
+.pbar div { height: 100%; background: linear-gradient(90deg,#c9a06a,#8a5a2b); }
+.rings { display: flex; gap: 14px; justify-content: space-around; flex-wrap: wrap; }
+.ring { width: 104px; text-align: center; }
+.ring .circle { width: 92px; height: 92px; border-radius: 50%; margin: 0 auto 6px; display: flex; align-items: center; justify-content: center; }
+.ring .inner { width: 68px; height: 68px; border-radius: 50%; background: #fff; display: flex; flex-direction: column; align-items: center; justify-content: center; font-size: .8rem; font-weight: 700; color: #6b4a24; }
+.ring .lbl { font-size: .76rem; color: #6b5a45; }
+.bigbtn { display: block; text-align: center; background: #8a5a2b; color: #fff; text-decoration: none; border-radius: 10px; padding: 11px; font-size: .92rem; margin-top: 4px; }
+footer { font-size: .7rem; color: #a08b74; text-align: center; margin-top: 10px; }
+</style>
+</head>
+<body>
+<div class="head">
+  <h1>📋 James 面板</h1>
+  <span class="wchip" id="weather">🌤️ 載入中…</span>
+  <span class="sub" id="today-label"></span>
+</div>
+
+<div class="card">
+<h2>🗓️ 行程</h2>
+<div id="wx-detail" class="muted" style="margin-bottom:8px"></div>
+<a class="bigbtn" href="https://calendar.google.com/calendar/u/0/r" target="_blank">開啟 Google 日曆 →</a>
+</div>
+
+<div class="card">
+<h2>✅ 待辦清單</h2>
+<div class="filter" id="tfilter"></div>
+<ul id="todos"></ul>
+<div class="addrow">
+<input type="text" id="newtodo" placeholder="新增待辦…" maxlength="80">
+<select id="newcat"><option>甄選</option><option>研究</option><option>App</option><option>學業</option><option>生活</option><option selected>其他</option></select>
+<input type="date" id="newdue">
+<button id="addbtn">＋</button>
+</div>
+<div class="muted" style="margin-top:8px">※ 勾選與新增只存在這支手機的瀏覽器,與電腦版不同步。</div>
+</div>
+
+<div class="card">
+<h2>🚀 專案</h2>
+<div class="filter" id="pfilter">
+<button class="on" data-f="all">全部</button><button data-f="active">進行中</button><button data-f="done">已完成</button>
+</div>
+<div id="projects"></div>
+</div>
+
+<div class="card">
+<h2>🎓 學業進度</h2>
+<div class="rings" id="rings"></div>
+</div>
+
+<div class="card">
+<h2>📚 知識資料庫</h2>
+<div id="knowledge"></div>
+</div>
+
+<footer>快照 2026-07-07・天氣即時(Open-Meteo)・請勿分享此網址</footer>
+
+<script>
+const p2 = n => String(n).padStart(2, "0");
+function twNow(){ return new Date(new Date().toLocaleString("en-US",{timeZone:"Asia/Taipei"})); }
+function ymd(d){ return d.getFullYear()+"-"+p2(d.getMonth()+1)+"-"+p2(d.getDate()); }
+const TODAY = ymd(twNow());
+document.getElementById("today-label").textContent = new Intl.DateTimeFormat("zh-TW",{timeZone:"Asia/Taipei",year:"numeric",month:"long",day:"numeric",weekday:"long"}).format(new Date());
+
+/* 待辦 */
+const CATS=["甄選","研究","App","學業","生活","其他"];
+const DEFAULT_TODOS=[
+ {t:"代理教師甄選:報名(復興國小輔導室 9:00–16:00)",c:false,cat:"甄選",due:"2026-07-13"},
+ {t:"代理教師甄選:甄試(9:30 報到、10:00 開始)",c:false,cat:"甄選",due:"2026-07-14"},
+ {t:"LINE BOT:Anthropic API 儲值後上線",c:false,cat:"App",due:null},
+ {t:"情緒小島 iOS 上架:Apple Developer 註冊 → EAS",c:false,cat:"App",due:null},
+ {t:"等秋季課表公布 → 確定碩士+師培選課",c:false,cat:"學業",due:null}];
+let todos=JSON.parse(localStorage.getItem("todos_v2")||"null")||DEFAULT_TODOS;
+let tcat=localStorage.getItem("tcat")||"all";
+const save=()=>localStorage.setItem("todos_v2",JSON.stringify(todos));
+function renderTF(){const b=document.getElementById("tfilter");b.innerHTML="";["all",...CATS].forEach(c=>{const x=document.createElement("button");x.textContent=c==="all"?"全部":c;if(c===tcat)x.classList.add("on");x.onclick=()=>{tcat=c;localStorage.setItem("tcat",c);renderTF();renderT();};b.appendChild(x);});}
+function renderT(){const ul=document.getElementById("todos");ul.innerHTML="";
+ const idx=todos.map((td,i)=>({td,i})).filter(x=>tcat==="all"||x.td.cat===tcat);
+ idx.sort((a,b)=>(a.td.c-b.td.c)||((a.td.due||"9999").localeCompare(b.td.due||"9999")));
+ if(!idx.length){ul.innerHTML='<li class="muted">這個分類沒有待辦 🎉</li>';return;}
+ idx.forEach(({td,i})=>{const li=document.createElement("li");li.className="todo"+(td.c?" checked":"");
+  const cb=document.createElement("input");cb.type="checkbox";cb.checked=td.c;
+  cb.onchange=()=>{todos[i].c=cb.checked;save();renderT();};
+  const sp=document.createElement("span");const over=td.due&&!td.c&&td.due<TODAY;
+  sp.className="txt";sp.innerHTML=`<span class="tag c${td.cat}">${td.cat}</span>${td.t}`+(td.due?`<span class="due ${over?"over":""}">${over?"⚠ 逾期 ":"⏰ "}${td.due.slice(5).replace("-","/")}</span>`:"");
+  sp.onclick=()=>{cb.checked=!cb.checked;cb.onchange();};
+  const del=document.createElement("button");del.className="del";del.textContent="✕";
+  del.onclick=e=>{e.stopPropagation();todos.splice(i,1);save();renderT();};
+  li.append(cb,sp,del);ul.appendChild(li);});}
+document.getElementById("addbtn").onclick=()=>{const inp=document.getElementById("newtodo");const v=inp.value.trim();if(!v)return;
+ todos.push({t:v,c:false,cat:document.getElementById("newcat").value,due:document.getElementById("newdue").value||null});
+ inp.value="";document.getElementById("newdue").value="";save();renderT();};
+renderTF();renderT();
+
+/* 專案 */
+const PROJECTS=[
+ {n:"情緒小島",s:"active",pct:85,d:"SEL App(RULER,我覺得→我想要→我可以)",x:"RN/Expo/TS+Supabase。22 情緒卡、角色宥宥/星星/樂樂。RULER 報告完成。下一步:Apple Developer → EAS → iOS 上架"},
+ {n:"多感官輔具行動研究",s:"active",pct:90,d:"低口語幼兒說話意圖,計畫 43 頁完成",x:"南大格式。輔具:ESP32+SU-03T、INMP441、WS2812。下一步:實施研究、蒐集資料"},
+ {n:"代理教師甄選",s:"active",pct:60,d:"復興國小學前特教巡迴",x:"簡歷備妥、試教逐字稿 7 頁。7/13 報名、7/14 甄試"},
+ {n:"學業雙軌",s:"active",pct:40,d:"碩士+師培並行",x:"碩士 18/32;師培 5/44(抵免)。等秋季課表"},
+ {n:"個人網站",s:"active",pct:75,d:"gahanglee.github.io",x:"合理調整/UDL/CRPD/PBS 專頁。2026-07 健檢修正完成"},
+ {n:"LINE BOT",s:"active",pct:95,d:"Claude 聊天機器人",x:"程式完成,只差 API 儲值"},
+ {n:"論文研究計畫",s:"active",pct:30,d:"方案 A/B 分析完成",x:"建議:App+雲朵呼吸燈兩階段設計,待教授拍板"},
+ {n:"台灣指數財務模型",s:"done",pct:100,d:"v3 完成",x:"22 工作表、Dashboard、2,138 條公式"},
+ {n:"幼兒園合理調整手冊",s:"done",pct:100,d:"手冊+資訊卡完成",x:"Word 2.3 萬字+20 張 A5 資訊卡"}];
+function renderP(f){const box=document.getElementById("projects");box.innerHTML="";
+ PROJECTS.filter(p=>f==="all"||p.s===f).forEach(p=>{const dt=document.createElement("details");
+  dt.innerHTML=`<summary><span class="tag ${p.s==="done"?"done":""}">${p.s==="done"?"已完成":p.pct+"%"}</span><b>${p.n}</b>&nbsp;<span class="muted">${p.d}</span><span class="pbar"><div style="width:${p.pct}%"></div></span></summary><div class="detail">${p.x}</div>`;
+  box.appendChild(dt);});}
+let pf=localStorage.getItem("pf")||"all";renderP(pf);
+document.querySelectorAll("#pfilter button").forEach(b=>{if(b.dataset.f===pf){document.querySelector("#pfilter .on").classList.remove("on");b.classList.add("on");}
+ b.onclick=()=>{document.querySelector("#pfilter .on").classList.remove("on");b.classList.add("on");localStorage.setItem("pf",b.dataset.f);renderP(b.dataset.f);};});
+
+/* 學業環圈 */
+[["碩士(輔助科技組)",18,32,"#8a5a2b"],["師培學程",5,44,"#3a5f8a"]].forEach(([l,d,t,c])=>{
+ const pct=Math.round(d/t*100);const div=document.createElement("div");div.className="ring";
+ div.innerHTML=`<div class="circle" style="background:conic-gradient(${c} ${pct*3.6}deg,#f0e6d8 0)"><div class="inner">${d}/${t}<span class="muted">${pct}%</span></div></div><div class="lbl">${l}</div>`;
+ document.getElementById("rings").appendChild(div);});
+
+/* 知識庫 */
+const K=[["特教知識",["合理調整手冊(2.3 萬字)+20 張資訊卡","合理調整網站專頁","118 張研習投影片(現場工具箱)","UDL 範例","情緒島競賽文件","試教分層提示","國語評量知識庫"]],
+ ["研究論文",["多感官輔具行動研究(43 頁)","情緒小島 RULER 報告","論文計畫初稿(方案 A/B)","JABA 2025 文獻","南大文獻管道:SFX→Wiley proxy"]],
+ ["心理諮商",["矛盾意象法:故觀減/失恐強","防混淆:減敏感 vs 暴露 vs 矛盾","Notion 考試筆記","口訣格式:本質→口訣→對照→自測"]],
+ ["時間管理",["daily-briefing Artifact","每日 8:00 提醒","CWA 天氣排程","個人秘書 PWA"]]];
+K.forEach(([n,items])=>{const dt=document.createElement("details");
+ dt.innerHTML=`<summary><b>${n}</b>&nbsp;<span class="muted">${items.length} 項</span></summary><div class="detail">${items.map(i=>"• "+i).join("<br>")}</div>`;
+ document.getElementById("knowledge").appendChild(dt);});
+
+/* 天氣:Open-Meteo 台南 */
+(async()=>{
+ try{
+  const r=await fetch("https://api.open-meteo.com/v1/forecast?latitude=22.99&longitude=120.21&daily=weather_code,temperature_2m_max,temperature_2m_min,precipitation_probability_max&timezone=Asia%2FTaipei&forecast_days=2");
+  const d=await r.json();
+  const code=d.daily.weather_code[0];
+  const M={0:"☀️ 晴",1:"🌤️ 多雲時晴",2:"⛅ 多雲",3:"☁️ 陰",45:"🌫️ 霧",51:"🌦️ 毛毛雨",61:"🌧️ 小雨",63:"🌧️ 中雨",65:"🌧️ 大雨",80:"🌦️ 陣雨",81:"🌧️ 陣雨",82:"⛈️ 強陣雨",95:"⛈️ 雷雨",96:"⛈️ 雷雨",99:"⛈️ 雷雨"};
+  const wx=M[code]||"🌤️";
+  document.getElementById("weather").textContent=`${wx} 台南 ${Math.round(d.daily.temperature_2m_min[0])}–${Math.round(d.daily.temperature_2m_max[0])}°C・降雨 ${d.daily.precipitation_probability_max[0]}%`;
+  document.getElementById("wx-detail").textContent=`明日:${(M[d.daily.weather_code[1]]||"")} ${Math.round(d.daily.temperature_2m_min[1])}–${Math.round(d.daily.temperature_2m_max[1])}°C・降雨 ${d.daily.precipitation_probability_max[1]}%`;
+ }catch(e){document.getElementById("weather").textContent="🌤️ 天氣載入失敗";}
+})();
+</script>
+</body>
+</html>
