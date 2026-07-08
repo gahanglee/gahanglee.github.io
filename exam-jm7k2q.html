@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>🎓 師培考試面板</title>
+<style>
+:root { color-scheme: light; }
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: "Segoe UI", "Microsoft JhengHei", sans-serif; background: #f4f7f4; color: #2d3a2d; padding: 16px; }
+h1 { font-size: 1.3rem; color: #3c6e4c; margin-bottom: 2px; }
+.sub { font-size: .8rem; color: #7a917a; margin-bottom: 14px; }
+.grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 14px; }
+.card { background: #fff; border: 1px solid #d5e3d5; border-radius: 12px; padding: 14px 16px; box-shadow: 0 1px 3px rgba(60,110,76,.08); }
+.card h2 { font-size: 1rem; color: #3c6e4c; margin-bottom: 10px; }
+.muted { color: #7a917a; font-size: .78rem; }
+/* 考試序列 */
+.step { display: flex; gap: 10px; padding: 8px 0; border-bottom: 1px dashed #e2ede2; font-size: .88rem; align-items: flex-start; }
+.step:last-child { border-bottom: none; }
+.step .num { flex: 0 0 26px; height: 26px; border-radius: 50%; background: #3c6e4c; color: #fff; display: flex; align-items: center; justify-content: center; font-size: .8rem; font-weight: 700; }
+.step.wait .num { background: #c5d6c5; }
+.tag { display: inline-block; font-size: .68rem; padding: 1px 8px; border-radius: 10px; background: #e3f0e6; color: #3c6e4c; margin-left: 6px; }
+.tag.now { background: #fdeccc; color: #9c6a10; }
+/* 連結 */
+a.src { display: block; padding: 8px 10px; border: 1px solid #d5e3d5; border-radius: 8px; margin-bottom: 6px; text-decoration: none; color: #2d5a3c; font-size: .85rem; background: #fafdfa; }
+a.src:hover { background: #eef6ee; }
+a.src .d { display: block; font-size: .74rem; color: #7a917a; margin-top: 2px; }
+/* Quiz */
+.qtabs { display: flex; gap: 6px; margin-bottom: 10px; }
+.qtabs button { border: 1px solid #d5e3d5; background: #fff; border-radius: 14px; padding: 4px 14px; font-size: .82rem; cursor: pointer; color: #3c6e4c; }
+.qtabs button.on { background: #3c6e4c; color: #fff; }
+.qbox { border: 1px solid #e2ede2; border-radius: 10px; padding: 14px; background: #fafdfa; }
+.qtext { font-size: .92rem; line-height: 1.6; margin-bottom: 10px; }
+.qcat { font-size: .7rem; color: #9c6a10; background: #fdeccc; border-radius: 8px; padding: 1px 8px; display: inline-block; margin-bottom: 6px; }
+.ans { display: none; background: #eef6ee; border-left: 3px solid #3c6e4c; padding: 10px 12px; border-radius: 0 8px 8px 0; font-size: .86rem; line-height: 1.6; margin-bottom: 10px; white-space: pre-wrap; }
+.qbtns { display: flex; gap: 6px; flex-wrap: wrap; }
+.qbtns button { border: none; border-radius: 8px; padding: 7px 14px; font-size: .84rem; cursor: pointer; }
+.b-show { background: #3c6e4c; color: #fff; }
+.b-right { background: #d8f0dc; color: #2d6a3c; display: none; }
+.b-wrong { background: #f7dede; color: #a44; display: none; }
+.b-nav { background: #eee; color: #555; }
+.score { font-size: .8rem; color: #3c6e4c; margin-top: 8px; }
+.pbar { height: 8px; background: #e2ede2; border-radius: 4px; margin-top: 6px; overflow: hidden; }
+.pbar div { height: 100%; background: linear-gradient(90deg,#7bb98a,#3c6e4c); }
+details { border-bottom: 1px dashed #e2ede2; padding: 6px 0; }
+details:last-of-type { border-bottom: none; }
+summary { cursor: pointer; font-size: .88rem; list-style: none; }
+summary::before { content: "▸ "; color: #7bb98a; }
+details[open] summary::before { content: "▾ "; }
+.detail { padding: 6px 0 4px 16px; font-size: .82rem; color: #4a5f4a; line-height: 1.6; }
+</style>
+</head>
+<body>
+<h1>🎓 師培考試面板</h1>
+<div class="sub">師資生資格測驗 → 教檢 → 教甄|練習題每次隨機出題,答題紀錄自動保存</div>
+
+<div class="grid">
+
+<div class="card" style="grid-column:1/-1">
+<h2>✍️ 互動練習題</h2>
+<div class="qtabs">
+<button class="on" data-s="ch">國語(12 題)</button>
+<button data-s="ma">數學(12 題)</button>
+</div>
+<div class="qbox">
+<span class="qcat" id="qcat"></span>
+<div class="qtext" id="qtext"></div>
+<div class="ans" id="qans"></div>
+<div class="qbtns">
+<button class="b-show" id="bshow">看答案</button>
+<button class="b-right" id="bright">✓ 我答對了</button>
+<button class="b-wrong" id="bwrong">✗ 我答錯了</button>
+<button class="b-nav" id="bnext">下一題 →</button>
+</div>
+<div class="score" id="qscore"></div>
+<div class="pbar"><div id="qbar" style="width:0%"></div></div>
+</div>
+</div>
+
+<div class="card">
+<h2>🗺️ 考試序列</h2>
+<div class="step"><div class="num">1</div><div><b>國語文資格測驗</b><span class="tag now">準備中</span><br><span class="muted">南大師培自辦・語音系統/字形/詞語修辭</span></div></div>
+<div class="step wait"><div class="num">2</div><div><b>數學資格測驗</b><span class="tag">待準備</span><br><span class="muted">南大師培自辦・數與量/比例/幾何/代數統計</span></div></div>
+<div class="step wait"><div class="num">3</div><div><b>教師資格考試(教檢)</b><span class="tag">修畢師培後</span><br><span class="muted">特教類科:國語文能力測驗+教育專業科目(以當年簡章為準)</span></div></div>
+<div class="step wait"><div class="num">4</div><div><b>教師甄試(教甄)</b><span class="tag">取得教師證後</span><br><span class="muted">各縣市:筆試(特教+幼教專業)→複試(試教+口試)</span></div></div>
+<div class="muted" style="margin-top:8px">※ 免實習兩路線見知識庫 academic-plan;科目以當年度簡章為準。</div>
+</div>
+
+<div class="card">
+<h2>📚 考古題來源庫</h2>
+<a class="src" href="https://tqa.rcpet.edu.tw/TEA_Exam/TEA03.aspx" target="_blank">教檢歷屆試題+參考答案(官方)<span class="d">含「國語文能力測驗」歷屆題——國語測驗最好的練習來源</span></a>
+<a class="src" href="https://yamol.tw" target="_blank">阿摩線上測驗<span class="d">教檢/教甄分類題庫、循序漸進刷題、錯題收集</span></a>
+<a class="src" href="https://www.nutn.edu.tw" target="_blank">南大師培中心公告<span class="d">師資生基本能力檢測(國語/數學)日期與範圍——開學後留意公告</span></a>
+<a class="src" href="https://cap.rcpet.edu.tw/examination.html" target="_blank">國中教育會考歷屆試題<span class="d">數學測驗難度參照+練習素材</span></a>
+<div class="muted" style="margin-top:6px">收集到新考古題(如台南教甄學前特教歷年題)跟 Claude 說,我會加進來。</div>
+</div>
+
+<div class="card">
+<h2>🧠 重點口訣速查</h2>
+<details><summary><b>國語:變調</b></summary><div class="detail">「一」:序數不變、遇四變二、其餘變四。「不」:遇四變二、其餘讀四。</div></details>
+<details><summary><b>國語:平翹舌</b></summary><div class="detail">ㄗㄘㄙ=舌尖前(平);ㄓㄔㄕㄖ=舌尖後(翹)。「資」平「知」翹。</div></details>
+<details><summary><b>國語:六書</b></summary><div class="detail">象形畫實物、指事加符號、會意合兩意、形聲一形一聲。</div></details>
+<details><summary><b>數學:分數除法</b></summary><div class="detail">除變乘、翻倒數。</div></details>
+<details><summary><b>數學:縮放</b></summary><div class="detail">長度變 k → 面積 k² → 體積 k³。</div></details>
+<details><summary><b>數學:平均</b></summary><div class="detail">平均問題回到「總和」思考。</div></details>
+<details><summary><b>數學:濃度</b></summary><div class="detail">加水糖不變、加糖水不變,抓住不變量。</div></details>
+<details><summary><b>數學:常用分數小數</b></summary><div class="detail">0.125=1/8、0.25=1/4、0.375=3/8、0.625=5/8、0.875=7/8。</div></details>
+</div>
+
+</div>
+
+<script>
+const QUIZ = {
+ch: [
+ {c:"語音・破音字",q:"「行」在「銀行」「行走」「操行」「樹行子」中共有幾種讀音?",a:"4 種:ㄏㄤˊ(銀行)/ㄒㄧㄥˊ(行走)/ㄒㄧㄥˋ(操行)/ㄏㄤˋ(樹行子)。\n口訣:詞性變、意思變,讀音跟著變。"},
+ {c:"語音・聲母",q:"下列何者聲母為舌尖前音?(A)知 (B)吃 (C)資 (D)日",a:"C。ㄗㄘㄙ=舌尖前(平舌);ㄓㄔㄕㄖ=舌尖後(翹舌)。\n防混淆:「資」平「知」翹。"},
+ {c:"語音・變調",q:"「一個」「一天」「第一」中的「一」分別怎麼讀?",a:"ㄧˊ個(四聲前變二聲)、ㄧˋ天(一二三聲前變四聲)、第ㄧ(序數不變調)。\n口訣:序數不變、遇四變二、其餘變四。"},
+ {c:"語音・零聲母",q:"下列何者為零聲母字?(A)翁 (B)風 (C)通 (D)空",a:"A。「翁」ㄨㄥ 無聲母。\n防混淆:零聲母≠輕聲。"},
+ {c:"語音・變調",q:"「不去」「不來」中的「不」分別怎麼讀?",a:"ㄅㄨˊ去(四聲前變二聲)、ㄅㄨˋ來(其餘讀四聲)。\n與「一」的變調同組記憶。"},
+ {c:"字形・六書",q:"「刃」屬六書中的?(A)象形 (B)指事 (C)會意 (D)形聲",a:"B。刀上加一點指出刀口位置=指事。\n口訣:象形畫實物、指事加符號、會意合兩意、形聲一形一聲。"},
+ {c:"字形・錯別字",q:"下列何組完全無錯別字?(A)墨守成規、粗製濫造 (B)默守成規、粗製爛造 (C)墨守成規、粗製爛造 (D)默守成規、粗製濫造",a:"A。「墨」守成規(墨翟典故);粗製「濫」造(濫=過度不精)。"},
+ {c:"字形・部首",q:"「盥」字的部首是?",a:"皿部。雙手捧水於器皿上洗手——會意字,部首取「皿」。"},
+ {c:"字形・筆畫",q:"「贏」字共幾畫?由哪五個部件組成?",a:"20 畫;亡、口、月、貝、凡。\n口訣:亡口月貝凡。"},
+ {c:"字形・部首",q:"「彳」部與「辶」部的字,字義共通點是?",a:"皆與行走、道路有關。彳=小步走;辶(辵)=走走停停。"},
+ {c:"修辭",q:"「他的心像被掏空了一樣」是何種修辭?(A)譬喻 (B)轉化 (C)誇飾 (D)映襯",a:"A(譬喻)。有比喻詞「像」。\n防混淆:轉化是把物當人/人當物,沒有比喻詞。"},
+ {c:"詞語",q:"「不脛而走」的「脛」意為?(A)翅膀 (B)小腿 (C)腳掌 (D)道路",a:"B(小腿)。沒有腿卻能跑=消息傳播迅速。\n防混淆:「不翼而飛」指東西不見。"}
+],
+ma: [
+ {c:"數與量",q:"3/4 ÷ 3/8 = ?",a:"2。除以分數=乘倒數:3/4 × 8/3 = 2。\n口訣:除變乘、翻倒數。"},
+ {c:"數與量",q:"0.125 化為最簡分數?",a:"1/8。\n常用對照:0.125=1/8、0.25=1/4、0.375=3/8、0.625=5/8、0.875=7/8。"},
+ {c:"數與量",q:"72 與 48 的最大公因數與最小公倍數?",a:"GCD=24,LCM=144。\n檢驗:24×144 = 72×48 = 3456。"},
+ {c:"數與量",q:"打八折後再打九折,相當於打幾折?",a:"72 折(0.8×0.9=0.72)。\n防混淆:連續折扣相乘,不是相加減。"},
+ {c:"比例・速率",q:"時速 60 公里行駛 40 分鐘,行駛距離?",a:"40 公里。60 × (40/60) = 40。\n口訣:單位先對齊,再套 距離=速率×時間。"},
+ {c:"比例",q:"甲:乙=2:3,乙:丙=4:5,則甲:乙:丙=?",a:"8:12:15。乙取 3 與 4 的最小公倍數 12,甲乙同乘 4、乙丙同乘 3。"},
+ {c:"比例・濃度",q:"20% 糖水 300 克,加水 100 克後濃度?",a:"15%。糖不變 60 克 ÷ 總量 400 克 = 15%。\n口訣:加水糖不變、加糖水不變。"},
+ {c:"幾何",q:"三角形內角比 1:2:3,是什麼三角形?",a:"直角三角形(30°、60°、90°)。180 × 3/6 = 90°。"},
+ {c:"幾何",q:"圓半徑加倍,面積與周長各變幾倍?",a:"面積 4 倍、周長 2 倍。\n口訣:長度變 k → 面積 k² → 體積 k³。"},
+ {c:"幾何",q:"長方體長 6、寬 4、高 3,表面積?",a:"108。2×(6×4 + 6×3 + 4×3) = 2×54 = 108。"},
+ {c:"代數",q:"3x − 7 = 2x + 5,x = ?",a:"12。移項:3x−2x = 5+7。"},
+ {c:"統計",q:"五個數平均 20,去掉一個數後四數平均 18,去掉的數是?",a:"28。5×20 − 4×18 = 100 − 72 = 28。\n口訣:平均問題回到總和。"}
+]};
+let subj = "ch", order = [], idx = 0;
+let stats = JSON.parse(localStorage.getItem("exam_stats") || '{"ch":{"r":0,"w":0},"ma":{"r":0,"w":0}}');
+function shuffle(n){ const a=[...Array(n).keys()]; for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];} return a; }
+function saveStats(){ localStorage.setItem("exam_stats", JSON.stringify(stats)); }
+function renderScore(){
+  const s=stats[subj], t=s.r+s.w, pct=t?Math.round(s.r/t*100):0;
+  document.getElementById("qscore").textContent=`累計:答對 ${s.r}・答錯 ${s.w}${t?`・正確率 ${pct}%`:""}(第 ${idx+1}/${order.length} 題)`;
+  document.getElementById("qbar").style.width=pct+"%";
+}
+function showQ(){
+  const q=QUIZ[subj][order[idx]];
+  document.getElementById("qcat").textContent=q.c;
+  document.getElementById("qtext").textContent=(idx+1)+". "+q.q;
+  document.getElementById("qans").style.display="none";
+  document.getElementById("qans").textContent=q.a;
+  document.getElementById("bright").style.display="none";
+  document.getElementById("bwrong").style.display="none";
+  document.getElementById("bshow").style.display="inline-block";
+  renderScore();
+}
+function startSubj(s){ subj=s; order=shuffle(QUIZ[s].length); idx=0; showQ(); }
+document.querySelectorAll(".qtabs button").forEach(b=>{
+  b.onclick=()=>{ document.querySelector(".qtabs .on").classList.remove("on"); b.classList.add("on"); startSubj(b.dataset.s); };
+});
+document.getElementById("bshow").onclick=()=>{
+  document.getElementById("qans").style.display="block";
+  document.getElementById("bshow").style.display="none";
+  document.getElementById("bright").style.display="inline-block";
+  document.getElementById("bwrong").style.display="inline-block";
+};
+function mark(ok){ stats[subj][ok?"r":"w"]++; saveStats(); next(); }
+document.getElementById("bright").onclick=()=>mark(true);
+document.getElementById("bwrong").onclick=()=>mark(false);
+function next(){ idx=(idx+1)%order.length; if(idx===0) order=shuffle(QUIZ[subj].length); showQ(); }
+document.getElementById("bnext").onclick=next;
+startSubj("ch");
+</script>
+</body>
+</html>
