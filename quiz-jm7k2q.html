@@ -1,0 +1,371 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>教檢刷題|特教身障組</title>
+<style>
+:root{color-scheme:light;--bg:#f7f8fa;--card:#fff;--ink:#1f2937;--sub:#6b7280;--acc:#2563eb;--ok:#16a34a;--bad:#dc2626;--line:#e5e7eb}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:"Microsoft JhengHei","Noto Sans TC",sans-serif;background:var(--bg);color:var(--ink);padding:16px;max-width:760px;margin:0 auto}
+h1{font-size:18px;margin-bottom:4px}
+.sub{color:var(--sub);font-size:12px;margin-bottom:12px}
+.tabs{display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap}
+.tab{padding:8px 14px;border-radius:20px;border:1px solid var(--line);background:var(--card);cursor:pointer;font-size:14px}
+.tab.on{background:var(--acc);color:#fff;border-color:var(--acc)}
+.filters{display:flex;gap:6px;margin-bottom:12px;flex-wrap:wrap}
+.chip{padding:5px 10px;border-radius:14px;border:1px solid var(--line);background:var(--card);cursor:pointer;font-size:12px;color:var(--sub)}
+.chip.on{border-color:var(--acc);color:var(--acc);font-weight:bold}
+.card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:18px;margin-bottom:12px;box-shadow:0 1px 3px rgba(0,0,0,.05)}
+.qmeta{font-size:12px;color:var(--sub);margin-bottom:8px}
+.qtext{font-size:15px;line-height:1.8;margin-bottom:14px;white-space:pre-wrap}
+.opts{display:flex;gap:8px;flex-wrap:wrap}
+.opt{flex:1;min-width:60px;padding:12px 0;text-align:center;font-size:16px;font-weight:bold;border:1.5px solid var(--line);border-radius:10px;background:var(--card);cursor:pointer}
+.opt:hover{border-color:var(--acc)}
+.opt.right{background:#dcfce7;border-color:var(--ok);color:var(--ok)}
+.opt.wrong{background:#fee2e2;border-color:var(--bad);color:var(--bad)}
+.opt:disabled{cursor:default}
+.ansbox{margin-top:12px;padding:12px;border-radius:8px;font-size:14px;line-height:1.7;display:none}
+.ansbox.show{display:block}
+.ansbox.ok{background:#dcfce7;color:#166534}
+.ansbox.bad{background:#fee2e2;color:#991b1b}
+.bar{display:flex;gap:10px;align-items:center;margin-bottom:12px;font-size:13px;color:var(--sub);flex-wrap:wrap}
+.score{font-weight:bold;color:var(--ink)}
+button.act{padding:10px 18px;border:none;border-radius:10px;background:var(--acc);color:#fff;font-size:14px;cursor:pointer}
+button.ghost{background:var(--card);color:var(--acc);border:1px solid var(--acc)}
+.rev{margin-top:14px;padding:12px;background:#fffbeb;border:1px solid #fde68a;border-radius:8px;font-size:13px;line-height:1.7;display:none}
+.rev.show{display:block}
+.rev b{color:#92400e}
+.cardq{font-size:15px;line-height:1.8;margin-bottom:14px}
+.carda{font-size:14px;line-height:1.7;padding:12px;background:#eff6ff;border-radius:8px;color:#1e40af;display:none;margin-bottom:12px}
+.carda.show{display:block}
+.row{display:flex;gap:8px;flex-wrap:wrap}
+.hide{display:none!important}
+.done{text-align:center;padding:30px 10px}
+.done h2{font-size:22px;margin-bottom:8px}
+.pill{display:inline-block;padding:2px 8px;border-radius:10px;font-size:11px;background:#eef2ff;color:#4338ca;margin-right:6px}
+</style>
+</head>
+<body>
+<h1>📝 教檢刷題|特教身障組</h1>
+<div class="sub">官方試題(tqa.rcpet.edu.tw)111–113 年.答案為官方版.進度存在本機</div>
+<div class="tabs">
+  <div class="tab on" id="tabMcq" onclick="setMode('mcq')">選擇題刷題(課程教學與評量)</div>
+  <div class="tab" id="tabCard" onclick="setMode('card')">速答卡(學習者發展/教育理念)</div>
+</div>
+<div class="filters" id="fYear"></div>
+<div class="filters hide" id="fSubj">
+  <div class="chip on" data-s="all" onclick="setSubj('all')">全部</div>
+  <div class="chip" data-s="學" onclick="setSubj('學')">學習者發展</div>
+  <div class="chip" data-s="教" onclick="setSubj('教')">教育理念</div>
+</div>
+<div class="bar">
+  <span>進度 <span class="score" id="prog">0/0</span></span>
+  <span>✅ <span class="score" id="nOk">0</span></span>
+  <span>❌ <span class="score" id="nBad">0</span></span>
+  <button class="act ghost" onclick="restart()" style="padding:5px 12px;font-size:12px">重新開始</button>
+  <button class="act ghost" onclick="toggleRev()" style="padding:5px 12px;font-size:12px">錯題本</button>
+</div>
+<div class="rev" id="revBox"></div>
+<div id="stage"></div>
+<script>
+const MCQ=[
+{y:113,q:"小中是四年級的身心障礙學生,國語文和數學均有學習功能輕微缺損。課程調整何者較適當?甲、使用數學前一學習階段的學習表現 乙、降低國語文該階段學習內容難度 丙、分解數學該階段學習重點為數個較小的學習內容 丁、轉化國語文學習重點為生活化的學習表現 (A)甲丙 (B)甲丁 (C)乙丙 (D)乙丁",a:"C"},
+{y:113,q:"ADHD 三年級生上課專注時間短,欲延長其專注,何項教學措施較適當?(A)忽略分心行為 (B)提供分段學習及活動操作機會 (C)分心時重新教導上課規則 (D)分心時安排到教室後面獨立完成作業",a:"B"},
+{y:113,q:"例行收集平時習作和隨堂練習單,分析學習成效並據以調整教學,較符合哪組評量?甲、檔案評量 乙、動態評量 丙、形成性評量 丁、總結性評量 (A)甲丙 (B)甲丁 (C)乙丙 (D)乙丁",a:"A"},
+{y:113,q:"九月初剛接任特教班八年級導師,如何執行該班學生的 IEP?(A)檢視已擬定的 IEP,與相關人員討論後微調執行 (B)開學後一個月內訂定 IEP (C)依課表分組分層教學 (D)依學校課程計畫擬定新的 IEP",a:"A"},
+{y:113,q:"資源班學生在原班有干擾行為,學校安排特教學生助理人員入班協助上課,屬哪一項課程調整?(A)學習內容 (B)學習歷程 (C)學習環境 (D)學習評量",a:"C"},
+{y:113,q:"教學提示策略「由少至多」排序?甲、手指出用具示意拿來 乙、口語詢問下一步驟 丙、示範操作讓學生模仿 丁、手扶著學生的手操作 (A)甲乙丙丁 (B)乙甲丙丁 (C)丙甲丁乙 (D)丁丙甲乙",a:"B"},
+{y:113,q:"教挑水果+模擬結帳,之後帶到社區水果店實際購買,採用的評量?(A)真實評量 (B)生態評量 (C)檔案評量 (D)動態評量",a:"A"},
+{y:113,q:"注意力短暫、無口語、無法獨立進食、有自傷行為的學生,較需要的教育輔具?甲、生活輔具 乙、溝通輔具 丙、行動輔具 丁、學習輔具 (A)甲乙 (B)甲丙 (C)乙丁 (D)丙丁",a:"A"},
+{y:113,q:"教師示範唸口訣列算式→學生逐步接手→最後以內在語言自我引導,屬哪一項教學策略?(A)自我調整 (B)自我監控 (C)自我控制 (D)自我教導",a:"D"},
+{y:113,q:"特教生參與普通班活動的課程調整,何者適當?甲、閱讀理解困難者定期評量提供調整後試卷 乙、入班協助時將學生安置教室一角個別指導 丙、特教班學生到普通班上課安排助理人員與同儕協助分組討論 丁、趣味競賽讓肢障生在旁觀看 (A)甲丙 (B)甲丁 (C)乙丙 (D)乙丁",a:"A"},
+{y:113,q:"無口語、無法辨識符號、只會指物或拉人的智能障礙幼兒,適合的溝通訓練目標?甲、指認圖片 乙、使用溝通輔具 丙、用手語表達 丁、紙鍵盤溝通策略 (A)甲乙 (B)甲丙 (C)乙丁 (D)丙丁",a:"A"},
+{y:113,q:"一年級普通班有配戴助聽器的重度聽障生,較優先的教學調整?甲、安排低噪音教室位置 乙、講課誇大嘴型 丙、教室加裝隔音板 丁、使用調頻系統 (A)甲丙 (B)甲丁 (C)乙丙 (D)乙丁",a:"B"},
+{y:113,q:"生態評量的敘述何者較正確?(A)強調標準化程序 (B)目的是了解教學成效 (C)活動設計符合心理年齡 (D)評估環境以學生目前和未來活動的場域為主",a:"D"},
+{y:113,q:"不會吃飯如廁、無法口語或手勢表達、會因需求未滿足尖叫,媽媽希望學認數字。何者優先列入學年教育目標?(A)減少尖叫行為 (B)提升生活自理 (C)增進數字認讀 (D)增進需求表達能力",a:"D"},
+{y:113,q:"資源班教師與語言治療師共同設計口語表達活動,順序何者較適當?甲、建立詞彙 乙、形成句子 丙、學習語法規則 丁、練習口語技巧 (A)甲乙丁丙 (B)甲丙乙丁 (C)乙甲丁丙 (D)丙甲乙丁",a:"B"},
+{y:113,q:"合作諮詢的敘述何者適當?甲、須由特教教師主動開啟議題 乙、討論時盡量少用專業術語 丙、討論內容可作為擬定 IEP 參考 丁、特教教師主要扮演被諮詢者 (A)甲乙 (B)甲丁 (C)乙丙 (D)丙丁",a:"C"},
+{y:113,q:"工作角+桌面工作時間表+任務前簡潔口頭提示+完成獲增強物,較符合哪一教學方法?(A)工作分析法 (B)直接教學模式 (C)建構式教學法 (D)結構式教學法",a:"D"},
+{y:113,q:"腦麻伴智障生:聽得懂指令、構音困難、右手不佳、左手可操作。適合的教學措施?甲、協助支撐讓右手按鍵盤 乙、潔牙口訣+電動牙刷自行刷牙 丙、語音溝通筆點圖片+句型結構表達 丁、語音溝通板轉文字表達 (A)甲丙 (B)甲丁 (C)乙丙 (D)乙丁",a:"C"},
+{y:113,q:"採用工作樣本進行評量,較屬於?(A)動態評量 (B)實作評量 (C)檔案評量 (D)真實評量",a:"B"},
+{y:113,q:"學障生識字量七年級水準但常想不起國字怎麼寫、部件錯置,難以邊聽講邊寫重點。較能增進學習成效的輔具?甲、錄音筆 乙、有聲書 丙、溝通板 丁、平板電腦 (A)甲丙 (B)甲丁 (C)乙丙 (D)乙丁",a:"B"},
+{y:113,q:"何者符合 UDL 通用設計學習原則?甲、依固定步驟教學 乙、讓學生依擅長方式選擇報告/繪圖/錄影展現成果 丙、高中低組不同實驗任務 丁、文言文教學提供概念圖、雙形式翻譯、課文影片 (A)甲乙 (B)甲丙 (C)乙丁 (D)丙丁",a:"C"},
+{y:112,q:"讓不同學生分別學修辭分析/寫段落大意/說出段落意義,是哪一項課程設計?(A)平行式課程 (B)多層次課程 (C)主題統整課程 (D)場地本位課程",a:"B"},
+{y:112,q:"哪一項提示策略的線索最少?(A)口語提示下清洗碗盤 (B)教師示範邊看邊洗 (C)照步驟圖打勾完成 (D)自行清洗,教師問「你確定洗乾淨了嗎?」學生檢查確認",a:"D"},
+{y:112,q:"自閉症生在不熟悉環境會焦躁不安,較適當的措施?(A)每月一次輔導晤談 (B)避免接觸陌生環境 (C)運用視覺線索理解即將改變的活動行程 (D)每週換座位增進互動",a:"C"},
+{y:112,q:"趁語文課教導集中注意力的方法,是將哪一項特殊需求科目融入語文領域?(A)學習策略 (B)社會技巧 (C)生活管理 (D)溝通訓練",a:"A"},
+{y:112,q:"IEP 已確定實施,若要調整內容,較適合再次召開會議的時間?(A)本學期結束時 (B)本學年結束時 (C)下學期開學時 (D)隨時皆可",a:"D"},
+{y:112,q:"評估特教班一年級智障生溝通技能,較適當做法?甲、教室中蒐集溝通形式 乙、標準化語言測量工具 丙、對主要照顧者進行溝通訪談 丁、觀察同年齡學生社交語言 (A)甲乙 (B)甲丙 (C)乙丁 (D)丙丁",a:"B"},
+{y:112,q:"「20 題進位加法,2 分鐘內算對 16 題」評量哪一項能力?(A)正確與時距 (B)速度與程度 (C)時距與程度 (D)正確與速度",a:"D"},
+{y:112,q:"學生無法理解應用題題意,老師提供線段圖示輔助,屬哪一項課程調整?(A)學習內容 (B)學習歷程 (C)學習環境 (D)學習評量",a:"B"},
+{y:112,q:"善用團體動力、強調學生間相互學習的教學法?甲、直接教學法 乙、交互教學法 丙、合作教學法 丁、合作學習法 (A)甲乙 (B)甲丙 (C)乙丁 (D)丙丁",a:"C"},
+{y:112,q:"腦麻生手眼協調不佳且構音不清,哪一項輔助科技較能提升溝通效能?(A)語音生成或語音輸出裝置 (B)平板輸入文字並播放語音 (C)點讀式溝通筆點讀圖片 (D)肢體語言辭典及溝通冊",a:"A"},
+{y:112,q:"學習評量敘述何者正確?甲、檔案評量=學生自評 乙、實作評量=實際操作了解歷程與成果 丙、動態評量=評量與教學循環掌握潛能 丁、課程本位評量=同儕互評 (A)甲丙 (B)甲丁 (C)乙丙 (D)乙丁",a:"C"},
+{y:112,q:"能讀懂記敘文但說明文理解困難,哪一項學習策略較符合?(A)預測策略 (B)摘要策略 (C)做筆記策略 (D)文章結構策略",a:"D"},
+{y:112,q:"視障伴智障生(手勢/實物/圖卡溝通),「聽完故事回答問題」評量調整?甲、點字呈現 乙、以實物為答案選項 丙、二選一選擇 丁、開放式問答 (A)甲乙 (B)甲丁 (C)乙丙 (D)丙丁",a:"C"},
+{y:112,q:"AAC 敘述何者正確?甲、手勢和臉部表情屬非輔助性符號 乙、圖像符號大小依視覺和動作技能決定 丙、同時用 AAC 和口語會降低成效 丁、不適宜自閉症學生 (A)甲乙 (B)甲丁 (C)乙丙 (D)丙丁",a:"A"},
+{y:112,q:"想增進特教班學生溝通能力,較不適合作為優先選項?(A)申請語言治療師到校訓練口語 (B)營造引發溝通的環境 (C)採替代性溝通方式 (D)加入同學及重要他人誘發溝通",a:"A"},
+{y:112,q:"學障生閱讀理解與摘述困難、無法組織想法,適當教學措施?甲、語音輸入軟體摘述大意 乙、自我監控檢核表檢視重點 丙、電腦軟體關鍵字與圖片聯結 丁、電腦軟體文章轉概念構圖 (A)甲丙 (B)甲丁 (C)乙丙 (D)乙丁",a:"D"},
+{y:112,q:"課程本位評量較可能得到的資訊?(A)已習得的學習目標 (B)認知策略發展水準 (C)造成學習困難的原因 (D)記憶能力發展水準",a:"A"},
+{y:112,q:"IEP 擬定敘述何者較不正確?(A)團隊合作評估並成立小組 (B)經特推會審議不通過達二次者送課發會審議 (C)家長同意後執行,爭議依法書面申訴 (D)參與人員含行政、教師、家長及學生本人",a:"B"},
+{y:112,q:"遠距教學中屬於「學習評量」調整者?甲、不會打字改手寫拍照上傳 乙、課前連線測試設備 丙、體育課錄影上傳 丁、實作課改播影片討論 (A)甲乙 (B)甲丙 (C)乙丁 (D)丙丁",a:"B"},
+{y:112,q:"數學困難+車禍下肢不便,哪一項課程調整較不適當?(A)功能性動作訓練融入學科 (B)彈性學習課程外加 (C)減少數學時數安排物理治療師抽離訓練 (D)減少數學時數調整為功能性動作訓練",a:"C"},
+{y:112,q:"「能利用口語提示協助小楷扭開水龍頭洗手,十次有八次正確」目標撰寫的問題?(A)行為動詞欠具體 (B)未敘明評量標準 (C)非學生導向的行為表現 (D)情境不明確",a:"C"},
+{y:112,q:"腦麻伴智障十年級生盼畢業直接就業,優先列入學年教育目標?(A)便利商店全職 (B)能接受他人的指令完成工作 (C)資訊科技找就業資訊 (D)庇護工場兼職",a:"B"},
+{y:112,q:"教導整理個人物品後,檢核能否依正確步驟完成整理抽屜,屬何種評量?(A)真實評量 (B)檔案評量 (C)生態評量 (D)功能行為評量",a:"A"},
+{y:112,q:"聽障生植入人工電子耳後的學習狀況?甲、語音辨識與正常同儕相當 乙、團體討論仍聽不清多人發言 丙、教師無需佩戴 FM 丁、高頻語音察覺較之前容易 (A)甲乙 (B)甲丙 (C)乙丁 (D)丙丁",a:"C"},
+{y:112,q:"教導四名不同特質學生參與自己的 IEP 會議(陳生助聽器構音不清/林生注意力不集中/王生說話直白不分場合/李生思考規劃弱),配對何者適當?(A)甲乙 (B)甲丙 (C)乙丁 (D)丙丁",a:"D"},
+{y:111,q:"何者較屬於功能性課程的設計?甲、進行垃圾分類 乙、在餐廳中點餐 丙、辨識各種圖形 丁、使用剪刀剪紙 (A)甲乙 (B)甲丙 (C)乙丁 (D)丙丁",a:"A"},
+{y:111,q:"同學繳交書面報告,小華改為畫出三種海洋生物,屬於哪一種課程調整?(A)學習內容 (B)學習歷程 (C)學習環境 (D)學習評量",a:"D"},
+{y:111,q:"多重障礙學生坐輪椅,與物理治療師討論後較適當的教學措施?(A)固定在座椅上 (B)打籃球時可以使用輪椅參與活動 (C)寫作文時用老師位置的電腦 (D)指派同學輪流做被動關節運動",a:"B"},
+{y:111,q:"因腦瘤全盲的二年級生,優先教導的特殊需求科目?甲、點字 乙、定向行動 丙、輔助科技應用 丁、功能性動作訓練 (A)甲乙 (B)甲丙 (C)乙丁 (D)丙丁",a:"A"},
+{y:111,q:"僅能發單字詞音的學生,哪一項輔具較不適用?(A)溝通簿 (B)語音溝通板 (C)語音輸入軟體 (D)語音合成軟體",a:"C"},
+{y:111,q:"自閉症生環境轉換或作業無法完成時焦慮,較有助益的措施?甲、允許遲交 乙、調整作業份量及難度 丙、覆誦目前作息 丁、提供當天課表 (A)甲乙 (B)甲丙 (C)乙丁 (D)丙丁",a:"C"},
+{y:111,q:"訓練腦麻生使用語音輸出溝通板,設計版面圖形時較需考量?(A)聽力 (B)注意力 (C)語言能力 (D)動作能力",a:"D"},
+{y:111,q:"通用設計課程敘述何者正確?(A)考量所有學生需求,是內建式的彈性課程 (B)需針對每位特教生調整 (C)特教與一般學生本質差異 (D)事後調整與補救",a:"A"},
+{y:111,q:"學障生字形提取困難造成書寫障礙(選擇題可、填充問答不佳),適合作法?甲、交互教學法 乙、心智圖法 丙、字族文教學策略 丁、教導電腦輸入法 (A)甲乙 (B)甲丙 (C)乙丁 (D)丙丁",a:"D"},
+{y:111,q:"動態評量最想獲得的資料?(A)學生的學習歷程 (B)與同學間的差異 (C)學習精熟程度 (D)錯誤類型",a:"A"},
+{y:111,q:"國語文六年級程度、數學三年級程度,資源班課程規劃?甲、國語文外加 乙、國語文抽離 丙、數學外加 丁、數學抽離 (A)甲丙 (B)甲丁 (C)乙丙 (D)乙丁",a:"B"},
+{y:111,q:"可教導自我倡導能力的學習活動?甲、自己至商店購物 乙、獨立生活自理 丙、尋找自己喜歡的工作 丁、參與自己的 IEP 會議 (A)甲乙 (B)甲丙 (C)乙丁 (D)丙丁",a:"D"},
+{y:111,q:"課程本位測量(CBM)敘述何者正確?(A)每星期兩次 (B)施測結果需考慮正確率與速率 (C)隨機抽低一年級課文 (D)每次朗讀十分鐘",a:"B"},
+{y:111,q:"二位數借位減法錯誤類型分析後,適當教學策略?(A)錢幣換錢操作 (B)過度練習 (C)教導學生自我檢視需要借位的方法 (D)口訣強化",a:"C"},
+{y:111,q:"同學練習兩位數除法,小華學習將 12 顆糖果分成 4 份,屬哪種課程設計?(A)螺旋式 (B)多層次課程 (C)替代式 (D)平行式",a:"B"},
+{y:111,q:"「冬天很冷,夏天很__」「荷花:夏天=__:冬天」訓練哪一項語言能力?(A)語法 (B)語意 (C)語形 (D)語用",a:"B"},
+{y:111,q:"課程調整應用敘述何者適當?甲、學習環境=安全無障礙物理環境 乙、學習歷程=依學生反應調整教學策略 丙、學習重點=簡化減量分解替代重整 丁、學習評量=依考試服務辦法提供評量服務 (A)甲乙 (B)甲丁 (C)乙丙 (D)丙丁",a:"C"},
+{y:111,q:"「簡化」的學習內容調整?(A)10 題改 5 題 (B)寫出改說出 (C)寫課文大意改看圖說大意 (D)1200 字文章分五小段閱讀",a:"C"},
+{y:111,q:"擬定學習計畫、依計畫複習、經常自我評量,是哪一項學習策略?(A)認知 (B)動機 (C)支持性 (D)後設認知策略",a:"D"},
+{y:111,q:"學障生識字五年級、理解不佳僅能讀繪本、默唸分心,適合的 IEP 學年目標?(A)有效讀書方法 (B)依指示標記重點 (C)組織策略 (D)能運用不同圖像重組學習內容",a:"D"},
+{y:111,q:"詞彙分類、易混淆詞彙分節次、新舊複習、示範引導提問到精熟,哪一種教學法?(A)直接教學模式 (B)合作學習 (C)結構教學 (D)交互教學",a:"A"},
+{y:111,q:"生態評量敘述何者正確?甲、考慮個人能力與環境需求差異 乙、詳列一般人在該次級環境的活動 丙、針對個人週遭環境評量 丁、家庭訪問 (A)甲乙 (B)甲丙 (C)乙丁 (D)丙丁",a:"B"},
+{y:111,q:"教導安全過馬路,「由多到少」提示順序?甲、牽著過斑馬線 乙、示範 丙、指紅綠燈等候反應 丁、指紅綠燈問「綠燈亮要怎麼做?」(A)甲乙丁丙 (B)乙甲丙丁 (C)丙丁乙甲 (D)丁丙乙甲",a:"A"},
+{y:111,q:"自然環境教學法中「提示-示範法」:學生看老師玩拼圖時,老師說「告訴我,你要什麼?」學生指拼圖→給拼圖並示範說「我要玩拼圖」。此為?(A)(B)(C)(D)情境判斷",a:"C"},
+{y:111,q:"語文領域學習表現調整(課綱代碼):簡化/減量/替代/分解的組合判斷 (A)甲丙 (B)甲丁 (C)乙丙 (D)乙丁",a:"C"}
+];
+const CARDS=[
+{s:"學",y:113,q:"依特教法規,學前身障幼兒應訂定什麼計畫?(常見陷阱:IFSP)",a:"IEP——「個別化家庭服務計畫」非我國法定,配對不適切【A】"},
+{s:"學",y:113,q:"需要試題報讀服務的學障生,主要困難是?",a:"文字識讀【D】"},
+{s:"學",y:113,q:"學期中發現學生適應困難,正確做法?",a:"邀家長與專業團隊共同討論並調整教學策略【B】"},
+{s:"學",y:113,q:"美術比賽多次獲獎+學業優異,資優鑑定的正確觀念?",a:"獲獎可參加藝才鑑定+家長先釐清報名類別【A甲丙】"},
+{s:"學",y:113,q:"老師看著學生並讚美其坐在椅子上(处理打人行為),用了何種策略?",a:"非後效增強【D】"},
+{s:"學",y:113,q:"坐好就減少不喜歡的回家功課,是?",a:"負增強【C】"},
+{s:"學",y:113,q:"依腦麻生能力調整測驗題目及作答時間,符合哪些考試服務?",a:"試題(調整)服務+作答方式調整服務【C】"},
+{s:"學",y:113,q:"正向行為支持「有誤」的敘述?",a:"先擬介入計畫再做功能評量(順序顛倒——應先功能評量)【D】"},
+{s:"學",y:113,q:"腦麻國中生被嘲諷、討厭被說加油、心理苦悶→優先申請?",a:"心理師【B】"},
+{s:"學",y:113,q:"自閉症兼資優(雙特)適當措施三項?",a:"區分性教學+社會技巧課程(社會性故事)+班規視覺提示;過度矯正不當【A】"},
+{s:"學",y:113,q:"語言發展遲緩的特徵?",a:"3 歲表達詞彙量僅約 50 個(正常應更多)【B】"},
+{s:"學",y:113,q:"說話冗贅、不斷提醒自己接下來要說什麼,用了?",a:"自我提示【D】"},
+{s:"學",y:113,q:"功能性視覺評估的重點?",a:"掌握視障生日常生活視覺表現+室內外表現了解【D丙丁】"},
+{s:"學",y:113,q:"ASD 學生評量方法正確觀念?",a:"小團體活動中觀察社會規則理解+整體且持續評量【C乙丁】"},
+{s:"學",y:113,q:"看圖限時唸出物品/數字/顏色名稱,評什麼?",a:"快速唸名 RAN(閱障核心缺陷)【B】"},
+{s:"學",y:113,q:"逐步增加提示訊息、依提示多寡給分,是何種評量?",a:"動態評量【A】"},
+{s:"學",y:113,q:"記錄一分鐘朗讀正確字數並比對平均,評估?",a:"識字(朗讀流暢=識字自動化)【A】"},
+{s:"學",y:113,q:"雙特生多階層介入(RTI)正確概念?",a:"階層三=密集性介入,由資優專長+領域專長教師外加指導【D】"},
+{s:"學",y:113,q:"沒寫完作業→下課留在教室完成才能玩,是?",a:"反應代價?官方答案【B】(與普麥克辨析)"},
+{s:"學",y:113,q:"「最不符合」自我決策的表現?",a:"「媽媽覺得到咖啡店實習比較好,所以我就直接去了」【C】"},
+{s:"學",y:113,q:"協助自閉症生察言觀色的可行方法?",a:"社會性故事+行為功能評量找原因擬方案【A甲乙】"},
+{s:"學",y:113,q:"生涯規劃課「最不適切」的教學?",a:"僅利用標準化評量結果引導生涯規劃(應多元資料)【B】"},
+{s:"學",y:112,q:"全校性正向行為支持(SWPBS)的正確描述?",a:"透過教育和系統的改變,降低情緒行為問題【A】"},
+{s:"學",y:112,q:"教導學生參與 IEP 擬定,是提升?",a:"自我決策【D】"},
+{s:"學",y:112,q:"行為功能介入方案,實施前應先?",a:"檢視班級經營與教學措施的適宜性【C】"},
+{s:"學",y:112,q:"轉介前介入是哪些障別的鑑定程序?",a:"情緒行為障礙與學習障礙【C】"},
+{s:"學",y:112,q:"深呼吸數到十+握拳再放鬆重複至穩定,是?",a:"放鬆訓練【A】"},
+{s:"學",y:112,q:"記錄洗澡共花 1 小時 35 分,是何種紀錄?",a:"持續時間記錄【B】"},
+{s:"學",y:112,q:"各專業分別評估→共同討論擬定計畫→團隊與家長溝通=?",a:"專業間模式 interdisciplinary【B】"},
+{s:"學",y:112,q:"ADHD 課堂發怪聲吸引注意,適宜處理?",a:"採取忽略,增加教學結構性【C】"},
+{s:"學",y:112,q:"無法邊聽課邊做筆記但能答對提問,可能問題?",a:"工作記憶+交替性注意力【B甲丁】"},
+{s:"學",y:112,q:"創造力測驗畫出僅 0.2% 人畫的答案,是哪一要素優異?",a:"獨創力【D】"},
+{s:"學",y:112,q:"融合情境輔導低視能學生的合適措施?",a:"延長考試時間+學伴協助課業【D乙丁】"},
+{s:"學",y:112,q:"肌肉萎縮症學生 IEP 優先考量三項?",a:"無障礙空間+專業團隊評估+考試調整(不含替代性課程)【A甲乙丙】"},
+{s:"學",y:112,q:"詞彙測驗 PR17、標準分數 85 的正確判讀?",a:"高於 16% 樣本+低於平均一個標準差【B甲丁】"},
+{s:"學",y:112,q:"z 分數 1.0 → 智商與百分等級?",a:"智商 115,PR 84【D】"},
+{s:"學",y:112,q:"觀察購物時的求助能力並列為目標,是?",a:"生態評量【C】"},
+{s:"學",y:112,q:"語文資優班鑑定「不符合」標準的項目?",a:"用個別智力測驗+2σ(那是一般智能資優的標準)【B】"},
+{s:"學",y:112,q:"錄影播放給學生+檢核表自我檢核,是訓練?",a:"自我監控【C】"},
+{s:"學",y:112,q:"違反公約→限制賺取喜愛的積點機會,是?",a:"反應代價【A】"},
+{s:"學",y:112,q:"「刺激控制」處理上課喝水的正確示例?",a:"黑板貼喝水圖片才能喝水(建立刺激-行為連結)【D】"},
+{s:"學",y:112,q:"正向行為支持「不適當」做法?",a:"讓學生獨自坐教室後面(隔離排除)【A】"},
+{s:"學",y:112,q:"衝突後與學生討論如何處理生氣情緒並演練,是?",a:"行為教導策略【B】"},
+{s:"學",y:112,q:"認知行為取向的例子?",a:"自我提醒冷靜+上台自我對話「別緊張深呼吸」【D乙丁】"},
+{s:"學",y:112,q:"聽力圖判讀:高頻聽損較重的注意事項?",a:"高頻音聽不清+後排聽不清;左耳較佳;不必然具特教資格【B不正確】"},
+{s:"學",y:112,q:"增強資優生挫折復原力的措施?",a:"掌控學習情境強化內在動機+智能→智慧承諾自我實現+楷模同理自我效能【C甲丙丁】"},
+{s:"學",y:111,q:"非語文型學習障礙的主要困難?",a:"知覺動作【B】"},
+{s:"學",y:111,q:"評量職業能力最適合的評量?",a:"實作評量【A】"},
+{s:"學",y:111,q:"視覺障礙鑑定標準(視野)?",a:"矯正後優眼視野 20 度以內【A】"},
+{s:"學",y:111,q:"避免原級增強物飽足的方法?",a:"多種增強物+增加次級增強物配對【B甲丁】"},
+{s:"學",y:111,q:"寫完 3 行字就可以畫畫 5 分鐘,是?",a:"普麥克原理【C】"},
+{s:"學",y:111,q:"「持續 5 分鐘雙手做勞作→得代幣」是哪種區別性增強?",a:"DRI 區別性增強不相容行為【D】"},
+{s:"學",y:111,q:"握筆寫字困難+行走不便,需要哪兩類專業?",a:"職能治療+物理治療【B】"},
+{s:"學",y:111,q:"AAC 的「不正確」敘述?",a:"「運用反覆聲音回饋訓練聽能」——AAC 不是聽能訓練【B】"},
+{s:"學",y:111,q:"需擺位架+語治/職治/物治+生活助理=最可能障別?",a:"腦性麻痺【C】"},
+{s:"學",y:111,q:"常模參照評量的例子?",a:"透過測驗了解個人在團體中的相對程度【D】"},
+{s:"學",y:111,q:"PR=96、Z=2、T=72 三科高低排序?",a:"自然(T72=+2.2σ)>國語(Z=2)>數學(PR96≈+1.75σ)【C】"},
+{s:"學",y:111,q:"想知道自己成績在團體的相對位置,最有用的統計量?",a:"標準差【D】"},
+{s:"學",y:111,q:"智力測驗用於資優鑑定被質疑的主因?",a:"無法評量潛能+文化偏差【C乙丙】"},
+{s:"學",y:111,q:"七年級生英文在八年級上、數學在九年級上=?",a:"單科加速【A】"},
+{s:"學",y:111,q:"自我教導訓練的正確程序?",a:"教師示範大聲說→教師說學生做→學生大聲說做→小聲→內化默唸【D丙丁戊乙甲】"},
+{s:"學",y:111,q:"說明+示範合宜行為,之後立即口頭讚美=哪兩種策略?",a:"行為訓練+後果處理【C乙丙】"},
+{s:"學",y:111,q:"有時 1 次有時 3 次正確反應才增強=?",a:"不固定比率增強【C】"},
+{s:"學",y:111,q:"無口語重度智障生的自我決策適當敘述?",a:"自行決定參加何種社團+覺得生活應由自己決定【B甲丙】"},
+{s:"學",y:111,q:"未經允許離座一次扣一張笑臉貼紙=?",a:"反應代價【A】"},
+{s:"學",y:111,q:"重度智障生不會如廁,最適合的教學策略?",a:"行為塑造【A】"},
+{s:"學",y:111,q:"「哥哥→ㄜㄜ」「阿公→ㄚㄉㄨㄥ」應優先?",a:"評估是否有聽力損失問題【B】"},
+{s:"教",y:113,q:"成語「蘭芷漸滫」強調何者在教育中的重要性?",a:"境教【C】"},
+{s:"教",y:113,q:"沙特「存在先於本質」相符的說法?",a:"成為你自己選擇成為的樣子【C】"},
+{s:"教",y:113,q:"觀察照片→思考原因→分組討論→行動策略=?",a:"反省性思維(杜威)【B】"},
+{s:"教",y:113,q:"多元文化課程觀受哪一哲學影響?",a:"後現代主義的萬花筒課程觀【A】"},
+{s:"教",y:113,q:"杜威與核心素養的共同點?",a:"學習結合實際生活+關注全面發展【B】"},
+{s:"教",y:113,q:"建構主義教學的展現?",a:"開放主題,鼓勵自行選擇研究方向小組探究【C】"},
+{s:"教",y:113,q:"葛妮《教師即陌生人》「不符」的觀點?",a:"與學生保持距離維持客觀無私——錯,葛妮重視關注每位學生【D】"},
+{s:"教",y:113,q:"清寒力爭上游成為醫生=什麼概念?",a:"代間流動【B】"},
+{s:"教",y:113,q:"對弱勢學生提供更多學費補助=?",a:"垂直公平【D】"},
+{s:"教",y:113,q:"批判教育學對課程知識的觀點?",a:"現行課程知識潛藏特定階級對社會的控制【A】"},
+{s:"教",y:113,q:"布迪爾:後天薰陶的氣質品味談吐屬哪種文化資本?",a:"身體化形式 embodied state【A】"},
+{s:"教",y:113,q:"柏恩斯坦符碼理論:詳細敘述情境者用?",a:"精緻型符碼(中產階級傾向)【D】"},
+{s:"教",y:113,q:"共備觀議課社群改善哪種教學文化?",a:"個人主義【C】"},
+{s:"教",y:113,q:"課程零碎強制、抹滅創造力、學生像機器=?",a:"異化 alienation【A】"},
+{s:"教",y:113,q:"家長要升學率 vs 學生抗議作業多=何種角色衝突?",a:"角色內不同對象的衝突【A】"},
+{s:"教",y:113,q:"學生認同教師人品而追隨=何種權力?",a:"參照權 referent power【B】"},
+{s:"教",y:113,q:"最能達到視障生「自我倡導」的宣導做法?",a:"經同意由學生本人分享生活及學習需求【B】"},
+{s:"教",y:113,q:"特教法交通服務的規定?",a:"免費提供無障礙交通工具,確有困難提供者補助交通費【D】"},
+{s:"教",y:113,q:"訂定資優個別輔導計畫,誰應參與?",a:"學生本人+法定代理人或實際照顧者【B】"},
+{s:"教",y:113,q:"彈性調整評量標準應經何管道審議?",a:"特殊教育推行委員會【B】"},
+{s:"教",y:113,q:"IEP vs 個別輔導計畫「不正確」的敘述?",a:"「新生均應於開學前訂定初步計畫」——身障新生開學前訂定,資優輔導計畫規定不同【C】"},
+{s:"教",y:112,q:"詐騙 SOP 教學牴觸哪一教育規準?",a:"合價值性【B】"},
+{s:"教",y:112,q:"「因人而信」顯示認知易受何種力量影響?",a:"權威【A】"},
+{s:"教",y:112,q:"弗雷勒對話式教學「不符」的敘述?",a:"目的在保持教學價值中立——錯,弗雷勒反對中立【B】"},
+{s:"教",y:112,q:"盧梭自然主義對賴床的建議?",a:"讓他遲到,受到自然的懲罰(自然後果)【D】"},
+{s:"教",y:112,q:"帶學生到溼地觀察體驗=哪種教育理念?",a:"經驗主義【C】"},
+{s:"教",y:112,q:"鄂蘭「平庸之惡」在教育現場的樣貌?",a:"盲目的順從體制【B】"},
+{s:"教",y:112,q:"以「節氣」為核心的跨領域課程=哪種哲學?",a:"道法自然【A】"},
+{s:"教",y:112,q:"「城牆 100 年沒破不代表未來不破」反映?",a:"波普——知識的可否證性【C】"},
+{s:"教",y:112,q:"學生法庭最符合哪位思想家?",a:"尼爾(夏山學校民主教育)【B】"},
+{s:"教",y:112,q:"教師需敦品、肩負德育=哪種權威?",a:"道德涵養權威【D】"},
+{s:"教",y:112,q:"「跨領域會縮減學科時間」=柏恩斯坦哪種分類架構?",a:"強分類強架構【A】"},
+{s:"教",y:112,q:"靠讀書向上流動的信念=哪個理論?",a:"結構功能論【B】"},
+{s:"教",y:112,q:"常去音樂廳美術館+擅長鋼琴繪畫=累積?",a:"文化資本【D】"},
+{s:"教",y:112,q:"想專心教學卻被要求帶動全校=?",a:"角色衝突【B】"},
+{s:"教",y:112,q:"新住民入學名額外加 2%=?",a:"積極性差別待遇【C】"},
+{s:"教",y:112,q:"勞工階級反學校文化研究=哪位學者?",a:"衛里斯 Willis【D】"},
+{s:"教",y:112,q:"同儕相互約束統一服儀=涂爾幹哪個觀點?",a:"道德規範【A】"},
+{s:"教",y:112,q:"「領導者要能掌控情緒、自信、正直」=哪種領導理論?",a:"特質論【D】"},
+{s:"教",y:112,q:"校園性騷擾 24 小時內通報依據?",a:"性別平等教育法【D】"},
+{s:"教",y:112,q:"師資培育法未明訂的職前課程?",a:"校訂課程【A】"},
+{s:"教",y:112,q:"教師有價值感、正向樂觀、獲得成就感=?",a:"幸福感 well-being【C】"},
+{s:"教",y:112,q:"課發會的正確敘述?",a:"特殊需求領域課程之教師代表應列入課發會委員【B】"},
+{s:"教",y:112,q:"身障學生課程規劃的行政程序?",a:"IEP 會議→特推會→課發會【C】"},
+{s:"教",y:112,q:"共融式遊戲場回應 CRPD 哪種權益?",a:"休閒參與【A】"},
+{s:"教",y:111,q:"「不要輸在起跑點」屬哪種教育語言?",a:"教育口號【D】"},
+{s:"教",y:111,q:"「品格致富」接近哪派道德哲學?",a:"效益論【A】"},
+{s:"教",y:111,q:"「禮聞來學,不聞往教」=哪個教育規準?",a:"合自願性【D】"},
+{s:"教",y:111,q:"閱讀鉅著建立最有價值觀念=?",a:"永恆主義【C】"},
+{s:"教",y:111,q:"遊戲在教學中「有誤」的敘述?",a:"主要目的在競賽與爭取勝利【C】"},
+{s:"教",y:111,q:"實用主義者最重視的學習活動?",a:"針對生活問題進行縝密探究【D】"},
+{s:"教",y:111,q:"「三角形內角和=兩直角」是哪種知識?",a:"先驗的【B】"},
+{s:"教",y:111,q:"「把最基本知識直接教,不必試誤」=?",a:"精粹主義【A】"},
+{s:"教",y:111,q:"諾丁思關懷倫理的道德教育重點?",a:"肯定、楷模、實踐、對話【B】"},
+{s:"教",y:111,q:"放下既有印象、全新角度迎接學生=?",a:"教師即陌生人(葛妮)【B】"},
+{s:"教",y:111,q:"斯普朗格六類型中追求「愛」=?",a:"社會型【A】"},
+{s:"教",y:111,q:"批判教育學的教學主張?",a:"鼓勵學生質疑社會現象,形塑自我認同【C】"},
+{s:"教",y:111,q:"排定優劣區分名次=結構功能論哪種功能?",a:"選擇【A】"},
+{s:"教",y:111,q:"競爭性流動的意涵?",a:"能讓努力者得其英才地位【B】"},
+{s:"教",y:111,q:"門口貼滿比賽佳績與家長對話=哪個理論應用?",a:"符號互動論【C】"},
+{s:"教",y:111,q:"協助弱勢學生申請費用減免=?",a:"垂直公平【D】"},
+{s:"教",y:111,q:"「多元管道說明課綱修訂」=R-D-D-A 哪階段?",a:"傳播 Diffusion【C】"},
+{s:"教",y:111,q:"利益折衝後做決定=哪種行政決策模式?",a:"政治模式【A】"},
+{s:"教",y:111,q:"輔導學障生選校「非優先」考量?",a:"在校成績【A】"},
+{s:"教",y:111,q:"「不屬」融合教育取向的主張?",a:"各縣市設特殊教育學校以滿足學生需要【C】"},
+{s:"教",y:111,q:"身障生申請輔助科技服務「無法依循」的法規?",a:"國民教育法【A】"}
+];
+
+let mode='mcq', subj='all', yearSel='all';
+let pool=[], idx=0, ok=0, bad=0, wrongs=[];
+const LS='jamesExamQuiz';
+function shuffle(a){for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}
+function buildYearChips(){
+  const ys=['all',113,112,111];
+  document.getElementById('fYear').innerHTML=ys.map(y=>
+    `<div class="chip ${y==yearSel?'on':''}" onclick="setYear('${y}')">${y=='all'?'全部年度':y+' 年'}</div>`).join('');
+}
+function setMode(m){mode=m;
+  document.getElementById('tabMcq').classList.toggle('on',m=='mcq');
+  document.getElementById('tabCard').classList.toggle('on',m=='card');
+  document.getElementById('fSubj').classList.toggle('hide',m=='mcq');
+  restart();}
+function setYear(y){yearSel=y;restart();}
+function setSubj(s){subj=s;
+  document.querySelectorAll('#fSubj .chip').forEach(c=>c.classList.toggle('on',c.dataset.s==s));
+  restart();}
+function restart(){
+  buildYearChips();
+  let src=mode=='mcq'?MCQ:CARDS;
+  pool=src.filter(q=>(yearSel=='all'||q.y==yearSel)&&(mode=='mcq'||subj=='all'||q.s==subj));
+  pool=shuffle(pool.slice());
+  idx=0;ok=0;bad=0;wrongs=[];
+  document.getElementById('revBox').classList.remove('show');
+  render();}
+function upd(){
+  document.getElementById('prog').textContent=Math.min(idx+1,pool.length)+'/'+pool.length;
+  document.getElementById('nOk').textContent=ok;
+  document.getElementById('nBad').textContent=bad;
+  try{localStorage.setItem(LS,JSON.stringify({ok,bad,total:pool.length,mode,ts:Date.now()}))}catch(e){}}
+function render(){
+  const st=document.getElementById('stage');
+  if(idx>=pool.length){
+    const pct=pool.length?Math.round(ok/pool.length*100):0;
+    st.innerHTML=`<div class="card done"><h2>${pct>=80?'🎉':pct>=60?'💪':'📚'} 完成!正確率 ${pct}%</h2>
+    <p style="color:var(--sub);margin-bottom:16px">答對 ${ok} 題.答錯 ${bad} 題${bad?'.點「錯題本」複習':''}</p>
+    <button class="act" onclick="restart()">再刷一輪</button></div>`;
+    upd();return;}
+  const q=pool[idx];
+  if(mode=='mcq'){
+    st.innerHTML=`<div class="card">
+      <div class="qmeta"><span class="pill">${q.y} 年</span>課程教學與評量.第 ${idx+1} 題</div>
+      <div class="qtext">${q.q}</div>
+      <div class="opts">${['A','B','C','D'].map(o=>`<button class="opt" id="op${o}" onclick="pick('${o}')">${o}</button>`).join('')}</div>
+      <div class="ansbox" id="ab"></div>
+      <div class="row" style="margin-top:12px"><button class="act hide" id="nx" onclick="next()">下一題 →</button></div>
+    </div>`;
+  }else{
+    st.innerHTML=`<div class="card">
+      <div class="qmeta"><span class="pill">${q.y} 年</span>${q.s=='學'?'學習者發展與適性輔導':'教育理念與實務'}.第 ${idx+1} 張</div>
+      <div class="cardq">${q.q}</div>
+      <div class="carda" id="ca">💡 ${q.a}</div>
+      <div class="row">
+        <button class="act ghost" id="flip" onclick="flip()">看答案</button>
+        <span id="judge" class="hide">
+          <button class="act" style="background:var(--ok)" onclick="mark(true)">答對 ✓</button>
+          <button class="act" style="background:var(--bad)" onclick="mark(false)">答錯 ✗</button>
+        </span>
+      </div>
+    </div>`;}
+  upd();}
+function pick(o){
+  const q=pool[idx];
+  ['A','B','C','D'].forEach(x=>document.getElementById('op'+x).disabled=true);
+  const ab=document.getElementById('ab');
+  if(o==q.a){ok++;document.getElementById('op'+o).classList.add('right');
+    ab.className='ansbox show ok';ab.textContent='✅ 答對!官方答案 '+q.a;}
+  else{bad++;wrongs.push(q);
+    document.getElementById('op'+o).classList.add('wrong');
+    document.getElementById('op'+q.a).classList.add('right');
+    ab.className='ansbox show bad';ab.textContent='❌ 官方答案是 '+q.a;}
+  document.getElementById('nx').classList.remove('hide');upd();}
+function flip(){document.getElementById('ca').classList.add('show');
+  document.getElementById('flip').classList.add('hide');
+  document.getElementById('judge').classList.remove('hide');}
+function mark(good){const q=pool[idx];
+  if(good)ok++;else{bad++;wrongs.push(q);}
+  idx++;render();}
+function next(){idx++;render();}
+function toggleRev(){
+  const rb=document.getElementById('revBox');
+  if(rb.classList.contains('show')){rb.classList.remove('show');return;}
+  rb.innerHTML=wrongs.length?'<b>❌ 本輪錯題('+wrongs.length+')</b><br>'+
+    wrongs.map(w=>'<div style="margin-top:8px">'+(w.y?'['+w.y+'] ':'')+w.q.slice(0,80)+'…<br><b>→ '+(w.a.length>1?w.a:'答案 '+w.a)+'</b></div>').join('')
+    :'目前沒有錯題 🎉';
+  rb.classList.add('show');}
+buildYearChips();restart();
+</script>
+</body>
+</html>
