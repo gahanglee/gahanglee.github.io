@@ -67,6 +67,12 @@ footer { font-size: .7rem; color: #a08b74; text-align: center; margin-top: 10px;
 </div>
 
 <div class="card">
+<h2>🎯 甄試日程</h2>
+<div id="exam-list"></div>
+<div class="muted" style="margin-top:8px">※ 皆為「一次公告、分次招考」,錄取額滿即不再往下辦。日期依各校 115 學年簡章,實際以教育局/學校現場公告為準。</div>
+</div>
+
+<div class="card">
 <h2>✅ 待辦清單</h2>
 <div class="filter" id="tfilter"></div>
 <ul id="todos"></ul>
@@ -97,7 +103,7 @@ footer { font-size: .7rem; color: #a08b74; text-align: center; margin-top: 10px;
 <div id="knowledge"></div>
 </div>
 
-<footer>快照 2026-07-07・天氣即時(Open-Meteo)・請勿分享此網址</footer>
+<footer>快照 2026-07-13・天氣即時(Open-Meteo)・請勿分享此網址</footer>
 
 <script>
 const p2 = n => String(n).padStart(2, "0");
@@ -106,11 +112,54 @@ function ymd(d){ return d.getFullYear()+"-"+p2(d.getMonth()+1)+"-"+p2(d.getDate(
 const TODAY = ymd(twNow());
 document.getElementById("today-label").textContent = new Intl.DateTimeFormat("zh-TW",{timeZone:"Asia/Taipei",year:"numeric",month:"long",day:"numeric",weekday:"long"}).format(new Date());
 
+/* 甄試日程(依 115 學年簡章寫死,不依賴瀏覽器儲存) */
+const EXAMS = [
+ {school:"南安國小(安定區)", role:"學前特教巡迴代理", place:"教務處報到・☎ 06-5922023 轉 802・線上報名 qonx785@naes.tn.edu.tw", teach:"試教 10 分(版本自選)+口試 10 分",
+  rounds:[
+   {no:1, reg:"7/6–7/13", exam:"2026-07-14", t:"10:00(9:40 報到)"},
+   {no:2, reg:"7/15",     exam:"2026-07-16", t:"10:00(9:40 報到)"},
+   {no:3, reg:"7/17",     exam:"2026-07-20", t:"10:00(9:40 報到)"},
+   {no:4, reg:"7/21",     exam:"2026-07-22", t:"10:00(9:40 報到)"},
+   {no:5, reg:"7/23",     exam:"2026-07-24", t:"10:00(9:40 報到)"}]},
+ {school:"新市國小(新市區)", role:"一般教師(級任・雙語)", place:"教務處・臺南市新市區中興街1號・☎ 06-5992895 轉 810", teach:"試教 10 分(數學・翰林五上任選)+口試 10 分",
+  rounds:[
+   {no:1, reg:"7/10–7/15", exam:"2026-07-16", t:"9:00(8:30 報到)"},
+   {no:2, reg:"7/17",      exam:"2026-07-20", t:"9:00(8:30 報到)"},
+   {no:3, reg:"7/21",      exam:"2026-07-22", t:"9:00(8:30 報到)"},
+   {no:4, reg:"7/23",      exam:"2026-07-24", t:"9:00(8:30 報到)"},
+   {no:5, reg:"7/27",      exam:"2026-07-28", t:"9:00(8:30 報到)"},
+   {no:6, reg:"7/29",      exam:"2026-07-30", t:"9:00(8:30 報到)"},
+   {no:7, reg:"7/31",      exam:"2026-08-03", t:"9:00(8:30 報到)"},
+   {no:8, reg:"8/4",       exam:"2026-08-05", t:"9:00(8:30 報到)"}]}
+];
+(function(){
+ const box=document.getElementById("exam-list"); if(!box) return;
+ EXAMS.forEach((e,ei)=>{
+  const next=e.rounds.find(r=>r.exam>=TODAY);
+  const wrap=document.createElement("div");
+  wrap.style.cssText="padding:9px 0"+(ei<EXAMS.length-1?";border-bottom:1px dashed #f0e6d8":"");
+  const md=s=>s.slice(5).replace("-","/");
+  const nextHtml=next
+   ? `<div style="margin-top:5px;font-size:.85rem;line-height:1.5"><b style="color:#a85717">最近梯次(第${next.no}梯)</b>　報名 ${next.reg}　｜　<b>甄試 ${md(next.exam)}</b> ${next.t}</div>`
+   : `<div style="margin-top:5px" class="muted">本場梯次已全數結束</div>`;
+  const rows=e.rounds.map(r=>{
+   const past=r.exam<TODAY, cur=next&&r.no===next.no;
+   return `<div style="font-size:.8rem;line-height:1.7;${past?'color:#b8a68f;':cur?'color:#a85717;font-weight:700;':''}">第${r.no}梯　報名 ${r.reg}　｜　甄試 ${md(r.exam)} ${r.t}${past?' ✓已過':cur?' ◀ 最近':''}</div>`;
+  }).join("");
+  wrap.innerHTML=`<div style="font-size:.9rem"><span class="tag c甄選">${e.role}</span><b>${e.school}</b></div>`+nextHtml
+   +`<details style="margin-top:5px;border:none;padding:0"><summary style="font-size:.78rem;color:#8a5a2b">看全部梯次與資訊</summary>`
+   +`<div style="padding:6px 0 0 2px">${rows}<div class="muted" style="margin-top:5px;line-height:1.5">🎯 ${e.teach}<br>📍 ${e.place}</div></div></details>`;
+  box.appendChild(wrap);
+ });
+})();
+
 /* 待辦 */
 const CATS=["甄選","研究","App","學業","生活","其他"];
 const DEFAULT_TODOS=[
- {t:"代理教師甄選:報名(復興國小輔導室 9:00–16:00)",c:false,cat:"甄選",due:"2026-07-13"},
- {t:"代理教師甄選:甄試(9:30 報到、10:00 開始)",c:false,cat:"甄選",due:"2026-07-14"},
+ {t:"南安國小 學前特教巡迴:第1梯報名截止(教務處 9–16 時)",c:false,cat:"甄選",due:"2026-07-13"},
+ {t:"南安國小 學前特教巡迴:第1梯甄試(9:40 報到、10:00)",c:false,cat:"甄選",due:"2026-07-14"},
+ {t:"新市國小 一般教師:第1梯報名截止(教務處 9–16 時)",c:false,cat:"甄選",due:"2026-07-15"},
+ {t:"新市國小 一般教師:第1梯甄試(8:30 報到、9:00)",c:false,cat:"甄選",due:"2026-07-16"},
  {t:"LINE BOT:Anthropic API 儲值後上線",c:false,cat:"App",due:null},
  {t:"情緒小島 iOS 上架:Apple Developer 註冊 → EAS",c:false,cat:"App",due:null},
  {t:"等秋季課表公布 → 確定碩士+師培選課",c:false,cat:"學業",due:null}];
@@ -140,7 +189,7 @@ renderTF();renderT();
 const PROJECTS=[
  {n:"情緒小島",s:"active",pct:85,d:"SEL App(RULER,我覺得→我想要→我可以)",x:"RN/Expo/TS+Supabase。22 情緒卡、角色宥宥/星星/樂樂。RULER 報告完成。下一步:Apple Developer → EAS → iOS 上架"},
  {n:"多感官輔具行動研究",s:"active",pct:90,d:"低口語幼兒說話意圖,計畫 43 頁完成",x:"南大格式。輔具:ESP32+SU-03T、INMP441、WS2812。下一步:實施研究、蒐集資料"},
- {n:"代理教師甄選",s:"active",pct:60,d:"復興國小學前特教巡迴",x:"簡歷備妥、試教逐字稿 7 頁。7/13 報名、7/14 甄試"},
+ {n:"代理教師甄選",s:"active",pct:60,d:"南安(學前特教巡迴)・新市(一般師)",x:"簡歷備妥、試教逐字稿 7 頁。南安:7/13 報名截止、7/14 甄試(9:40 報到、10:00);新市:7/15 報名截止、7/16 甄試(8:30 報到、9:00)。皆分次招考、額滿即止"},
  {n:"學業雙軌",s:"active",pct:40,d:"碩士+師培並行",x:"碩士 18/32;師培 5/44(抵免)。等秋季課表"},
  {n:"個人網站",s:"active",pct:75,d:"gahanglee.github.io",x:"合理調整/UDL/CRPD/PBS 專頁。2026-07 健檢修正完成"},
  {n:"LINE BOT",s:"active",pct:95,d:"Claude 聊天機器人",x:"程式完成,只差 API 儲值"},
