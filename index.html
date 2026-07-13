@@ -91,7 +91,8 @@ title: 首頁
   /* ── EMOTION WHEEL ── */
   .wheel-section { max-width: 1100px; margin: 0 auto; padding: 4rem 2.5rem; }
   .wheel-wrap { display: flex; flex-direction: column; align-items: center; }
-  #emotionWheel { cursor: pointer; display: block; max-width: 420px; width: 100%; }
+  #emotionWheel { cursor: pointer; display: block; max-width: 420px; width: 100%; border-radius: 50%; }
+  #emotionWheel:focus-visible { outline: 4px solid var(--orange); outline-offset: 6px; }
   .info-box { margin-top: 1.5rem; width: 100%; max-width: 440px; background: white; border: 1.5px solid var(--warm-divider); border-radius: 20px; padding: 1.4rem 1.6rem; text-align: center; min-height: 110px; display: flex; flex-direction: column; align-items: center; justify-content: center; transition: border-color 0.3s; }
   .info-emoji { font-size: 2.4rem; margin-bottom: 0.4rem; line-height: 1; }
   .info-name { font-size: 1.4rem; font-weight: 900; color: var(--text-dark); margin-bottom: 0.25rem; }
@@ -103,7 +104,7 @@ title: 首頁
 
   /* ── WORKS ── */
   .filters { display: flex; gap: 0.5rem; flex-wrap: wrap; margin-bottom: 1.8rem; }
-  .filter-btn { background: white; border: 1.5px solid var(--warm-divider); color: var(--text-muted); font-size: 0.875rem; font-weight: 700; padding: 0.35rem 1rem; border-radius: 99px; cursor: pointer; transition: all 0.18s; }
+  .filter-btn { min-height: 44px; background: white; border: 1.5px solid var(--warm-divider); color: var(--text-muted); font-size: 0.875rem; font-weight: 700; padding: 0.55rem 1rem; border-radius: 99px; cursor: pointer; transition: all 0.18s; }
   .filter-btn:hover { border-color: var(--orange); color: var(--orange); }
   .filter-btn.active { background: var(--orange); border-color: var(--orange); color: white; }
   .works-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 1.2rem; }
@@ -263,8 +264,8 @@ title: 首頁
     <div class="side-lbl">探索進度</div>
   </div>
   <div class="wheel-wrap">
-    <canvas id="emotionWheel" width="420" height="420"></canvas>
-    <div class="info-box" id="infoBox">
+    <canvas id="emotionWheel" width="420" height="420" tabindex="0" role="img" aria-label="互動情緒輪盤。使用左右方向鍵選擇情緒，按 Enter 或空白鍵查看說明。"></canvas>
+    <div class="info-box" id="infoBox" aria-live="polite">
       <div class="info-emoji">👆</div>
       <div class="info-name" style="color:var(--text-muted)">點選輪盤探索情緒</div>
       <div class="info-desc">每個色塊代表一種感受，點擊後了解更多</div>
@@ -296,12 +297,12 @@ title: 首頁
   <p class="section-eyebrow">作品集</p>
   <h2 class="hp-section-title">我做過的東西。</h2>
   <p class="hp-section-sub">每一件作品背後，都有一個想幫助孩子的心。</p>
-  <div class="filters" id="filters">
-    <button class="filter-btn active" data-cat="all">全部</button>
-    <button class="filter-btn" data-cat="app">行動應用</button>
-    <button class="filter-btn" data-cat="curriculum">課程設計</button>
-    <button class="filter-btn" data-cat="material">教材教具</button>
-    <button class="filter-btn" data-cat="doc">文件撰寫</button>
+  <div class="filters" id="filters" aria-label="作品分類篩選">
+    <button class="filter-btn active" type="button" data-cat="all" aria-pressed="true">全部</button>
+    <button class="filter-btn" type="button" data-cat="app" aria-pressed="false">行動應用</button>
+    <button class="filter-btn" type="button" data-cat="curriculum" aria-pressed="false">課程設計</button>
+    <button class="filter-btn" type="button" data-cat="material" aria-pressed="false">教材教具</button>
+    <button class="filter-btn" type="button" data-cat="doc" aria-pressed="false">文件撰寫</button>
   </div>
   <div class="works-grid" id="worksGrid"></div>
 </div>
@@ -322,7 +323,7 @@ title: 首頁
     { name: 'Happy', zh: '開心', emoji: '😄', color: '#F9C74F', desc: '感到快樂和滿足，想要微笑或大笑！', strategies: ['分享心情', '說謝謝', '給擁抱'] },
     { name: 'Excited', zh: '興奮', emoji: '🤩', color: '#F4A261', desc: '精力充沛，期待某件好事即將發生！', strategies: ['深呼吸', '跳一跳', '告訴朋友'] },
     { name: 'Proud', zh: '驕傲', emoji: '🌟', color: '#E76F51', desc: '完成了一件很棒的事，為自己感到自豪。', strategies: ['分享成果', '給自己鼓掌', '繼續努力'] },
-    { name: 'Calm', zh: '平靜', emoji: '😌', color: '#90BE6D', desc: '感覺安靜放鬆，忀h��很舒服。', strategies: ['繼續保持', '深呼吸', '聽音樂'] },
+    { name: 'Calm', zh: '平靜', emoji: '😌', color: '#90BE6D', desc: '感覺安靜放鬆，身體和心裡都很舒服。', strategies: ['繼續保持', '深呼吸', '聽音樂'] },
     { name: 'Loved', zh: '被愛', emoji: '🥰', color: '#F38DAB', desc: '感受到別人的關心和溫暖，心裡暖暖的。', strategies: ['說謝謝', '給擁抱', '畫一張卡片'] },
     { name: 'Scared', zh: '害怕', emoji: '😨', color: '#9B72CF', desc: '遇到了讓你擔心或害怕的事情。', strategies: ['告訴大人', '深呼吸', '抱抱玩具'] },
     { name: 'Sad', zh: '難過', emoji: '😢', color: '#577590', desc: '心裡覺得不開心，想哭也沒關係。', strategies: ['說出來', '找朋友', '哭一哭'] },
@@ -387,6 +388,19 @@ title: 首頁
     const idx = getSegment(sx, sy);
     if (idx >= 0) { selected = idx; showEmotion(idx); drawWheel(idx); }
   });
+  canvas.addEventListener('keydown', ev => {
+    if (!['ArrowLeft', 'ArrowRight', 'Home', 'End', 'Enter', ' '].includes(ev.key)) return;
+    ev.preventDefault();
+    if (ev.key === 'Home') selected = 0;
+    else if (ev.key === 'End') selected = total - 1;
+    else if (ev.key === 'ArrowRight') selected = selected < 0 ? 0 : (selected + 1) % total;
+    else if (ev.key === 'ArrowLeft') selected = selected < 0 ? total - 1 : (selected - 1 + total) % total;
+    if (selected >= 0) {
+      showEmotion(selected);
+      drawWheel(selected);
+      canvas.setAttribute('aria-label', `目前選擇${emotions[selected].zh}。使用左右方向鍵切換情緒。`);
+    }
+  });
   drawWheel(-1);
 
   /* ── WORKS ── */
@@ -427,7 +441,11 @@ title: 首頁
     const btn = e.target.closest('.filter-btn');
     if (!btn) return;
     const cat = btn.dataset.cat;
-    filters.querySelectorAll('.filter-btn').forEach(b => b.classList.toggle('active', b === btn));
+    filters.querySelectorAll('.filter-btn').forEach(b => {
+      const active = b === btn;
+      b.classList.toggle('active', active);
+      b.setAttribute('aria-pressed', String(active));
+    });
     renderWorks(cat);
   });
 

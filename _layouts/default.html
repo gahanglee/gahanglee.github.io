@@ -5,10 +5,17 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>{% if page.title %}{{ page.title }} · {{ site.title }}{% else %}{{ site.title }}{% endif %}</title>
   <meta name="description" content="{% if page.excerpt %}{{ page.excerpt | strip_html | truncate: 130 }}{% else %}{{ site.description }}{% endif %}">
+  <link rel="canonical" href="{{ page.url | absolute_url }}">
+  <meta property="og:type" content="{% if page.layout == 'post' %}article{% else %}website{% endif %}">
+  <meta property="og:title" content="{% if page.title %}{{ page.title }} · {{ site.title }}{% else %}{{ site.title }}{% endif %}">
+  <meta property="og:description" content="{% if page.excerpt %}{{ page.excerpt | strip_html | truncate: 130 }}{% else %}{{ site.description }}{% endif %}">
+  <meta property="og:url" content="{{ page.url | absolute_url }}">
   <link rel="stylesheet" href="{{ '/assets/css/main.css' | relative_url }}">
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🌿</text></svg>">
 </head>
 <body>
+
+<a class="skip-link" href="#main-content">跳至主要內容</a>
 
 <div class="noise"></div>
 <div class="orb orb-1"></div>
@@ -17,7 +24,7 @@
 
 {% include nav.html %}
 
-<main>{{ content }}</main>
+<main id="main-content" tabindex="-1">{{ content }}</main>
 
 {% include footer.html %}
 
@@ -25,14 +32,28 @@
   // nav toggle
   const nav = document.querySelector('.nav');
   const toggle = document.querySelector('.nav-toggle');
+  const closeNav = () => {
+    nav?.classList.remove('open');
+    toggle?.setAttribute('aria-expanded', 'false');
+  };
   document.querySelectorAll('.nav-links a').forEach(l => {
-    l.addEventListener('click', () => nav.classList.remove('open'));
+    l.addEventListener('click', closeNav);
   });
-  toggle?.addEventListener('click', () => nav.classList.toggle('open'));
+  toggle?.addEventListener('click', () => {
+    const isOpen = nav.classList.toggle('open');
+    toggle.setAttribute('aria-expanded', String(isOpen));
+  });
+  document.addEventListener('keydown', event => {
+    if (event.key === 'Escape') {
+      closeNav();
+      toggle?.focus();
+    }
+  });
 
   // hide/show on scroll
   let last = 0;
   window.addEventListener('scroll', () => {
+    if (nav?.classList.contains('open')) return;
     const cur = window.scrollY;
     nav.style.transform = (cur > last && cur > 120) ? 'translateY(-100%)' : 'translateY(0)';
     last = cur;
