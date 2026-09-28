@@ -26,4 +26,22 @@ exclude:
   - vendor
   - .bundle
   - .tools
- 
+
+# 個人工具頁不列入 sitemap.xml
+defaults:
+  - scope:
+      path: "busan-m2jtp1eyzs.html"
+    values:
+      sitemap: false
+  - scope:
+      path: "exam-jm7k2q.html"
+    values:
+      sitemap: false
+  - scope:
+      path: "panel-jm7k2q.html"
+    values:
+      sitemap: false
+  - scope:
+      path: "quiz-jm7k2q.html"
+    values:
+      sitemap: false

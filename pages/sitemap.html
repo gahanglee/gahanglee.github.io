@@ -1,0 +1,113 @@
+---
+layout: default
+title: 網站地圖
+permalink: /sitemap/
+---
+<div class="wrap sm-wrap">
+  <section class="section" style="border-top:none;padding-top:7rem">
+    <span class="section-tag">網站地圖</span>
+    <h2 class="section-title">這個網站有什麼？</h2>
+    <p class="sm-lead">網站分成三個部分：入口網、碩士論文研究頁，以及情緒島 App。點任何一項就能直接前往。</p>
+
+    <nav class="sm-jump" aria-label="快速跳到">
+      <a href="#sm-main">入口網</a><a href="#sm-research">論文研究</a><a href="#sm-app">情緒島 App</a>
+    </nav>
+
+    <h3 class="sm-h" id="sm-main"><span class="sm-dot teal"></span>入口網</h3>
+    <div class="sm-grid">
+      <div class="sm-card">
+        <a class="sm-title" href="{{ '/' | relative_url }}">🏠 首頁</a>
+        <ul>
+          <li><a href="{{ '/' | relative_url }}#wheel">情緒輪盤（轉一轉．語音）</a></li>
+          <li><a href="{{ '/' | relative_url }}#contact">一起連結吧</a></li>
+        </ul>
+      </div>
+      <div class="sm-card">
+        <a class="sm-title" href="{{ '/about/' | relative_url }}">🙋 關於我</a>
+        <ul>
+          <li><a href="{{ '/about/teacher/' | relative_url }}">學前巡迴輔導教師</a></li>
+          <li><a href="{{ '/about/counseling-space/' | relative_url }}">多元接納的心理空間</a></li>
+        </ul>
+      </div>
+      <div class="sm-card">
+        <a class="sm-title" href="{{ '/app/' | relative_url }}">🏝️ 情緒島嶼</a>
+        <ul>
+          <li><a href="{{ '/app/' | relative_url }}">App 介紹與線上試玩</a></li>
+          <li><a href="{{ '/sunflower-breathing/' | relative_url }}">太陽花呼吸練習</a></li>
+        </ul>
+      </div>
+      <div class="sm-card sm-wide">
+        <a class="sm-title" href="{{ '/specialties/' | relative_url }}">🌿 專長</a>
+        <ul class="sm-cols">
+          <li><a href="{{ '/specialties/integration/' | relative_url }}">跨領域整合</a></li>
+          <li><a href="{{ '/specialties/education/' | relative_url }}">教育</a></li>
+          <li><a href="{{ '/specialties/assistive-tech/' | relative_url }}">輔助科技</a></li>
+          <li><a href="{{ '/specialties/pbs/' | relative_url }}">正向行為支持（PBS）</a></li>
+          <li><a href="{{ '/specialties/neurodiversity/' | relative_url }}">神經多樣性</a></li>
+          <li><a href="{{ '/specialties/rights-and-design/' | relative_url }}">融合教育核心理念</a></li>
+          <li><a href="{{ '/specialties/system-cooperation/' | relative_url }}">系統合作</a></li>
+          <li><a href="{{ '/specialties/counseling/' | relative_url }}">心理輔導</a></li>
+          <li><a href="{{ '/specialties/finance/' | relative_url }}">金融</a></li>
+        </ul>
+      </div>
+      <div class="sm-card">
+        <a class="sm-title" href="{{ '/portfolio/' | relative_url }}">🃏 教材作品集</a>
+        <ul>
+          <li><a href="{{ '/portfolio/situation-cards/' | relative_url }}">生活情境故事卡</a></li>
+        </ul>
+      </div>
+      <div class="sm-card">
+        <a class="sm-title" href="{{ '/contact/' | relative_url }}">✉️ 聯絡</a>
+        <ul><li><a href="https://github.com/{{ site.github_username }}" target="_blank" rel="noopener">GitHub<span class="sr-only">（在新分頁開啟）</span></a></li></ul>
+      </div>
+      <div class="sm-card sm-wide">
+        <a class="sm-title" href="{{ '/blog/' | relative_url }}">📝 部落格</a>
+        <ul>
+          {% for post in site.posts %}<li><a href="{{ post.url | relative_url }}">{{ post.title }}</a> <span class="sm-date">{{ post.date | date: "%Y/%m/%d" }}</span></li>
+          {% endfor %}
+        </ul>
+      </div>
+    </div>
+
+    <h3 class="sm-h" id="sm-research"><span class="sm-dot orange"></span>碩士論文研究</h3>
+    <div class="sm-grid">
+      <div class="sm-card sm-wide">
+        <a class="sm-title" href="https://gahanglee.github.io/intro-site/research.html">📖 情緒島 APP 與學前情緒學習</a>
+        <ul class="sm-cols">
+          <li>研究想回答的問題</li><li>三個觀點：RULER．UDL/UDSEL．神經多樣性</li>
+          <li>情緒島 App 的角色</li><li>研究方法：十二週三循環</li>
+        </ul>
+      </div>
+    </div>
+
+    <h3 class="sm-h" id="sm-app"><span class="sm-dot green"></span>情緒島 App</h3>
+    <div class="sm-grid">
+      <div class="sm-card sm-wide">
+        <a class="sm-title" href="https://emotion-island-nu.vercel.app" target="_blank" rel="noopener">🎮 開啟情緒島 App<span class="sr-only">（在新分頁開啟）</span></a>
+        <p class="sm-flow">QR 登入 → 選研究階段 → 選角色 → 島嶼首頁 → 情境任務、情緒卡片庫、語音練習、回到自己、我的心情 → 活動回饋</p>
+      </div>
+    </div>
+  </section>
+</div>
+
+<style>
+  .sm-wrap { max-width: 980px; }
+  .sm-lead { color: var(--text-muted); font-size: 0.95rem; line-height: 1.85; margin-bottom: 1.25rem; }
+  .sm-jump { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 1.5rem; }
+  .sm-jump a { padding: 0.35rem 0.9rem; border-radius: 99px; background: #dcefe7; border: 1px solid #b9ddd8; color: var(--teal); font-weight: 700; font-size: 0.88rem; }
+  .sm-jump a:hover { background: var(--teal); color: #fff; }
+  .sm-h { font-family: var(--serif); font-size: 1.25rem; margin: 2rem 0 0.9rem; display: flex; align-items: center; gap: 0.5rem; scroll-margin-top: 6rem; }
+  .sm-dot { width: 12px; height: 12px; border-radius: 50%; display: inline-block; }
+  .sm-dot.teal { background: #1f7a7a; } .sm-dot.orange { background: #c9632a; } .sm-dot.green { background: #3d7a4e; }
+  .sm-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 0.9rem; }
+  .sm-card { background: #fff; border: 1px solid var(--border); border-radius: var(--radius); padding: 1rem 1.1rem; box-shadow: var(--shadow); }
+  .sm-wide { grid-column: 1 / -1; }
+  .sm-title { display: inline-block; font-weight: 800; font-size: 1.02rem; color: var(--text); margin-bottom: 0.5rem; }
+  .sm-title:hover { color: var(--teal); }
+  .sm-card ul { list-style: none; margin: 0; padding: 0; }
+  .sm-card li { font-size: 0.9rem; line-height: 1.9; color: var(--text-muted); padding-left: 0.9rem; position: relative; }
+  .sm-card li::before { content: ""; position: absolute; left: 0; top: 0.8em; width: 5px; height: 5px; border-radius: 50%; background: var(--teal); }
+  .sm-cols { columns: 3 190px; column-gap: 1.5rem; }
+  .sm-date { font-size: 0.78rem; color: var(--text-muted); opacity: 0.8; margin-left: 0.3rem; }
+  .sm-flow { font-size: 0.9rem; color: var(--text-muted); line-height: 1.8; margin: 0; }
+</style>
