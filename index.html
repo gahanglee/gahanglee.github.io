@@ -256,7 +256,7 @@ title: 首頁
 <div class="wheel-section" id="wheel">
   <p class="section-eyebrow">互動小工具</p>
   <h2 class="hp-section-title">情緒輪盤。</h2>
-  <p class="hp-section-sub">點選扇形，探索不同的感受與安撫策略。</p>
+  <p class="hp-section-sub">點選扇形或按「轉一轉」，探索不同的感受與安撫策略。</p>
   <div class="wheel-outer">
   <div class="side-progress">
     <div class="side-num" id="sideNum">0</div>
@@ -265,6 +265,7 @@ title: 首頁
   </div>
   <div class="wheel-wrap">
     <canvas id="emotionWheel" width="420" height="420" tabindex="0" role="img" aria-label="互動情緒輪盤。使用左右方向鍵選擇情緒，按 Enter 或空白鍵查看說明。"></canvas>
+    <button class="btn-primary spin-btn" id="spinBtn" type="button" style="margin:1rem 0 0.5rem">🎡 轉一轉</button>
     <div class="info-box" id="infoBox" aria-live="polite">
       <div class="info-emoji">👆</div>
       <div class="info-name" style="color:var(--text-muted)">點選輪盤探索情緒</div>
@@ -337,12 +338,13 @@ title: 首頁
   const ctx = canvas.getContext('2d');
   const cx = 210, cy = 210, outerR = 190, innerR = 65;
   const total = emotions.length, arc = (2 * Math.PI) / total, startOffset = -Math.PI / 2;
+  let rot = 0, spinning = false;
   let selected = -1;
 
   function drawWheel(hoveredIdx) {
     ctx.clearRect(0, 0, 420, 420);
     emotions.forEach((e, i) => {
-      const start = startOffset + i * arc, end = start + arc, isHov = hoveredIdx === i;
+      const start = startOffset + rot + i * arc, end = start + arc, isHov = hoveredIdx === i;
       ctx.beginPath(); ctx.moveTo(cx, cy);
       ctx.arc(cx, cy, isHov ? outerR + 10 : outerR, start, end);
       ctx.closePath(); ctx.fillStyle = e.color; ctx.fill();
@@ -359,13 +361,15 @@ title: 首頁
     ctx.textAlign = 'center'; ctx.fillStyle = '#C85A2B';
     ctx.font = '900 15px Nunito, sans-serif'; ctx.fillText('情緒', cx, cy - 6);
     ctx.font = '700 11px Nunito, sans-serif'; ctx.fillStyle = '#7A5748'; ctx.fillText('輪盤', cx, cy + 11);
+    ctx.beginPath(); ctx.moveTo(cx - 13, 2); ctx.lineTo(cx + 13, 2); ctx.lineTo(cx, 30); ctx.closePath();
+    ctx.fillStyle = '#C85A2B'; ctx.fill(); ctx.strokeStyle = '#FFF9F4'; ctx.lineWidth = 2; ctx.stroke();
   }
 
   function getSegment(x, y) {
     const dx = x - cx, dy = y - cy, dist = Math.sqrt(dx*dx + dy*dy);
     if (dist < innerR || dist > outerR + 12) return -1;
-    let angle = Math.atan2(dy, dx) - startOffset;
-    if (angle < 0) angle += 2 * Math.PI;
+    let angle = Math.atan2(dy, dx) - startOffset - rot;
+    angle = ((angle % (2 * Math.PI)) + 2 * Math.PI) % (2 * Math.PI);
     return Math.floor(angle / arc) % total;
   }
 
@@ -376,13 +380,15 @@ title: 首頁
   }
 
   canvas.addEventListener('mousemove', ev => {
+    if (spinning) return;
     const r = canvas.getBoundingClientRect();
     const sx = (ev.clientX - r.left) * (420 / r.width), sy = (ev.clientY - r.top) * (420 / r.height);
     const idx = getSegment(sx, sy);
     drawWheel(idx); canvas.style.cursor = idx >= 0 ? 'pointer' : 'default';
   });
-  canvas.addEventListener('mouseleave', () => drawWheel(selected));
+  canvas.addEventListener('mouseleave', () => { if (!spinning) drawWheel(selected); });
   canvas.addEventListener('click', ev => {
+    if (spinning) return;
     const r = canvas.getBoundingClientRect();
     const sx = (ev.clientX - r.left) * (420 / r.width), sy = (ev.clientY - r.top) * (420 / r.height);
     const idx = getSegment(sx, sy);
@@ -391,6 +397,7 @@ title: 首頁
   canvas.addEventListener('keydown', ev => {
     if (!['ArrowLeft', 'ArrowRight', 'Home', 'End', 'Enter', ' '].includes(ev.key)) return;
     ev.preventDefault();
+    if (spinning) return;
     if (ev.key === 'Home') selected = 0;
     else if (ev.key === 'End') selected = total - 1;
     else if (ev.key === 'ArrowRight') selected = selected < 0 ? 0 : (selected + 1) % total;
@@ -402,6 +409,29 @@ title: 首頁
     }
   });
   drawWheel(-1);
+
+  const spinBtn = document.getElementById('spinBtn');
+  spinBtn.addEventListener('click', () => {
+    if (spinning) return;
+    const target = Math.floor(Math.random() * total);
+    const twoPi = 2 * Math.PI;
+    const want = -(target + 0.5) * arc;
+    let delta = ((want - rot) % twoPi + twoPi) % twoPi;
+    const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const from = rot, to = rot + delta + (reduce ? 0 : twoPi * 5);
+    const dur = reduce ? 0 : 3200, t0 = performance.now();
+    spinning = true; spinBtn.disabled = true;
+    function step(now) {
+      const t = dur ? Math.min(1, (now - t0) / dur) : 1;
+      rot = from + (to - from) * (1 - Math.pow(1 - t, 3));
+      drawWheel(-1);
+      if (t < 1) { requestAnimationFrame(step); return; }
+      rot = ((to % twoPi) + twoPi) % twoPi;
+      spinning = false; spinBtn.disabled = false;
+      selected = target; showEmotion(target); drawWheel(target);
+    }
+    requestAnimationFrame(step);
+  });
 
   /* ── WORKS ── */
   const works = [
