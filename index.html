@@ -9,18 +9,23 @@ title: 首頁
   main { max-width: none !important; padding: 0 !important; }
 
   :root {
-    --cream: #F9F7F2;
-    --orange: #5A8FA2;
-    --orange-dark: #467789;
-    --orange-light: #EEF6F8;
-    --orange-border: #D6E7ED;
-    --warm-bg: #F3F8FA;
-    --warm-divider: #E3EEF1;
+    --cream: #F2F9F5;
+    --orange: #1F7A7A;
+    --orange-dark: #17605F;
+    --orange-light: #DDF0EE;
+    --orange-border: #B9DDD8;
+    --warm-bg: #EAF5F0;
+    --warm-divider: #CFE5DD;
     --text-dark: #22323B;
     --text-mid: #4A5C66;
     --text-muted: #5D6D76;
     --text-hint: #8FA1AA;
   }
+
+  /* 青綠橘配色：青色為主、綠色標籤、橘色重點 */
+  .section-eyebrow, .stat-num, .info-name-zh, .reward-label, .hero-name span { color: #C9632A !important; }
+  .hp-tag, .stag, .work-chip { background: #E3F1E4 !important; color: #3D7A4E !important; border-color: #BFDDC6 !important; }
+  .hero-badge { background: #FBE9DD !important; color: #B4551F !important; border-color: #F2C9AE !important; }
 
   /* ── HERO ── */
   .hero {
@@ -171,9 +176,9 @@ title: 首頁
 
   .wheel-outer { display:flex; align-items:center; justify-content:center; gap:1.5rem; }
   .side-progress { display:flex; flex-direction:column; align-items:center; gap:8px; }
-  .side-track { width:14px; height:300px; background:rgba(90,143,162,0.12); border-radius:99px; overflow:hidden; position:relative; }
-  .side-fill { position:absolute; bottom:0; left:0; width:100%; background:linear-gradient(to top,#5A8FA2,#F4A261); border-radius:99px; height:0%; transition:height 0.5s cubic-bezier(0.34,1.56,0.64,1); }
-  .side-num { font-size:0.875rem; font-weight:900; color:#5A8FA2; }
+  .side-track { width:14px; height:300px; background:rgba(31,122,122,0.12); border-radius:99px; overflow:hidden; position:relative; }
+  .side-fill { position:absolute; bottom:0; left:0; width:100%; background:linear-gradient(to top,#1F7A7A,#F4A261); border-radius:99px; height:0%; transition:height 0.5s cubic-bezier(0.34,1.56,0.64,1); }
+  .side-num { font-size:0.875rem; font-weight:900; color:#1F7A7A; }
   .side-lbl { font-size:0.75rem; color:#5D6D76; writing-mode:vertical-rl; transform:rotate(180deg); }
   #rewardOverlay { display:none; position:fixed; inset:0; z-index:9999; align-items:center; justify-content:center; background:rgba(0,0,0,0.5); }
   #rewardOverlay.show { display:flex; }
@@ -353,7 +358,7 @@ title: 首頁
       ctx.beginPath(); ctx.moveTo(cx, cy);
       ctx.arc(cx, cy, isHov ? outerR + 10 : outerR, start, end);
       ctx.closePath(); ctx.fillStyle = e.color; ctx.fill();
-      ctx.strokeStyle = '#F9F7F2'; ctx.lineWidth = 2.5; ctx.stroke();
+      ctx.strokeStyle = '#F2F9F5'; ctx.lineWidth = 2.5; ctx.stroke();
       const midA = start + arc / 2, labelR = (outerR + innerR) / 2 + (isHov ? 5 : 0);
       const lx = cx + labelR * Math.cos(midA), ly = cy + labelR * Math.sin(midA);
       ctx.save(); ctx.translate(lx, ly); ctx.rotate(midA + Math.PI / 2);
@@ -361,13 +366,13 @@ title: 首頁
       ctx.font = '700 13px Nunito, sans-serif'; ctx.fillText(e.zh, 0, 0); ctx.restore();
     });
     ctx.beginPath(); ctx.arc(cx, cy, innerR, 0, 2 * Math.PI);
-    ctx.fillStyle = '#F3F8FA'; ctx.fill();
-    ctx.strokeStyle = '#D6E7ED'; ctx.lineWidth = 2; ctx.stroke();
-    ctx.textAlign = 'center'; ctx.fillStyle = '#5A8FA2';
+    ctx.fillStyle = '#EAF5F0'; ctx.fill();
+    ctx.strokeStyle = '#B9DDD8'; ctx.lineWidth = 2; ctx.stroke();
+    ctx.textAlign = 'center'; ctx.fillStyle = '#1F7A7A';
     ctx.font = '900 15px Nunito, sans-serif'; ctx.fillText('情緒', cx, cy - 6);
     ctx.font = '700 11px Nunito, sans-serif'; ctx.fillStyle = '#5D6D76'; ctx.fillText('輪盤', cx, cy + 11);
     ctx.beginPath(); ctx.moveTo(cx - 13, 2); ctx.lineTo(cx + 13, 2); ctx.lineTo(cx, 30); ctx.closePath();
-    ctx.fillStyle = '#5A8FA2'; ctx.fill(); ctx.strokeStyle = '#F9F7F2'; ctx.lineWidth = 2; ctx.stroke();
+    ctx.fillStyle = '#1F7A7A'; ctx.fill(); ctx.strokeStyle = '#F2F9F5'; ctx.lineWidth = 2; ctx.stroke();
   }
 
   function getSegment(x, y) {
@@ -473,7 +478,7 @@ title: 首頁
 
   /* ── WORKS ── */
   const works = [
-    { cat:'app', icon:'🏝️', iconBg:'#EEF6F8', title:'我的情緒，我會照顧', desc:'為學齡前兒童設計的 SEL 行動應用程式，涵蓋 47 張情緒卡、10 個生活情境、3 位虛擬角色與安撫策略引導。', year:'2025', tags:['React Native','TypeScript','Expo'], badge:'競賽作品', badgeColor:'#5A8FA2', featured:true, link:'/app/' },
+    { cat:'app', icon:'🏝️', iconBg:'#DDF0EE', title:'我的情緒，我會照顧', desc:'為學齡前兒童設計的 SEL 行動應用程式，涵蓋 47 張情緒卡、10 個生活情境、3 位虛擬角色與安撫策略引導。', year:'2025', tags:['React Native','TypeScript','Expo'], badge:'競賽作品', badgeColor:'#1F7A7A', featured:true, link:'/app/' },
     { cat:'curriculum', icon:'📋', iconBg:'#E1F5EE', title:'SEL 三節課教案', desc:'對應應用程式三步驟 SEL 架構的完整教案，每節 20 分鐘，適用於學前巡迴輔導情境。', year:'2025', tags:['3–6 歲','三節課','結構化教學'], badge:'課程設計', badgeColor:'#0F6E56', featured:false, link:'/portfolio/' },
     { cat:'material', icon:'🃏', iconBg:'#FBEAF0', title:'情緒卡牌庫（47 張）', desc:'涵蓋多種情緒的插圖卡牌組，可縮放瀏覽，設計用於課堂 SEL 介入活動，支援數位與印刷使用。', year:'2024–25', tags:['印刷','數位','47 張'], badge:'教材教具', badgeColor:'#993556', featured:false, link:'/portfolio/' },
     { cat:'material', icon:'🎭', iconBg:'#FAEEDA', title:'行為情境卡（10 張）', desc:'10 張隨機出現的生活情境圖卡，引導孩子辨識行為、連結情緒，適合小組討論使用。', year:'2025', tags:['情境教學','隨機排序','小組活動'], badge:'教材教具', badgeColor:'#854F0B', featured:false, link:'/portfolio/' },
@@ -568,7 +573,7 @@ title: 首頁
   }
 
   function launchConfetti(count) {
-    const colors = ['#5A8FA2','#F4A261','#90BE6D','#577590','#F38DAB','#9B72CF','#F9C74F'];
+    const colors = ['#1F7A7A','#F4A261','#90BE6D','#577590','#F38DAB','#9B72CF','#F9C74F'];
     for(let i=0;i<count;i++){
       const c = document.createElement('div');
       c.className = 'confetti-piece';
@@ -584,7 +589,7 @@ title: 首頁
     var ov = document.createElement('div');
     ov.id = 'rewardOverlay';
     ov.style.cssText = 'display:flex;align-items:center;justify-content:center;position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,0.5)';
-    ov.innerHTML = '<div style="background:white;border-radius:28px;padding:2.5rem 2rem;text-align:center;max-width:320px;box-shadow:0 20px 60px rgba(0,0,0,0.3);animation:popIn 0.4s cubic-bezier(0.34,1.56,0.64,1)"><div style="font-size:4rem;margin-bottom:0.5rem">'+emoji+'</div><div style="font-size:1.4rem;font-weight:900;color:#22323B;margin-bottom:0.4rem">'+title+'</div><div style="font-size:0.9rem;color:#5D6D76;margin-bottom:1.25rem">'+msg+'</div><button onclick="document.getElementById(\x27rewardOverlay\x27).remove()" style="background:#5A8FA2;color:white;border:none;padding:0.6rem 1.6rem;border-radius:99px;font-weight:700;cursor:pointer;font-size:0.9rem">繼續探索 →</button></div>';
+    ov.innerHTML = '<div style="background:white;border-radius:28px;padding:2.5rem 2rem;text-align:center;max-width:320px;box-shadow:0 20px 60px rgba(0,0,0,0.3);animation:popIn 0.4s cubic-bezier(0.34,1.56,0.64,1)"><div style="font-size:4rem;margin-bottom:0.5rem">'+emoji+'</div><div style="font-size:1.4rem;font-weight:900;color:#22323B;margin-bottom:0.4rem">'+title+'</div><div style="font-size:0.9rem;color:#5D6D76;margin-bottom:1.25rem">'+msg+'</div><button onclick="document.getElementById(\x27rewardOverlay\x27).remove()" style="background:#1F7A7A;color:white;border:none;padding:0.6rem 1.6rem;border-radius:99px;font-weight:700;cursor:pointer;font-size:0.9rem">繼續探索 →</button></div>';
     document.body.appendChild(ov);
     launchConfetti(60);
   }
@@ -628,12 +633,12 @@ title: 首頁
 <!-- ===== 視覺微調 ===== -->
 <style>
   html { scroll-behavior: smooth; }
-  .hero-card { box-shadow: 0 18px 50px rgba(90,143,162,0.12); }
-  .work-card { box-shadow: 0 4px 16px rgba(90,143,162,0.05); }
-  .app-cta-card { box-shadow: 0 16px 40px rgba(90,143,162,0.10); }
-  .bubble { box-shadow: 0 4px 14px rgba(90,143,162,0.04); }
-  .btn-primary { box-shadow: 0 8px 20px rgba(90,143,162,0.22); }
-  .info-box { box-shadow: 0 6px 20px rgba(90,143,162,0.05); }
+  .hero-card { box-shadow: 0 18px 50px rgba(31,122,122,0.12); }
+  .work-card { box-shadow: 0 4px 16px rgba(31,122,122,0.05); }
+  .app-cta-card { box-shadow: 0 16px 40px rgba(31,122,122,0.10); }
+  .bubble { box-shadow: 0 4px 14px rgba(31,122,122,0.04); }
+  .btn-primary { box-shadow: 0 8px 20px rgba(31,122,122,0.22); }
+  .info-box { box-shadow: 0 6px 20px rgba(31,122,122,0.05); }
   .hp-section-title { line-height: 1.2; }
   @media (prefers-reduced-motion: reduce) {
     * { animation-duration: 0.001ms !important; transition-duration: 0.001ms !important; }

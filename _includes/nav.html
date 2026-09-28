@@ -5,11 +5,51 @@
   </button>
   <ul class="nav-links" id="primary-navigation">
     <li><a href="{{ '/' | relative_url }}">首頁</a></li>
-    <li><a href="{{ '/about/' | relative_url }}">關於我</a></li>
-    <li><a href="{{ '/specialties/' | relative_url }}">專長</a></li>
-    <li><a href="{{ '/portfolio/' | relative_url }}">教材作品集</a></li>
-    <li><a href="{{ '/app/' | relative_url }}">情緒島嶼</a></li>
-    <li><a href="https://gahanglee.github.io/intro-site/research.html">論文研究</a></li>
+    <li class="has-sub">
+      <a href="{{ '/about/' | relative_url }}" aria-haspopup="true">關於我 <span class="caret" aria-hidden="true">▾</span></a>
+      <ul class="sub-menu" aria-label="關於我">
+        <li><a href="{{ '/about/' | relative_url }}">關於我</a></li>
+        <li><a href="{{ '/about/teacher/' | relative_url }}">學前巡迴輔導教師</a></li>
+        <li><a href="{{ '/about/counseling-space/' | relative_url }}">多元接納的心理空間</a></li>
+      </ul>
+    </li>
+    <li class="has-sub">
+      <a href="{{ '/specialties/' | relative_url }}" aria-haspopup="true">專長 <span class="caret" aria-hidden="true">▾</span></a>
+      <ul class="sub-menu" aria-label="專長">
+        <li><a href="{{ '/specialties/' | relative_url }}">全部專長</a></li>
+        <li><a href="{{ '/specialties/integration/' | relative_url }}">跨領域整合</a></li>
+        <li><a href="{{ '/specialties/education/' | relative_url }}">教育</a></li>
+        <li><a href="{{ '/specialties/assistive-tech/' | relative_url }}">輔助科技</a></li>
+        <li><a href="{{ '/specialties/pbs/' | relative_url }}">正向行為支持（PBS）</a></li>
+        <li><a href="{{ '/specialties/neurodiversity/' | relative_url }}">神經多樣性</a></li>
+        <li><a href="{{ '/specialties/rights-and-design/' | relative_url }}">融合教育核心理念</a></li>
+        <li><a href="{{ '/specialties/system-cooperation/' | relative_url }}">系統合作</a></li>
+        <li><a href="{{ '/specialties/counseling/' | relative_url }}">心理輔導</a></li>
+        <li><a href="{{ '/specialties/finance/' | relative_url }}">金融</a></li>
+      </ul>
+    </li>
+    <li class="has-sub">
+      <a href="{{ '/portfolio/' | relative_url }}" aria-haspopup="true">教材作品集 <span class="caret" aria-hidden="true">▾</span></a>
+      <ul class="sub-menu" aria-label="教材作品集">
+        <li><a href="{{ '/portfolio/' | relative_url }}">全部作品</a></li>
+        <li><a href="{{ '/portfolio/situation-cards/' | relative_url }}">生活情境故事卡</a></li>
+      </ul>
+    </li>
+    <li class="has-sub">
+      <a href="{{ '/app/' | relative_url }}" aria-haspopup="true">情緒島嶼 <span class="caret" aria-hidden="true">▾</span></a>
+      <ul class="sub-menu" aria-label="情緒島嶼">
+        <li><a href="{{ '/app/' | relative_url }}">App 介紹與線上體驗</a></li>
+        <li><a href="{{ '/' | relative_url }}#wheel">情緒輪盤</a></li>
+        <li><a href="{{ '/sunflower-breathing/' | relative_url }}">太陽花呼吸</a></li>
+      </ul>
+    </li>
+    <li class="has-sub">
+      <a href="https://gahanglee.github.io/intro-site/research.html" aria-haspopup="true">論文研究 <span class="caret" aria-hidden="true">▾</span></a>
+      <ul class="sub-menu" aria-label="論文研究">
+        <li><a href="https://gahanglee.github.io/intro-site/research.html">研究介紹</a></li>
+        <li><a href="{{ '/app/' | relative_url }}">情緒島 App 與研究</a></li>
+      </ul>
+    </li>
     <li><a href="{{ '/blog/' | relative_url }}">部落格</a></li>
     <li><a href="{{ '/contact/' | relative_url }}">聯絡</a></li>
   </ul>
