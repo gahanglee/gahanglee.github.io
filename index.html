@@ -100,6 +100,8 @@ title: 首頁
   .info-desc { font-size: 0.9rem; color: var(--text-muted); line-height: 1.6; }
   .wheel-hint { font-size: 0.875rem; color: var(--text-hint); margin-top: 1rem; }
   .strategy-tags { display: flex; flex-wrap: wrap; gap: 0.4rem; justify-content: center; margin-top: 0.6rem; }
+  button.stag { cursor: pointer; font-family: inherit; }
+  button.stag:hover { background: var(--orange-border); }
   .stag { background: var(--orange-light); color: var(--orange); font-size: 0.875rem; font-weight: 700; padding: 0.25rem 0.65rem; border-radius: 99px; border: 1px solid var(--orange-border); }
 
   /* ── WORKS ── */
@@ -265,7 +267,10 @@ title: 首頁
   </div>
   <div class="wheel-wrap">
     <canvas id="emotionWheel" width="420" height="420" tabindex="0" role="img" aria-label="互動情緒輪盤。使用左右方向鍵選擇情緒，按 Enter 或空白鍵查看說明。"></canvas>
-    <button class="btn-primary spin-btn" id="spinBtn" type="button" style="margin:1rem 0 0.5rem">🎡 轉一轉</button>
+    <div style="display:flex;gap:0.6rem;flex-wrap:wrap;justify-content:center;margin:1rem 0 0.5rem">
+      <button class="btn-primary spin-btn" id="spinBtn" type="button">🎡 轉一轉</button>
+      <button class="btn-outline" id="ttsBtn" type="button" aria-pressed="true">🔊 聲音：開</button>
+    </div>
     <div class="info-box" id="infoBox" aria-live="polite">
       <div class="info-emoji">👆</div>
       <div class="info-name" style="color:var(--text-muted)">點選輪盤探索情緒</div>
@@ -376,7 +381,8 @@ title: 首頁
   function showEmotion(i) {
     const e = emotions[i], box = document.getElementById('infoBox');
     box.style.borderColor = e.color;
-    box.innerHTML = `<div class="info-emoji">${e.emoji}</div><div class="info-name">${e.name}</div><div class="info-name-zh">${e.zh}</div><div class="info-desc">${e.desc}</div><div class="strategy-tags">${e.strategies.map(s=>`<span class="stag">${s}</span>`).join('')}</div>`;
+    box.innerHTML = `<div class="info-emoji">${e.emoji}</div><div class="info-name">${e.name}</div><div class="info-name-zh">${e.zh}</div><div class="info-desc">${e.desc}</div><div class="strategy-tags">${e.strategies.map(s=>`<button type="button" class="stag" data-say="${s}" aria-label="播放：${s}">🔊 ${s}</button>`).join('')}</div>`;
+    speak(`${e.zh}。${e.desc}`);
   }
 
   canvas.addEventListener('mousemove', ev => {
@@ -410,6 +416,37 @@ title: 首頁
   });
   drawWheel(-1);
 
+
+  /* ── TTS ── */
+  let ttsOn = true;
+  const synth = window.speechSynthesis;
+  function pickVoice() {
+    if (!synth) return null;
+    const v = synth.getVoices();
+    return v.find(x => x.lang === 'zh-TW') || v.find(x => x.lang && x.lang.startsWith('zh')) || null;
+  }
+  function speak(text) {
+    if (!ttsOn || !synth || !window.SpeechSynthesisUtterance) return;
+    synth.cancel();
+    const u = new SpeechSynthesisUtterance(text);
+    u.lang = 'zh-TW'; u.rate = 0.85; u.pitch = 1.1;
+    const voice = pickVoice(); if (voice) u.voice = voice;
+    synth.speak(u);
+  }
+  if (synth) synth.onvoiceschanged = () => {};
+  const ttsBtn = document.getElementById('ttsBtn');
+  if (!synth) { ttsBtn.hidden = true; }
+  ttsBtn.addEventListener('click', () => {
+    ttsOn = !ttsOn;
+    ttsBtn.textContent = ttsOn ? '🔊 聲音：開' : '🔇 聲音：關';
+    ttsBtn.setAttribute('aria-pressed', String(ttsOn));
+    if (!ttsOn && synth) synth.cancel(); else speak('聲音打開了');
+  });
+  document.getElementById('infoBox').addEventListener('click', ev => {
+    const t = ev.target.closest('.stag[data-say]');
+    if (t) speak('試試看，' + t.dataset.say);
+  });
+
   const spinBtn = document.getElementById('spinBtn');
   spinBtn.addEventListener('click', () => {
     if (spinning) return;
@@ -421,6 +458,7 @@ title: 首頁
     const from = rot, to = rot + delta + (reduce ? 0 : twoPi * 5);
     const dur = reduce ? 0 : 3200, t0 = performance.now();
     spinning = true; spinBtn.disabled = true;
+    speak('轉轉轉');
     function step(now) {
       const t = dur ? Math.min(1, (now - t0) / dur) : 1;
       rot = from + (to - from) * (1 - Math.pow(1 - t, 3));
