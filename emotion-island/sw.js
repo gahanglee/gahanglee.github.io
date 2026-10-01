@@ -1,9 +1,10 @@
 // 情緒島 Service Worker（由 scripts/pwa-postbuild.mjs 在每次建置時產生，請勿直接修改 dist/sw.js）
-const BUILD_ID = '20261001123906';
+const BUILD_ID = '20261001225913';
 const PRECACHE = 'ei-precache-' + BUILD_ID;
 const RUNTIME = 'ei-runtime';
 const PRECACHE_URLS = [
   "/emotion-island/",
+  "/emotion-island/_expo/static/js/web/index-447412a589550b96c81dd48f9241845d.js",
   "/emotion-island/assets/assets/cards/behavior_1.8d0266cc096247db314b62aef1fb6713.png",
   "/emotion-island/assets/assets/cards/behavior_10.6783a30da6f2d76a370b43c048ebae00.png",
   "/emotion-island/assets/assets/cards/behavior_11.9d5d322964bd853fa0c78b4a4b248d48.png",
@@ -48,7 +49,6 @@ const PRECACHE_URLS = [
   "/emotion-island/assets/assets/cards/park.bd04f60f8c207bfbea69ff2bfe16d762.png",
   "/emotion-island/assets/assets/cards/play.3e8b6e4fbeb45a963b6999c204f9c27b.png",
   "/emotion-island/assets/assets/cards/pop.5c7c0fbc5516f2a75165e5b8a409929f.png",
-  "/emotion-island/assets/assets/cards/sad.d05f0f7d4fff9b960e9c8077feee07f8.png",
   "/emotion-island/assets/assets/cards/s_1.766e540c59a75faec42b73953c484046.png",
   "/emotion-island/assets/assets/cards/s_10.b0b9d3935b617e19a721c6fcb9b6027d.png",
   "/emotion-island/assets/assets/cards/s_11.f285c6b9c03d37a5a72a0039a4d1b520.png",
@@ -61,14 +61,14 @@ const PRECACHE_URLS = [
   "/emotion-island/assets/assets/cards/s_7.7f81446963aaa6a4c3d53607db1131be.png",
   "/emotion-island/assets/assets/cards/s_8.14a6a974f4c49265939bef573a4b4d24.png",
   "/emotion-island/assets/assets/cards/s_9.aa7eb7a0f61dd66bf393d92711be0a69.png",
+  "/emotion-island/assets/assets/cards/sad.d05f0f7d4fff9b960e9c8077feee07f8.png",
   "/emotion-island/favicon.ico",
   "/emotion-island/icons/apple-touch-icon.png",
   "/emotion-island/icons/icon-192.png",
   "/emotion-island/icons/icon-512.png",
   "/emotion-island/icons/maskable-512.png",
   "/emotion-island/manifest.webmanifest",
-  "/emotion-island/pwa.js",
-  "/emotion-island/_expo/static/js/web/index-2552e315777c0db5aadbf7c125e93bbf.js"
+  "/emotion-island/pwa.js"
 ];
 // App 所在路徑：Vercel 為 /，個人網站為 /emotion-island/
 const BASE = new URL(self.registration.scope).pathname;
