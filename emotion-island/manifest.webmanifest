@@ -1,0 +1,41 @@
+{
+  "name": "情緒島｜我的情緒，我會照顧",
+  "short_name": "情緒島",
+  "description": "為學前幼兒設計的社會情緒學習 App：情境任務、情緒卡片、語音練習與冷靜策略。",
+  "lang": "zh-TW",
+  "id": "/emotion-island/",
+  "start_url": "./?source=pwa",
+  "scope": "./",
+  "display": "fullscreen",
+  "display_override": [
+    "fullscreen",
+    "standalone"
+  ],
+  "orientation": "any",
+  "background_color": "#EAF8FF",
+  "theme_color": "#2E9CC4",
+  "categories": [
+    "education",
+    "kids"
+  ],
+  "icons": [
+    {
+      "src": "icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "icons/maskable-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ]
+}

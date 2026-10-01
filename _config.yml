@@ -19,6 +19,11 @@ sass:
   sass_dir: assets/css
   style: compressed
 
+# 情緒島 App 網頁版（由 emotion-island 專案 npm run build:site 產生）的程式放在 _expo，
+# Jekyll 預設略過底線開頭的資料夾，要明確列入
+include:
+  - _expo
+
 exclude:
   - Gemfile
   - Gemfile.lock
@@ -43,5 +48,9 @@ defaults:
       sitemap: false
   - scope:
       path: "quiz-jm7k2q.html"
+    values:
+      sitemap: false
+  - scope:
+      path: "emotion-island"
     values:
       sitemap: false
