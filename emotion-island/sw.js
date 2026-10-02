@@ -1,10 +1,10 @@
 // 情緒島 Service Worker（由 scripts/pwa-postbuild.mjs 在每次建置時產生，請勿直接修改 dist/sw.js）
-const BUILD_ID = 'de148ca6418858';
+const BUILD_ID = 'adaae64d795cde';
 const PRECACHE = 'ei-precache-' + BUILD_ID;
 const RUNTIME = 'ei-runtime';
 const PRECACHE_URLS = [
   "/emotion-island/",
-  "/emotion-island/_expo/static/js/web/index-2cc546079a9fcdf9d91d76010b494405.js",
+  "/emotion-island/_expo/static/js/web/index-8766038e62fcbbb3a3e23634baa3fb0f.js",
   "/emotion-island/assets/assets/cards/behavior_1.8d0266cc096247db314b62aef1fb6713.png",
   "/emotion-island/assets/assets/cards/behavior_10.6783a30da6f2d76a370b43c048ebae00.png",
   "/emotion-island/assets/assets/cards/behavior_11.9d5d322964bd853fa0c78b4a4b248d48.png",
@@ -18,28 +18,18 @@ const PRECACHE_URLS = [
   "/emotion-island/assets/assets/cards/behavior_7.165c3a44ff38567ab55db3899418764e.png",
   "/emotion-island/assets/assets/cards/behavior_8.105d4c19a37df74907120f51b9c00ba0.png",
   "/emotion-island/assets/assets/cards/behavior_9.378ffc23b636e2aea3ad6feb4cd211ba.png",
-  "/emotion-island/assets/assets/cards/emotion_1.50dfe77e199103cad582572ec7caf5fd.png",
   "/emotion-island/assets/assets/cards/emotion_10.8b9f982bdbd8ceccf7a398e2ea28cf49.png",
-  "/emotion-island/assets/assets/cards/emotion_11.18935410062ee7fbbbc0961bb38cc845.png",
   "/emotion-island/assets/assets/cards/emotion_12.4e3bd1d5d67516ddb0ce8b742b32b44e.png",
   "/emotion-island/assets/assets/cards/emotion_13.99799d956e772e54ecc449a9ccb0228e.png",
   "/emotion-island/assets/assets/cards/emotion_14.64b385e90e35c00a71b57dfed093c240.png",
-  "/emotion-island/assets/assets/cards/emotion_15.00c2646ed5aef64000effa66acaaa462.png",
-  "/emotion-island/assets/assets/cards/emotion_16.5378d2665adfe1a84c6cff139d7c4ced.png",
-  "/emotion-island/assets/assets/cards/emotion_17.32946d45e1fccecc1dbdc3a7ab873080.png",
   "/emotion-island/assets/assets/cards/emotion_18.7a933ff1232ce1883fb0ef6f15b361b5.png",
   "/emotion-island/assets/assets/cards/emotion_19.72a3c343ed269e8d33120de17c3442fa.png",
-  "/emotion-island/assets/assets/cards/emotion_2.be5b69e80d45398225444c292826356f.png",
-  "/emotion-island/assets/assets/cards/emotion_20.7f7cf6b44c0ce42d22028b06220e0cf6.png",
-  "/emotion-island/assets/assets/cards/emotion_21.310086a8fc553c832c5f1acdcfdf8b70.png",
-  "/emotion-island/assets/assets/cards/emotion_22.f40ed17c335f32b55aa06a6ccce35bf9.png",
   "/emotion-island/assets/assets/cards/emotion_3.ff5472dd05a04e8157bf200f2787213d.png",
   "/emotion-island/assets/assets/cards/emotion_4_tense.3adbb921356dd7cb44d5eb36e6e168b2.png",
   "/emotion-island/assets/assets/cards/emotion_5.a23894542a2ffecebff2df075b103727.png",
   "/emotion-island/assets/assets/cards/emotion_6.b91b74b969e546aebee5f49d050588b3.png",
   "/emotion-island/assets/assets/cards/emotion_7.3eda3949fcb854c905fd561c26da5b4c.png",
   "/emotion-island/assets/assets/cards/emotion_8.be2afb33327ce3bf4a946dea0f5a7e0b.png",
-  "/emotion-island/assets/assets/cards/emotion_9.9a1094dd9d6a71c7df8f144d13f12d4b.png",
   "/emotion-island/assets/assets/cards/fight.88e67783f7dbb42082344b9f18627616.png",
   "/emotion-island/assets/assets/cards/pop.5c7c0fbc5516f2a75165e5b8a409929f.png",
   "/emotion-island/assets/assets/cards/s_1.766e540c59a75faec42b73953c484046.png",
