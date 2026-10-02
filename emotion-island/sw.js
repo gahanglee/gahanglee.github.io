@@ -1,10 +1,10 @@
 // 情緒島 Service Worker（由 scripts/pwa-postbuild.mjs 在每次建置時產生，請勿直接修改 dist/sw.js）
-const BUILD_ID = '5f22cc708ee31d';
+const BUILD_ID = 'de148ca6418858';
 const PRECACHE = 'ei-precache-' + BUILD_ID;
 const RUNTIME = 'ei-runtime';
 const PRECACHE_URLS = [
   "/emotion-island/",
-  "/emotion-island/_expo/static/js/web/index-c5d6178e78e74ad303a056cf0f3bb3e9.js",
+  "/emotion-island/_expo/static/js/web/index-2cc546079a9fcdf9d91d76010b494405.js",
   "/emotion-island/assets/assets/cards/behavior_1.8d0266cc096247db314b62aef1fb6713.png",
   "/emotion-island/assets/assets/cards/behavior_10.6783a30da6f2d76a370b43c048ebae00.png",
   "/emotion-island/assets/assets/cards/behavior_11.9d5d322964bd853fa0c78b4a4b248d48.png",
@@ -40,29 +40,6 @@ const PRECACHE_URLS = [
   "/emotion-island/assets/assets/cards/emotion_7.3eda3949fcb854c905fd561c26da5b4c.png",
   "/emotion-island/assets/assets/cards/emotion_8.be2afb33327ce3bf4a946dea0f5a7e0b.png",
   "/emotion-island/assets/assets/cards/emotion_9.9a1094dd9d6a71c7df8f144d13f12d4b.png",
-  "/emotion-island/assets/assets/cards/face_angry_2.40801758bcb6c43ab9503b7bb9eb6ee1.png",
-  "/emotion-island/assets/assets/cards/face_ashamed_2.29eaa7642afbc94d9afb8ea33571330b.png",
-  "/emotion-island/assets/assets/cards/face_bored_2.3d4bf1c8f0991f7b5ca84dd15f3a0a00.png",
-  "/emotion-island/assets/assets/cards/face_calm_2.4a62f02541bbb0801b88996d840b0709.png",
-  "/emotion-island/assets/assets/cards/face_cry_2.0513196b3ded228630ce06c5bb611e8b.png",
-  "/emotion-island/assets/assets/cards/face_dejected_2.75042093a3772a2d56cad2d8d9b64729.png",
-  "/emotion-island/assets/assets/cards/face_disgust_2.2c07fabc12724f772a00dab15d11daab.png",
-  "/emotion-island/assets/assets/cards/face_embarrassed_2.4806b72e591b50437b35f723c54498bb.png",
-  "/emotion-island/assets/assets/cards/face_excited_2.37dda4f65ae4f639565f7ab7ba8a18ac.png",
-  "/emotion-island/assets/assets/cards/face_frustrated_2.15e8061c39af6c311728c3488af0619e.png",
-  "/emotion-island/assets/assets/cards/face_furious_2.df8cb40174ad224390889fedd0de2cf7.png",
-  "/emotion-island/assets/assets/cards/face_guilty_2.d7e1cf3feb29ec829200386fcf8fb082.png",
-  "/emotion-island/assets/assets/cards/face_happy_2.68d271bf7271b9d874cb141fe9161fc7.png",
-  "/emotion-island/assets/assets/cards/face_jealous_2.382f2393e99d0df33a547899582dc890.png",
-  "/emotion-island/assets/assets/cards/face_lonely_2.0ada38aa0cb555c57476611b6a3b7ff8.png",
-  "/emotion-island/assets/assets/cards/face_nervous_2.1d224982c295d71c9d41dee99f427048.png",
-  "/emotion-island/assets/assets/cards/face_proud_2.c40d28fe250d34890e4accbe9679b3c0.png",
-  "/emotion-island/assets/assets/cards/face_sad_2.bc1a0ccf2f54d2b601682482336e8cc2.png",
-  "/emotion-island/assets/assets/cards/face_satisfied_2.bfe57e2057f652b04f7ed1df6bf44374.png",
-  "/emotion-island/assets/assets/cards/face_scared_2.dd9144ecf7bd03634b600dca8837434c.png",
-  "/emotion-island/assets/assets/cards/face_shy_2.020ecd812a192c703bbf14786075c013.png",
-  "/emotion-island/assets/assets/cards/face_surprised_2.6db603f4328256a658751cab4019365e.png",
-  "/emotion-island/assets/assets/cards/face_worried_2.e75091b148128f8b2f62e396d6ab7041.png",
   "/emotion-island/assets/assets/cards/fight.88e67783f7dbb42082344b9f18627616.png",
   "/emotion-island/assets/assets/cards/pop.5c7c0fbc5516f2a75165e5b8a409929f.png",
   "/emotion-island/assets/assets/cards/s_1.766e540c59a75faec42b73953c484046.png",
