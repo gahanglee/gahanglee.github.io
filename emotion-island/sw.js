@@ -1,10 +1,10 @@
 // 情緒島 Service Worker（由 scripts/pwa-postbuild.mjs 在每次建置時產生，請勿直接修改 dist/sw.js）
-const BUILD_ID = 'fc93ab3a16f863';
+const BUILD_ID = '332eb06dd48d46';
 const PRECACHE = 'ei-precache-' + BUILD_ID;
 const RUNTIME = 'ei-runtime';
 const PRECACHE_URLS = [
   "/emotion-island/",
-  "/emotion-island/_expo/static/js/web/index-fb7f15f4d4d050ead7d781f856831bf8.js",
+  "/emotion-island/_expo/static/js/web/index-868a57a7837fc0b650dd4ee7632e945c.js",
   "/emotion-island/assets/assets/cards/act_lie.fad072aa7a661e10305b001d607db2c0.png",
   "/emotion-island/assets/assets/cards/ai_b_cheer.f7bfc6270af0df5aff21a4c3072b5058.png",
   "/emotion-island/assets/assets/cards/ai_b_cry.4a84a350b580f78f30f0a6d3fc1e7e67.png",
@@ -66,6 +66,16 @@ const PRECACHE_URLS = [
   "/emotion-island/assets/assets/cards/ai_s_unknown.98333e95d0b36924b7f0ee7b00bdb212.png",
   "/emotion-island/assets/assets/cards/ai_s_walk.8b128aab9eaf03821f330e9b30f92c9f.png",
   "/emotion-island/assets/assets/cards/ai_s_water.3d6dbb10940f6485ba27c677492938c7.png",
+  "/emotion-island/assets/assets/cards/ai_w_cry.4f141e2084cc0c2675f366f5d10e24f0.png",
+  "/emotion-island/assets/assets/cards/ai_w_friend.48d44d815e8d3159c106d43d7d116e71.png",
+  "/emotion-island/assets/assets/cards/ai_w_jump.6e6772436f2c8a0c5e264e4e1b9b2d81.png",
+  "/emotion-island/assets/assets/cards/ai_w_laugh.d271ba6bbc030087bc1b169dd0b328d9.png",
+  "/emotion-island/assets/assets/cards/ai_w_me.57c5746ab0f35002e919905f26a2349f.png",
+  "/emotion-island/assets/assets/cards/ai_w_mom.d314d406585da7049a6cd7fc02fafc1d.png",
+  "/emotion-island/assets/assets/cards/ai_w_rest.6198b2e1673c25b06f76702bb00a7d86.png",
+  "/emotion-island/assets/assets/cards/ai_w_shake.d337a530fcc465fea2b185930e408577.png",
+  "/emotion-island/assets/assets/cards/ai_w_stomp.7b9642cf15cbfa5087b77b8188c5249f.png",
+  "/emotion-island/assets/assets/cards/ai_w_teacher.0da56d62695c34c96063cc737fc68c8f.png",
   "/emotion-island/assets/assets/cards/rt_breakfast.40e87cd96f13177dd70d6a90afcb71f2.png",
   "/emotion-island/assets/assets/cards/rt_dressed.25e4600d0ff93456a4f59917a91b19b2.png",
   "/emotion-island/assets/assets/cards/rt_hair.0b9d582dd575c41272cdcd0ed857c100.png",
