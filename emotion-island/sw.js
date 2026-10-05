@@ -1,10 +1,10 @@
 // 情緒島 Service Worker（由 scripts/pwa-postbuild.mjs 在每次建置時產生，請勿直接修改 dist/sw.js）
-const BUILD_ID = '78328e226a681f';
+const BUILD_ID = 'c9a43d332604f5';
 const PRECACHE = 'ei-precache-' + BUILD_ID;
 const RUNTIME = 'ei-runtime';
 const PRECACHE_URLS = [
   "/emotion-island/",
-  "/emotion-island/_expo/static/js/web/index-7d685e33f8b34cbaa4cb8d18cdb4b966.js",
+  "/emotion-island/_expo/static/js/web/index-1056bf3a961c3119b54d58d4a4da51a3.js",
   "/emotion-island/assets/assets/cards/act_lie.fad072aa7a661e10305b001d607db2c0.png",
   "/emotion-island/assets/assets/cards/ai_a2_chest.116ed336f1b1f7ff847ba1e04c56c310.png",
   "/emotion-island/assets/assets/cards/ai_a2_drink.045243d565c95d4d0d348c639683dfa5.png",
@@ -30,6 +30,9 @@ const PRECACHE_URLS = [
   "/emotion-island/assets/assets/cards/ai_c3_fell.83bee91ff0b3b8c8b9d6d38a40900bbb.png",
   "/emotion-island/assets/assets/cards/ai_c3_momleft.c277d5b61a71b7b0d50be65af542b96b.png",
   "/emotion-island/assets/assets/cards/ai_c3_toybroke.035c88d1fa416e7a4107d9e87ed014bc.png",
+  "/emotion-island/assets/assets/cards/ai_e3_birthday.7768c609258becf147d3f760b65e8425.png",
+  "/emotion-island/assets/assets/cards/ai_e3_fireworks.a7bd0857ce8d6171ad0fe2698ea7624e.png",
+  "/emotion-island/assets/assets/cards/ai_e3_park.cc98c5446b1782a9ef8add0e6e0c4999.png",
   "/emotion-island/assets/assets/cards/ai_f_angry_boy.90595735e19a0185649c26fc0fc02ace.png",
   "/emotion-island/assets/assets/cards/ai_f_angry_girl.ff27de6169b7674c20108e2d20a29fe9.png",
   "/emotion-island/assets/assets/cards/ai_f_bored_boy.381054780eae317169cfc3ee4749a464.png",
