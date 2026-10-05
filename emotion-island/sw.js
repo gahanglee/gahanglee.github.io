@@ -1,10 +1,10 @@
 // 情緒島 Service Worker（由 scripts/pwa-postbuild.mjs 在每次建置時產生，請勿直接修改 dist/sw.js）
-const BUILD_ID = 'eef62d5e9a8584';
+const BUILD_ID = 'e2343c05d84c0e';
 const PRECACHE = 'ei-precache-' + BUILD_ID;
 const RUNTIME = 'ei-runtime';
 const PRECACHE_URLS = [
   "/emotion-island/",
-  "/emotion-island/_expo/static/js/web/index-99d9d911d0f85eff101f71cbd150394e.js",
+  "/emotion-island/_expo/static/js/web/index-f38b21a3829a6e1b90a682770519fdc4.js",
   "/emotion-island/assets/assets/cards/act_lie.fad072aa7a661e10305b001d607db2c0.png",
   "/emotion-island/assets/assets/cards/ai_a2_drink.045243d565c95d4d0d348c639683dfa5.png",
   "/emotion-island/assets/assets/cards/ai_a2_find.24ff4b972becfe491872c5cb9dc2f0ad.png",
@@ -46,6 +46,28 @@ const PRECACHE_URLS = [
   "/emotion-island/assets/assets/cards/ai_f_surprise_girl.e313a81f57150eb47acd03b2fd09af7b.png",
   "/emotion-island/assets/assets/cards/ai_f_worried_boy.ed1e4addd2b5279e17b08aa6f5620766.png",
   "/emotion-island/assets/assets/cards/ai_f_worried_girl.a99bacb98657160e1e309b85a1e2ccf8.png",
+  "/emotion-island/assets/assets/cards/ai_fh_angry_boy.637921fdc07943b59c8d21513d0d01ce.png",
+  "/emotion-island/assets/assets/cards/ai_fh_angry_girl.fdd61d6535512d34c60195bd9a3447c6.png",
+  "/emotion-island/assets/assets/cards/ai_fh_bored_boy.0969fd52608d0cb051e062d7da4510a4.png",
+  "/emotion-island/assets/assets/cards/ai_fh_bored_girl.5fdfdf28cc3e4032523d3558494af390.png",
+  "/emotion-island/assets/assets/cards/ai_fh_calm_boy.2b95e0dfb6d263ce3c373d3e13128caf.png",
+  "/emotion-island/assets/assets/cards/ai_fh_calm_girl.3a985e21fde0acb20914a709437d67ac.png",
+  "/emotion-island/assets/assets/cards/ai_fh_disgust_boy.68e0d7a1c1d6b1a6cd717b9502bc56df.png",
+  "/emotion-island/assets/assets/cards/ai_fh_disgust_girl.483e9fe0b8877094e645e7ad818eda7e.png",
+  "/emotion-island/assets/assets/cards/ai_fh_excited_boy.155eab2bb57ae295e64ab6e9e4298f4c.png",
+  "/emotion-island/assets/assets/cards/ai_fh_excited_girl.ee3f88eaf93bbd4f196766cbcee379a5.png",
+  "/emotion-island/assets/assets/cards/ai_fh_fear_boy.32f2323e9c70880c467bd67a2d0aec8d.png",
+  "/emotion-island/assets/assets/cards/ai_fh_fear_girl.c1ac0df0f34fc55e01310591213e0923.png",
+  "/emotion-island/assets/assets/cards/ai_fh_happy_boy.fed8d33cb09aa76a021cc082e06c7b70.png",
+  "/emotion-island/assets/assets/cards/ai_fh_happy_girl.47b854fed14eba2d8c83594c119bee87.png",
+  "/emotion-island/assets/assets/cards/ai_fh_sad_boy.ed2228c0d44315428132912228a44fb2.png",
+  "/emotion-island/assets/assets/cards/ai_fh_sad_girl.c95253afd3b02e73a1c14fb32ce2eade.png",
+  "/emotion-island/assets/assets/cards/ai_fh_shy_boy.08c75e59868067fb719e2e2dc55d6758.png",
+  "/emotion-island/assets/assets/cards/ai_fh_shy_girl.237d19c2628945ccf5d079a76fc56c16.png",
+  "/emotion-island/assets/assets/cards/ai_fh_surprise_boy.5bfa79116ad94778500aab8be9a99fa8.png",
+  "/emotion-island/assets/assets/cards/ai_fh_surprise_girl.d89658f633e527a30ed9a6aad792f1c3.png",
+  "/emotion-island/assets/assets/cards/ai_fh_worried_boy.270e9d2b3b9d09b6babb023a5d76b294.png",
+  "/emotion-island/assets/assets/cards/ai_fh_worried_girl.00d880125275996c3e7578c2a962fc93.png",
   "/emotion-island/assets/assets/cards/ai_r2_breakfast.d94fb77b99926cd05829bb6b37793940.png",
   "/emotion-island/assets/assets/cards/ai_r2_dressed.0986f2fe1ad7a2f474b149fdd1504a1b.png",
   "/emotion-island/assets/assets/cards/ai_r2_hair.6b6ea94e5a170d065ffc44c3163c80ae.png",
