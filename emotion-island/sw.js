@@ -1,10 +1,10 @@
 // 情緒島 Service Worker（由 scripts/pwa-postbuild.mjs 在每次建置時產生，請勿直接修改 dist/sw.js）
-const BUILD_ID = '98aa00289b0cfd';
+const BUILD_ID = '78328e226a681f';
 const PRECACHE = 'ei-precache-' + BUILD_ID;
 const RUNTIME = 'ei-runtime';
 const PRECACHE_URLS = [
   "/emotion-island/",
-  "/emotion-island/_expo/static/js/web/index-f05cf74c458fd73f91b9588104555780.js",
+  "/emotion-island/_expo/static/js/web/index-7d685e33f8b34cbaa4cb8d18cdb4b966.js",
   "/emotion-island/assets/assets/cards/act_lie.fad072aa7a661e10305b001d607db2c0.png",
   "/emotion-island/assets/assets/cards/ai_a2_chest.116ed336f1b1f7ff847ba1e04c56c310.png",
   "/emotion-island/assets/assets/cards/ai_a2_drink.045243d565c95d4d0d348c639683dfa5.png",
@@ -74,6 +74,12 @@ const PRECACHE_URLS = [
   "/emotion-island/assets/assets/cards/ai_fh_surprise_girl.d89658f633e527a30ed9a6aad792f1c3.png",
   "/emotion-island/assets/assets/cards/ai_fh_worried_boy.270e9d2b3b9d09b6babb023a5d76b294.png",
   "/emotion-island/assets/assets/cards/ai_fh_worried_girl.00d880125275996c3e7578c2a962fc93.png",
+  "/emotion-island/assets/assets/cards/ai_h3_hug.29b3e1b5810fd8fdc09fb0ddb8d87675.png",
+  "/emotion-island/assets/assets/cards/ai_h3_play.f2bf2a96c28eac12b0c15ba2b158c167.png",
+  "/emotion-island/assets/assets/cards/ai_h3_snack.9a3d0512050d559b92f641036a9008e4.png",
+  "/emotion-island/assets/assets/cards/ai_n3_newplace.626a597e678cfb547507f2c1efda8d0b.png",
+  "/emotion-island/assets/assets/cards/ai_n3_shot.10b49826550d7b99114c81e8489c958c.png",
+  "/emotion-island/assets/assets/cards/ai_n3_stage.ccf9a7f8b6ed4f25dd9d497bd52b6d63.png",
   "/emotion-island/assets/assets/cards/ai_o2_bear.c9f7d40081029506da6d6a78b0a11d67.png",
   "/emotion-island/assets/assets/cards/ai_o2_water.3f5b7789e7a137e9b012ff9001b6ffc9.png",
   "/emotion-island/assets/assets/cards/ai_p3_blocks.29b81706ec86024387df946a504eef35.png",
