@@ -29,12 +29,12 @@ permalink: /app/
     <span class="section-tag">線上體驗</span>
     <h2 class="section-title">直接在這裡試玩</h2>
     <p style="color:var(--text-muted);margin-bottom:2rem;font-size:0.95rem;line-height:1.85;max-width:560px">
-      不用安裝，直接在瀏覽器體驗完整的情緒島嶼。建議使用耳機，並允許麥克風權限以體驗語音引導與說話練習。
+      不用安裝，也不用登入，直接在瀏覽器體驗完整的情緒島嶼。這裡是示範模式，資料都是虛構的，操作不會被記錄。建議使用耳機以體驗語音引導與語音練習；小島的動畫預設為開，老師頁可以在「🌿 動畫」設定減少動畫或放慢速度。
     </p>
 
     <div class="island-embed-frame">
       <iframe
-        src="/emotion-island/"
+        src="/emotion-island/?demo=1"
         title="情緒島嶼 App 線上體驗"
         allow="microphone; autoplay; fullscreen"
         loading="lazy"></iframe>
@@ -42,7 +42,7 @@ permalink: /app/
 
     <p style="text-align:center;margin-top:1.25rem">
       <a class="btn btn-solid-orange"
-         href="/emotion-island/"
+         href="/emotion-island/?demo=1"
          target="_blank" rel="noopener">↗ 在新分頁全螢幕開啟</a>
     </p>
   </section>
@@ -59,12 +59,12 @@ permalink: /app/
     </p>
   </section>
 
-  <!-- 1.1.0 新功能 -->
+  <!-- 研究用功能 -->
   <section class="section">
-    <span class="section-tag">1.1.0 更新</span>
+    <span class="section-tag">研究用功能</span>
     <h2 class="section-title">配合論文研究的新功能</h2>
     <p style="color:var(--text-muted);margin-bottom:1.5rem;font-size:0.95rem;line-height:1.85;max-width:600px">
-      1.1.0 版依論文計畫調整，讓老師在協同行動研究中記錄孩子需要多少協助、用什麼方式回應。App 不自動判斷孩子的內在情緒，也不做診斷。
+      依論文計畫，App 讓老師在協同行動研究中記錄孩子需要多少協助、用什麼方式回應（目前版本 1.4.1）。App 不自動判斷孩子的內在情緒，也不做診斷。
     </p>
     <div class="contact-grid">
       <div class="c-item"><div class="c-icon">🌱</div><div><h4>研究階段</h4><p>初始觀察、行動循環一至三、整合與後期觀察，另有不列入資料的練習模式。</p></div></div>
@@ -110,19 +110,19 @@ permalink: /app/
         <div style="font-size:2.2rem;margin-bottom:0.75rem">💛</div>
         <div style="font-size:0.75rem;color:var(--text-muted);letter-spacing:0.12em;text-transform:uppercase;margin-bottom:4px">Step 1</div>
         <h4 style="font-family:var(--serif);font-size:1rem;color:var(--orange);margin-bottom:0.6rem">我覺得</h4>
-        <p style="font-size:0.82rem;color:var(--text-muted);line-height:1.7">看情境圖卡，從情緒卡中選出自己的感受，再想一想為什麼會有這種感覺。</p>
+        <p style="font-size:0.82rem;color:var(--text-muted);line-height:1.7">看圖選出發生了什麼事，再從四張臉中選出自己的心情；每次點一下先聽名字，再點一次確定。</p>
       </div>
       <div style="background:var(--bg);border:1px solid var(--border);border-radius:var(--radius);padding:1.5rem;text-align:center">
         <div style="font-size:2.2rem;margin-bottom:0.75rem">💓</div>
         <div style="font-size:0.75rem;color:var(--text-muted);letter-spacing:0.12em;text-transform:uppercase;margin-bottom:4px">Step 2</div>
         <h4 style="font-family:var(--serif);font-size:1rem;color:var(--orange);margin-bottom:0.6rem">我的身體可能會</h4>
-        <p style="font-size:0.82rem;color:var(--text-muted);line-height:1.7">認識情緒出現時身體的反應，例如心跳變快、握拳、想哭。</p>
+        <p style="font-size:0.82rem;color:var(--text-muted);line-height:1.7">認識情緒出現時身體的反應，例如心跳變快、握拳、想哭；先停一停，摸摸看自己的身體怎麼了。</p>
       </div>
       <div style="background:var(--bg);border:1px solid var(--border);border-radius:var(--radius);padding:1.5rem;text-align:center">
         <div style="font-size:2.2rem;margin-bottom:0.75rem">🌬️</div>
         <div style="font-size:0.75rem;color:var(--text-muted);letter-spacing:0.12em;text-transform:uppercase;margin-bottom:4px">Step 3</div>
         <h4 style="font-family:var(--serif);font-size:1rem;color:var(--orange);margin-bottom:0.6rem">我可以</h4>
-        <p style="font-size:0.82rem;color:var(--text-muted);line-height:1.7">選擇調節策略，例如深呼吸、太陽花呼吸、跟自己說我可以，再到安撫步驟實際練習。</p>
+        <p style="font-size:0.82rem;color:var(--text-muted);line-height:1.7">從 25 張冷靜策略卡中選一個方法，例如深呼吸、抱抱自己，再一起陪小精靈慢慢吸氣、吐氣。</p>
       </div>
     </div>
   </section>
@@ -132,9 +132,11 @@ permalink: /app/
     <h2 class="section-title">開發細節</h2>
     <div class="contact-grid">
       <div class="c-item"><div class="c-icon">📱</div><div><h4>開發框架</h4><p>React Native (Expo)</p></div></div>
-      <div class="c-item"><div class="c-icon">🗂️</div><div><h4>情緒卡片</h4><p>38 張（身體反應 13、情緒臉孔 11、冷靜策略 14）</p></div></div>
+      <div class="c-item"><div class="c-icon">🗂️</div><div><h4>情緒卡片</h4><p>67 張，分 5 組：身體反應 13、情緒臉孔 11、冷靜策略 25、日常生活 8、情境故事 10；圖像為 Canva AI 生成</p></div></div>
       <div class="c-item"><div class="c-icon">🎬</div><div><h4>情緒挑戰</h4><p>6 層、7 種情緒、40 個生活情境</p></div></div>
-      <div class="c-item"><div class="c-icon">🌈</div><div><h4>調節情緒</h4><p>依序辨識、理解、標記，再用 Meta-Moment 四步驟選一個方法；不舒服的情緒可再一起安撫情緒精靈</p></div></div>
+      <div class="c-item"><div class="c-icon">🌈</div><div><h4>調節情緒</h4><p>看圖選原因、選心情（四張臉）、四個幼兒版短句引導，再從策略卡選一個方法；不舒服的情緒可再一起安撫情緒精靈</p></div></div>
+      <div class="c-item"><div class="c-icon">🗣️</div><div><h4>語音練習</h4><p>六階句型：從「誰＋做日常的事」逐步到「誰＋覺得＋因為」，全部用圖卡；念到哪一格，句子條就輕輕亮起</p></div></div>
+      <div class="c-item"><div class="c-icon">🌿</div><div><h4>動畫與感官友善</h4><p>動作慢、短、不循環；老師可設定「減少動畫」與動畫速度（標準／慢）</p></div></div>
       <div class="c-item"><div class="c-icon">💻</div><div><h4>原始碼</h4><p>未開放</p></div></div>
     </div>
   </section>
