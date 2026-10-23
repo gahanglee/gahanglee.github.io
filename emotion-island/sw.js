@@ -1,10 +1,10 @@
 // 情緒島 Service Worker（由 scripts/pwa-postbuild.mjs 在每次建置時產生，請勿直接修改 dist/sw.js）
-const BUILD_ID = '189fa14f74d195';
+const BUILD_ID = '323d24ca2de974';
 const PRECACHE = 'ei-precache-' + BUILD_ID;
 const RUNTIME = 'ei-runtime';
 const PRECACHE_URLS = [
   "/emotion-island/",
-  "/emotion-island/_expo/static/js/web/index-300284fb7a0f72ef48139c2faee6e62b.js",
+  "/emotion-island/_expo/static/js/web/index-b5a647dcc19e30e833960e3b3f8cc45d.js",
   "/emotion-island/assets/assets/cards/ai_a2_chest.116ed336f1b1f7ff847ba1e04c56c310.png",
   "/emotion-island/assets/assets/cards/ai_a2_drink.045243d565c95d4d0d348c639683dfa5.png",
   "/emotion-island/assets/assets/cards/ai_a2_find.24ff4b972becfe491872c5cb9dc2f0ad.png",
@@ -14,18 +14,18 @@ const PRECACHE_URLS = [
   "/emotion-island/assets/assets/cards/ai_a2_shoulder.d1a9c6981571358b95a4f25374cfd2e1.png",
   "/emotion-island/assets/assets/cards/ai_a2_smell.82f0715841707b6635136c1db5784567.png",
   "/emotion-island/assets/assets/cards/ai_a2_stroke.4d96a99f1aad07c08170ff526d5556fb.png",
-  "/emotion-island/assets/assets/cards/ai_b_cheer.f7bfc6270af0df5aff21a4c3072b5058.png",
-  "/emotion-island/assets/assets/cards/ai_b_cry.4a84a350b580f78f30f0a6d3fc1e7e67.png",
-  "/emotion-island/assets/assets/cards/ai_b_fight.008bbfc7ac5542452e2f1c008697e0df.png",
-  "/emotion-island/assets/assets/cards/ai_b_hide.cdc24ad14059a3755889bdf9c2a1d6ad.png",
-  "/emotion-island/assets/assets/cards/ai_b_jump.06ccb5620bd18bd0569db06688805508.png",
-  "/emotion-island/assets/assets/cards/ai_b_laugh.9cb87e42d4e1169031f6023a053d75ba.png",
-  "/emotion-island/assets/assets/cards/ai_b_loud.7a6110f27368df844b303bc26cad6032.png",
-  "/emotion-island/assets/assets/cards/ai_b_roll.9fd14ef9983a99ae42138fc07429ae14.png",
-  "/emotion-island/assets/assets/cards/ai_b_run.3d9fcf6b70d28a183426b7895703bd49.png",
-  "/emotion-island/assets/assets/cards/ai_b_scold.e4e429bec07d8d946d6f00d36719d581.png",
-  "/emotion-island/assets/assets/cards/ai_b_scream.6ee5293e693218df4bf47616123c32ea.png",
-  "/emotion-island/assets/assets/cards/ai_b_throw.f8c6d31329d27b8a37a5477e9abc3468.png",
+  "/emotion-island/assets/assets/cards/ai_b_cheer.c10138afbecb354f49531ef6ff2098cb.png",
+  "/emotion-island/assets/assets/cards/ai_b_cry.a5ffc4430dc3339eb968df8c969fa7c1.png",
+  "/emotion-island/assets/assets/cards/ai_b_fight.6434e5424a30df6eabdb4a1726e818e8.png",
+  "/emotion-island/assets/assets/cards/ai_b_hide.31d44e7d32e40029cc8a4b8ff53857c9.png",
+  "/emotion-island/assets/assets/cards/ai_b_jump.0ccf677d11deb78e9c1b9067a27f0d1a.png",
+  "/emotion-island/assets/assets/cards/ai_b_laugh.47a8814cbaff7efd085fc4d6841172a9.png",
+  "/emotion-island/assets/assets/cards/ai_b_loud.c43e5baae1d6e97cfe068b3a31e8e09e.png",
+  "/emotion-island/assets/assets/cards/ai_b_roll.9e44b06f1c390b97e8eca353a61a979e.png",
+  "/emotion-island/assets/assets/cards/ai_b_run.2ac2d7035342d22446b1d02d81dd73d4.png",
+  "/emotion-island/assets/assets/cards/ai_b_scold.d9d81e798207eeeb6c2f1a18a20d334c.png",
+  "/emotion-island/assets/assets/cards/ai_b_scream.90af8dbe215e488eab984bd8a583f5f2.png",
+  "/emotion-island/assets/assets/cards/ai_b_throw.ae1c621dc1919828ef6d11bb3dffe64f.png",
   "/emotion-island/assets/assets/cards/ai_c3_fell.83bee91ff0b3b8c8b9d6d38a40900bbb.png",
   "/emotion-island/assets/assets/cards/ai_c3_momleft.c277d5b61a71b7b0d50be65af542b96b.png",
   "/emotion-island/assets/assets/cards/ai_c3_toybroke.035c88d1fa416e7a4107d9e87ed014bc.png",
