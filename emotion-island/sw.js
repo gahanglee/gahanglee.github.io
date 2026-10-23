@@ -1,10 +1,10 @@
 // 情緒島 Service Worker（由 scripts/pwa-postbuild.mjs 在每次建置時產生，請勿直接修改 dist/sw.js）
-const BUILD_ID = 'f122f56cc393c6';
+const BUILD_ID = '45fbdba5f1bc8f';
 const PRECACHE = 'ei-precache-' + BUILD_ID;
 const RUNTIME = 'ei-runtime';
 const PRECACHE_URLS = [
   "/emotion-island/",
-  "/emotion-island/_expo/static/js/web/index-3e197332224b3e49be6bae259d0b0407.js",
+  "/emotion-island/_expo/static/js/web/index-4b2406a80095a11dc75c0ae018891f68.js",
   "/emotion-island/assets/assets/cards/ai_a2_chest.116ed336f1b1f7ff847ba1e04c56c310.png",
   "/emotion-island/assets/assets/cards/ai_a2_drink.28d6bd6b1cb0b033094c0ad8d281b4ef.png",
   "/emotion-island/assets/assets/cards/ai_a2_find.43f50ffa84bc6b6a6d4ba3e1215a49b3.png",
@@ -122,15 +122,15 @@ const PRECACHE_URLS = [
   "/emotion-island/assets/assets/cards/ai_s_walk.8b128aab9eaf03821f330e9b30f92c9f.png",
   "/emotion-island/assets/assets/cards/ai_s_water.3d6dbb10940f6485ba27c677492938c7.png",
   "/emotion-island/assets/assets/cards/ai_w2_cry.e4785382dc29cb0369af8b62fed55b19.png",
-  "/emotion-island/assets/assets/cards/ai_w2_friend.414c66fbfdd1f1e8bf2cde7ae650dfd2.png",
+  "/emotion-island/assets/assets/cards/ai_w2_friend.eed02d3ba1e24818a80b2b29f29b00b7.png",
   "/emotion-island/assets/assets/cards/ai_w2_jump.7ab38c8dc1670f886ef1acad1036644e.png",
   "/emotion-island/assets/assets/cards/ai_w2_laugh.6818cc7664a31618e02c66d1df4ec271.png",
-  "/emotion-island/assets/assets/cards/ai_w2_me.47e3fd23adcdb6202d1cab13e9eb98b6.png",
-  "/emotion-island/assets/assets/cards/ai_w2_mom.73255f4cf4a51759acbab1f7a703e1aa.png",
+  "/emotion-island/assets/assets/cards/ai_w2_me.aa34838b5434f46371de9cb55450079a.png",
+  "/emotion-island/assets/assets/cards/ai_w2_mom.e77c93563595aaa58d365997308c5335.png",
   "/emotion-island/assets/assets/cards/ai_w2_rest.63e9a77ca077b0b25631b27dca0f0ea6.png",
   "/emotion-island/assets/assets/cards/ai_w2_shake.6d559f9e4f70b891c32eab59f214d0c1.png",
   "/emotion-island/assets/assets/cards/ai_w2_stomp.958e989c5d2964613222f62d99d878ec.png",
-  "/emotion-island/assets/assets/cards/ai_w2_teacher.0f3cbba9c5ab0ca545bda55297088c0c.png",
+  "/emotion-island/assets/assets/cards/ai_w2_teacher.f9853fc73a996fdef09b90e51ed2ff93.png",
   "/emotion-island/assets/assets/cards/scene_balloon.0d474aa75362159867cae7cd3c34b292.jpg",
   "/emotion-island/assets/assets/cards/scene_beach.cc67ec7d6be51671309c03b2daf1dd9f.jpg",
   "/emotion-island/assets/assets/cards/scene_bear.634b5e229650a26cfc22f291a3426a1e.jpg",
