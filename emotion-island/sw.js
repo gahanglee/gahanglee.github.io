@@ -1,17 +1,17 @@
 // 情緒島 Service Worker（由 scripts/pwa-postbuild.mjs 在每次建置時產生，請勿直接修改 dist/sw.js）
-const BUILD_ID = '45fbdba5f1bc8f';
+const BUILD_ID = '73d1a451e865bc';
 const PRECACHE = 'ei-precache-' + BUILD_ID;
 const RUNTIME = 'ei-runtime';
 const PRECACHE_URLS = [
   "/emotion-island/",
-  "/emotion-island/_expo/static/js/web/index-4b2406a80095a11dc75c0ae018891f68.js",
-  "/emotion-island/assets/assets/cards/ai_a2_chest.116ed336f1b1f7ff847ba1e04c56c310.png",
+  "/emotion-island/_expo/static/js/web/index-779f88d3a6473dbb7a3570fa621af5b9.js",
+  "/emotion-island/assets/assets/cards/ai_a2_chest.6542c976e022ed8ccb903b49be1810fa.png",
   "/emotion-island/assets/assets/cards/ai_a2_drink.28d6bd6b1cb0b033094c0ad8d281b4ef.png",
   "/emotion-island/assets/assets/cards/ai_a2_find.43f50ffa84bc6b6a6d4ba3e1215a49b3.png",
-  "/emotion-island/assets/assets/cards/ai_a2_flower.a75b6e388b09bd96a9e5096d048bdb3e.png",
+  "/emotion-island/assets/assets/cards/ai_a2_flower.9c5acdd8d4baf68b1c0211f607292ba9.png",
   "/emotion-island/assets/assets/cards/ai_a2_hug.be22081f2804819744c5c6381d95ea56.png",
   "/emotion-island/assets/assets/cards/ai_a2_pat.99e87b86b363d4caa7a76b70ce79f275.png",
-  "/emotion-island/assets/assets/cards/ai_a2_shoulder.d1a9c6981571358b95a4f25374cfd2e1.png",
+  "/emotion-island/assets/assets/cards/ai_a2_shoulder.1680e36b51f52daaf0a48066ba64ba63.png",
   "/emotion-island/assets/assets/cards/ai_a2_smell.c875db0343d0c96102b480e5d7b2161a.png",
   "/emotion-island/assets/assets/cards/ai_a2_stroke.2892efebfaf2ad21f33465d4de29b2f6.png",
   "/emotion-island/assets/assets/cards/ai_b_cheer.c10138afbecb354f49531ef6ff2098cb.png",
@@ -115,7 +115,7 @@ const PRECACHE_URLS = [
   "/emotion-island/assets/assets/cards/ai_s_read.960c67163174d97483b8e6f4fcbc1728.png",
   "/emotion-island/assets/assets/cards/ai_s_say.651edab3a92d3eb45e334dcb4bf514b4.png",
   "/emotion-island/assets/assets/cards/ai_s_shoulder.77a29168330d689d857aca74ffefb1ba.png",
-  "/emotion-island/assets/assets/cards/ai_s_sit.9d8615b695991410a0d0458cdebd0daf.png",
+  "/emotion-island/assets/assets/cards/ai_s_sit.57a5a2236a07906a8b97c406691df27d.png",
   "/emotion-island/assets/assets/cards/ai_s_sleep.7e555831ea5667034c91d1693143a9c4.png",
   "/emotion-island/assets/assets/cards/ai_s_smile.9ea3a56ed03592faf40384a1c0d3e6e3.png",
   "/emotion-island/assets/assets/cards/ai_s_unknown.98333e95d0b36924b7f0ee7b00bdb212.png",
