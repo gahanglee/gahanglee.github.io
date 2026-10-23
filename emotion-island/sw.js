@@ -1,10 +1,10 @@
 // 情緒島 Service Worker（由 scripts/pwa-postbuild.mjs 在每次建置時產生，請勿直接修改 dist/sw.js）
-const BUILD_ID = '323d24ca2de974';
+const BUILD_ID = '3dd49caafbabf4';
 const PRECACHE = 'ei-precache-' + BUILD_ID;
 const RUNTIME = 'ei-runtime';
 const PRECACHE_URLS = [
   "/emotion-island/",
-  "/emotion-island/_expo/static/js/web/index-b5a647dcc19e30e833960e3b3f8cc45d.js",
+  "/emotion-island/_expo/static/js/web/index-54b8c866bba433f5b5c6192a09028376.js",
   "/emotion-island/assets/assets/cards/ai_a2_chest.116ed336f1b1f7ff847ba1e04c56c310.png",
   "/emotion-island/assets/assets/cards/ai_a2_drink.045243d565c95d4d0d348c639683dfa5.png",
   "/emotion-island/assets/assets/cards/ai_a2_find.24ff4b972becfe491872c5cb9dc2f0ad.png",
@@ -87,14 +87,14 @@ const PRECACHE_URLS = [
   "/emotion-island/assets/assets/cards/ai_p3_blocks.29b81706ec86024387df946a504eef35.png",
   "/emotion-island/assets/assets/cards/ai_p3_cut.b04071df69ddb2733a38b951de330c98.png",
   "/emotion-island/assets/assets/cards/ai_p3_toytaken.5860cfdabce99d8e4154fbd38c38af1d.png",
-  "/emotion-island/assets/assets/cards/ai_r2_breakfast.d94fb77b99926cd05829bb6b37793940.png",
-  "/emotion-island/assets/assets/cards/ai_r2_dressed.0986f2fe1ad7a2f474b149fdd1504a1b.png",
-  "/emotion-island/assets/assets/cards/ai_r2_hair.af9137b1d3782ebf6a16c4ff656fc465.png",
-  "/emotion-island/assets/assets/cards/ai_r2_lunch.7c9a82c57b34d6891e280108a518ab6b.png",
-  "/emotion-island/assets/assets/cards/ai_r2_play.c27f90b4f8bb4b045ee44f927c01b031.png",
-  "/emotion-island/assets/assets/cards/ai_r2_school.f6ff01d71e5961b8302af651cb9b2438.png",
-  "/emotion-island/assets/assets/cards/ai_r2_teeth.725a945470087061f657192e9114c620.png",
-  "/emotion-island/assets/assets/cards/ai_r2_wake.7b04bcccfd86d40a39898220da816b7e.png",
+  "/emotion-island/assets/assets/cards/ai_r2_breakfast.66682c2f76a2de0577f6219585cb67a8.png",
+  "/emotion-island/assets/assets/cards/ai_r2_dressed.c6e3135a86bf0e0d09860abdd78c3368.png",
+  "/emotion-island/assets/assets/cards/ai_r2_hair.e67a6aa892f0198b0fdb6053ab3365c0.png",
+  "/emotion-island/assets/assets/cards/ai_r2_lunch.f878d5435c6ea95d51741392d211428b.png",
+  "/emotion-island/assets/assets/cards/ai_r2_play.c14c177ced9142926118f443c085ab3c.png",
+  "/emotion-island/assets/assets/cards/ai_r2_school.0f9fdbea811364182d82b6bfd0acfdb6.png",
+  "/emotion-island/assets/assets/cards/ai_r2_teeth.5b9c5afc87aa49437ba673bd34ba8b59.png",
+  "/emotion-island/assets/assets/cards/ai_r2_wake.8e9654200aa13e0981d1066e0ed07b90.png",
   "/emotion-island/assets/assets/cards/ai_s_askadult.546933b0815bd4b0f739dea1ba88e76f.png",
   "/emotion-island/assets/assets/cards/ai_s_bear.d8b605857c1fbb4a255a7ff25f4ca574.png",
   "/emotion-island/assets/assets/cards/ai_s_breathe.fcba7398657b6af34ab4ca90a5c71f87.png",
