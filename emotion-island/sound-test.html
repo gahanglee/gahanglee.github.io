@@ -1,0 +1,116 @@
+<!doctype html>
+<html lang="zh-TW">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>情緒島 聲音測試</title>
+<style>
+  body { font: 18px/1.5 system-ui, -apple-system, "PingFang TC", sans-serif; margin: 0; padding: 16px; background: #f4f8fb; color: #14303d; }
+  h1 { font-size: 22px; margin: 0 0 6px; }
+  p { margin: 6px 0 12px; }
+  button { display: block; width: 100%; font: inherit; font-weight: 700; padding: 14px; margin: 10px 0; border: 0; border-radius: 12px; background: #2e9cc4; color: #fff; }
+  button:active { background: #1d7ba0; }
+  pre { white-space: pre-wrap; word-break: break-all; background: #fff; border: 1px solid #c9d8e0; border-radius: 8px; padding: 10px; font-size: 14px; min-height: 120px; }
+</style>
+</head>
+<body>
+<h1>情緒島 聲音測試</h1>
+<p>請依序點下面的按鈕，每點一個就聽聽看有沒有聲音。測完把最下面的文字整段截圖給我。</p>
+<button id="b1">1　嗶聲（Web Audio）</button>
+<button id="b2">2　嗶聲（一般音檔）</button>
+<button id="b3">3　手機內建語音念「你好」</button>
+<button id="b4">4　雲端語音（一般音檔播放）</button>
+<button id="b5">5　雲端語音（Web Audio 播放）</button>
+<pre id="log"></pre>
+<script>
+(function () {
+  var logEl = document.getElementById('log');
+  function log(m) { var t = new Date().toTimeString().slice(0, 8); logEl.textContent += t + ' ' + m + '\n'; }
+  var TTS = 'https://emotion-island-nu.vercel.app/api/tts';
+  log('網址：' + location.href);
+  log('瀏覽器：' + navigator.userAgent);
+  try {
+    if (navigator.audioSession) { navigator.audioSession.type = 'playback'; log('audioSession：已設為 playback'); }
+    else log('audioSession：此瀏覽器沒有');
+  } catch (e) { log('audioSession 錯誤：' + e); }
+  var AC = window.AudioContext || window.webkitAudioContext;
+  var ctx = null;
+  function getCtx() { if (!ctx && AC) ctx = new AC(); return ctx; }
+
+  function wavUrl() {
+    var rate = 8000, n = 4000, b = new Uint8Array(44 + n * 2), v = new DataView(b.buffer);
+    function tag(o, s) { for (var i = 0; i < s.length; i++) v.setUint8(o + i, s.charCodeAt(i)); }
+    tag(0, 'RIFF'); v.setUint32(4, 36 + n * 2, true); tag(8, 'WAVEfmt '); v.setUint32(16, 16, true); v.setUint16(20, 1, true); v.setUint16(22, 1, true);
+    v.setUint32(24, rate, true); v.setUint32(28, rate * 2, true); v.setUint16(32, 2, true); v.setUint16(34, 16, true); tag(36, 'data'); v.setUint32(40, n * 2, true);
+    for (var i = 0; i < n; i++) v.setInt16(44 + i * 2, Math.round(Math.sin(i / rate * 2 * Math.PI * 660) * 12000), true);
+    return URL.createObjectURL(new Blob([b], { type: 'audio/wav' }));
+  }
+
+  document.getElementById('b1').addEventListener('click', function () {
+    try {
+      var c = getCtx(); if (!c) { log('1 沒有 AudioContext'); return; }
+      log('1 AudioContext 狀態（點擊前）：' + c.state);
+      c.resume().then(function () {
+        log('1 AudioContext 狀態（resume 後）：' + c.state);
+        var o = c.createOscillator(), g = c.createGain(); o.frequency.value = 523; g.gain.value = 0.3;
+        o.connect(g); g.connect(c.destination); o.start(); o.stop(c.currentTime + 0.6);
+        log('1 已送出嗶聲');
+      }, function (e) { log('1 resume 失敗：' + e); });
+    } catch (e) { log('1 錯誤：' + e); }
+  });
+
+  document.getElementById('b2').addEventListener('click', function () {
+    try {
+      var a = new Audio(wavUrl());
+      a.addEventListener('ended', function () { log('2 播放結束'); });
+      a.addEventListener('error', function () { log('2 音檔錯誤：' + (a.error && a.error.code)); });
+      a.play().then(function () { log('2 play() 成功'); }, function (e) { log('2 play() 被拒：' + e.name + ' ' + e.message); });
+    } catch (e) { log('2 錯誤：' + e); }
+  });
+
+  document.getElementById('b3').addEventListener('click', function () {
+    try {
+      var s = window.speechSynthesis; if (!s) { log('3 沒有 speechSynthesis'); return; }
+      var vs = s.getVoices(); var zh = vs.filter(function (v) { return /^zh/i.test(v.lang); });
+      log('3 語音共 ' + vs.length + ' 個，中文 ' + zh.length + ' 個：' + zh.map(function (v) { return v.name + '(' + v.lang + ')'; }).join('、'));
+      var u = new SpeechSynthesisUtterance('你好，我是情緒島。'); u.lang = 'zh-TW';
+      if (zh[0]) u.voice = zh.filter(function (v) { return v.lang === 'zh-TW'; })[0] || zh[0];
+      u.onstart = function () { log('3 開始念'); }; u.onend = function () { log('3 念完'); }; u.onerror = function (e) { log('3 念誦錯誤：' + e.error); };
+      s.cancel(); s.speak(u); log('3 已送出 speak()');
+    } catch (e) { log('3 錯誤：' + e); }
+  });
+
+  function getClip() {
+    log('取雲端語音…');
+    return fetch(TTS, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ text: '你好，我是情緒島。', voice: 'soft' }) }).then(function (r) {
+      log('回應：' + r.status + '　類型：' + r.headers.get('content-type') + '　提供者：' + r.headers.get('x-tts-provider'));
+      if (!r.ok) throw new Error('HTTP ' + r.status);
+      return r.blob();
+    }).then(function (b) { log('音檔大小：' + b.size + ' 位元組，類型：' + b.type); return b; });
+  }
+
+  document.getElementById('b4').addEventListener('click', function () {
+    // 先同步建立並解鎖 Audio 元素，再等網路
+    var a = new Audio(); a.src = wavUrl(); var p = a.play(); if (p && p.catch) p.catch(function () {});
+    getClip().then(function (b) {
+      a.src = URL.createObjectURL(b);
+      a.addEventListener('ended', function () { log('4 播放結束，長度 ' + a.duration.toFixed(1) + ' 秒'); });
+      a.addEventListener('error', function () { log('4 音檔錯誤：' + (a.error && a.error.code) + ' ' + (a.error && a.error.message)); });
+      return a.play().then(function () { log('4 play() 成功'); }, function (e) { log('4 play() 被拒：' + e.name + ' ' + e.message); });
+    }).catch(function (e) { log('4 失敗：' + e); });
+  });
+
+  document.getElementById('b5').addEventListener('click', function () {
+    var c = getCtx(); if (!c) { log('5 沒有 AudioContext'); return; }
+    c.resume().then(function () { log('5 AudioContext：' + c.state); });
+    getClip().then(function (b) { return b.arrayBuffer(); }).then(function (ab) {
+      return new Promise(function (res, rej) { c.decodeAudioData(ab, res, rej); });
+    }).then(function (buf) {
+      log('5 解碼成功，長度 ' + buf.duration.toFixed(1) + ' 秒');
+      var s = c.createBufferSource(); s.buffer = buf; s.connect(c.destination); s.onended = function () { log('5 播放結束'); }; s.start(0); log('5 已 start()，AudioContext：' + c.state);
+    }).catch(function (e) { log('5 失敗：' + (e && e.message || e)); });
+  });
+})();
+</script>
+</body>
+</html>
