@@ -84,7 +84,8 @@
     log('取雲端語音…');
     return fetch(TTS, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ text: '你好，我是情緒島。', voice: 'soft' }) }).then(function (r) {
       log('回應：' + r.status + '　類型：' + r.headers.get('content-type') + '　提供者：' + r.headers.get('x-tts-provider'));
-      if (!r.ok) throw new Error('HTTP ' + r.status);
+      var ee = r.headers.get('x-tts-edge-error'); if (ee) log('Edge 語音失敗原因：' + ee);
+      if (!r.ok) return r.text().then(function (t) { log('伺服器回覆：' + t.slice(0, 300)); throw new Error('HTTP ' + r.status); });
       return r.blob();
     }).then(function (b) { log('音檔大小：' + b.size + ' 位元組，類型：' + b.type); return b; });
   }
