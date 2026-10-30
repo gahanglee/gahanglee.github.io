@@ -17,8 +17,10 @@
   input[type=range] { width: 100%; }
   .row { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
   .seg button { font: inherit; padding: 8px 14px; border: 1px solid #2e9cc4; background: #fff; color: #1d7ba0; }
+  .seg { gap: 0; }
   .seg button:first-child { border-radius: 10px 0 0 10px; }
-  .seg button:last-child { border-radius: 0 10px 10px 0; border-left: 0; }
+  .seg button:last-child { border-radius: 0 10px 10px 0; }
+  .seg button + button { border-left: 0; }
   .seg button.on { background: #2e9cc4; color: #fff; }
   .grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; }
   .v { font: inherit; text-align: left; padding: 10px 12px; border: 2px solid #cfe5ec; border-radius: 12px; background: #fff; color: #0b3a4a; cursor: pointer; }
@@ -34,7 +36,7 @@
 <body>
 <main>
   <h1>🎧 情緒島 聲線試聽</h1>
-  <p class="note">按下任一個聲線就會播放同一段話。可以調語速、切換「加強高音調提示」。聽到喜歡的，按右下角「選這個」，把畫面最下面的「我選的是」那行文字貼給我。</p>
+  <p class="note">按下任一個聲線就會播放同一段話。可以調語速、切換語氣（活潑／偏高／自然）。聽到喜歡的，按右下角「選這個」，把畫面最下面的「我選的是」那行文字貼給我。</p>
 
   <div class="card">
     <label for="txt">試聽文字</label>
@@ -47,9 +49,10 @@
   </div>
 
   <div class="card">
-    <label>高音調提示</label>
+    <label>語氣提示（聲音太嚴肅就選「活潑」）</label>
     <div class="seg row" id="tone">
-      <button type="button" data-t="high" class="on">加強（偏高、明亮）</button>
+      <button type="button" data-t="cheerful" class="on">活潑（開心、帶笑）</button>
+      <button type="button" data-t="high">偏高、明亮</button>
       <button type="button" data-t="plain">不加（自然）</button>
     </div>
   </div>
@@ -75,10 +78,11 @@
     ['ballad', '柔和、抒情'], ['sage', '平穩、輕聲'], ['verse', '有抑揚、活潑'], ['fable', '說故事感'],
     ['ash', '偏低、穩重'], ['echo', '偏低、男聲'], ['onyx', '低沉、男聲'], ['marin', '新聲線：自然'], ['cedar', '新聲線：沉穩']
   ];
+  var TONE_NAME = { cheerful: '活潑開心', high: '偏高明亮', plain: '自然（不加提示）' };
   var logEl = document.getElementById('log');
   function log(m) { logEl.textContent += new Date().toTimeString().slice(0, 8) + ' ' + m + '\n'; logEl.scrollTop = logEl.scrollHeight; }
 
-  var tone = 'high', ctx = null, src = null, last = null, cache = {}, busy = false;
+  var tone = 'cheerful', ctx = null, src = null, last = null, cache = {}, busy = false;
   var spd = document.getElementById('spd'), sv = document.getElementById('sv');
   spd.addEventListener('input', function () { sv.textContent = Number(spd.value).toFixed(2); });
   document.getElementById('tone').addEventListener('click', function (e) {
@@ -115,7 +119,7 @@
     var key = [voice, speed, tone, text].join('|');
     last = { voice: voice, speed: speed, tone: tone };
     btn.classList.add('playing');
-    log('取得 ' + voice + '（速度 ' + speed.toFixed(2) + '，' + (tone === 'high' ? '加強高音' : '自然') + '）…');
+    log('取得 ' + voice + '（速度 ' + speed.toFixed(2) + '，' + (TONE_NAME[tone]) + '）…');
     var p = cache[key] ? Promise.resolve(cache[key]) : fetch(TTS, {
       method: 'POST', headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ text: text, voice: 'soft', oaiVoice: voice, speed: speed, tone: tone })
@@ -136,7 +140,7 @@
     if (!last) { log('請先播放一個聲線'); return; }
     [].forEach.call(grid.children, function (x) { x.classList.remove('picked'); });
     btns[last.voice].classList.add('picked');
-    document.getElementById('pick').textContent = last.voice + '，語速 ' + last.speed.toFixed(2) + '，' + (last.tone === 'high' ? '加強高音提示' : '不加提示');
+    document.getElementById('pick').textContent = last.voice + '，語速 ' + last.speed.toFixed(2) + '，' + TONE_NAME[last.tone];
   });
 })();
 </script>
