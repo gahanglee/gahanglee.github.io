@@ -49,9 +49,10 @@
   </div>
 
   <div class="card">
-    <label>語氣提示（聲音太嚴肅就選「活潑」）</label>
+    <label>語氣提示（想要年輕老師的聲音就選「年輕老師」，太嚴肅就選「活潑」）</label>
     <div class="seg row" id="tone">
-      <button type="button" data-t="cheerful" class="on">活潑（開心、帶笑）</button>
+      <button type="button" data-t="young" class="on">年輕老師（二十多歲）</button>
+      <button type="button" data-t="cheerful">活潑（開心、帶笑）</button>
       <button type="button" data-t="high">偏高、明亮</button>
       <button type="button" data-t="plain">不加（自然）</button>
     </div>
@@ -78,11 +79,11 @@
     ['ballad', '柔和、抒情'], ['sage', '平穩、輕聲'], ['verse', '有抑揚、活潑'], ['fable', '說故事感'],
     ['ash', '偏低、穩重'], ['echo', '偏低、男聲'], ['onyx', '低沉、男聲'], ['marin', '新聲線：自然'], ['cedar', '新聲線：沉穩']
   ];
-  var TONE_NAME = { cheerful: '活潑開心', high: '偏高明亮', plain: '自然（不加提示）' };
+  var TONE_NAME = { young: '年輕老師', cheerful: '活潑開心', high: '偏高明亮', plain: '自然（不加提示）' };
   var logEl = document.getElementById('log');
   function log(m) { logEl.textContent += new Date().toTimeString().slice(0, 8) + ' ' + m + '\n'; logEl.scrollTop = logEl.scrollHeight; }
 
-  var tone = 'cheerful', ctx = null, src = null, last = null, cache = {}, busy = false;
+  var tone = 'young', ctx = null, src = null, last = null, cache = {}, busy = false;
   var spd = document.getElementById('spd'), sv = document.getElementById('sv');
   spd.addEventListener('input', function () { sv.textContent = Number(spd.value).toFixed(2); });
   document.getElementById('tone').addEventListener('click', function (e) {
