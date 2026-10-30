@@ -36,20 +36,22 @@
   // sw.js 與本檔放在同一層，App 部署在子路徑時也能找到
   var swUrl = document.currentScript ? new URL('sw.js', document.currentScript.src).href : '/sw.js';
   if ('serviceWorker' in navigator) {
-    var refreshing = false;
+    var refreshing = false, pendingReload = false, openedAt = Date.now();
+    var hadController = !!navigator.serviceWorker.controller;   // 第一次安裝時沒有舊版，不需要重新整理
+    function reloadNow() { if (refreshing) return; refreshing = true; location.reload(); }
+    // 新版接手後：剛開啟 App（15 秒內）就直接重新整理；使用到一半則先提示，並在離開／回到畫面時自動換新，不打斷孩子操作
     navigator.serviceWorker.addEventListener('controllerchange', function () {
-      if (refreshing) return; refreshing = true; location.reload();
+      if (!hadController) { hadController = true; return; }
+      if (Date.now() - openedAt < 15000) { reloadNow(); return; }
+      pendingReload = true;
+      bar('🏝️ 情緒島已更新到新版本', '立即更新', reloadNow);
     });
+    document.addEventListener('visibilitychange', function () { if (pendingReload) reloadNow(); });
     window.addEventListener('load', function () {
       navigator.serviceWorker.register(swUrl).then(function (reg) {
-        function prompt(w) { bar('🏝️ 情緒島有新版本了', '立即更新', function () { w.postMessage('SKIP_WAITING'); }); }
-        if (reg.waiting && navigator.serviceWorker.controller) prompt(reg.waiting);
-        reg.addEventListener('updatefound', function () {
-          var w = reg.installing; if (!w) return;
-          w.addEventListener('statechange', function () {
-            if (w.state === 'installed' && navigator.serviceWorker.controller) prompt(w);
-          });
-        });
+        // 舊版（還沒有自動更新功能的 sw.js）卡在「等待」時，直接叫它接手
+        if (reg.waiting && navigator.serviceWorker.controller) reg.waiting.postMessage('SKIP_WAITING');
+        reg.update();
         document.addEventListener('visibilitychange', function () { if (!document.hidden) reg.update(); });
         setInterval(function () { reg.update(); }, 60 * 60 * 1000);
       }).catch(function () {});

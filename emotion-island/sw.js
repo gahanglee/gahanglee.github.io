@@ -1,5 +1,5 @@
 // 情緒島 Service Worker（由 scripts/pwa-postbuild.mjs 在每次建置時產生，請勿直接修改 dist/sw.js）
-const BUILD_ID = '11310cf5bb07a4';
+const BUILD_ID = '8d58b6a1e4d20b';
 const PRECACHE = 'ei-precache-' + BUILD_ID;
 const RUNTIME = 'ei-runtime';
 const PRECACHE_URLS = [
@@ -205,7 +205,9 @@ self.addEventListener('install', event => {
       Promise.all(PRECACHE_URLS.map(u => cache.add(new Request(u, { cache: 'reload' })).catch(() => null)))
     )
   );
-  // 不自動更新：讓畫面顯示「有新版」，由老師按下更新，避免孩子操作到一半被重新整理
+  // 新版一裝好就立刻接手（不再等老師按「立即更新」）。
+  // 什麼時候重新整理畫面，由 pwa.js 決定：剛開啟 App 時馬上換；使用到一半時等到離開畫面或回到畫面再換，避免孩子操作被打斷。
+  self.skipWaiting();
 });
 
 self.addEventListener('activate', event => {
