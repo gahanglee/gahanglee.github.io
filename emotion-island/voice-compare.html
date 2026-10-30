@@ -1,0 +1,144 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex">
+<title>情緒島 聲線試聽</title>
+<style>
+  :root { color-scheme: light; }
+  body { font-family: system-ui, -apple-system, "Noto Sans TC", "PingFang TC", sans-serif; margin: 0; padding: 16px; background: #eaf7fc; color: #0b3a4a; }
+  main { max-width: 640px; margin: 0 auto; }
+  h1 { font-size: 20px; margin: 4px 0 4px; }
+  p.note { margin: 0 0 14px; font-size: 14px; line-height: 1.6; color: #35606e; }
+  .card { background: #fff; border-radius: 14px; padding: 12px 14px; margin: 10px 0; box-shadow: 0 2px 8px rgba(11,92,115,.08); }
+  label { display: block; font-weight: 700; font-size: 14px; margin-bottom: 6px; }
+  textarea { width: 100%; box-sizing: border-box; font: inherit; padding: 8px; border: 1px solid #b7d6e0; border-radius: 8px; min-height: 64px; }
+  input[type=range] { width: 100%; }
+  .row { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+  .seg button { font: inherit; padding: 8px 14px; border: 1px solid #2e9cc4; background: #fff; color: #1d7ba0; }
+  .seg button:first-child { border-radius: 10px 0 0 10px; }
+  .seg button:last-child { border-radius: 0 10px 10px 0; border-left: 0; }
+  .seg button.on { background: #2e9cc4; color: #fff; }
+  .grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; }
+  .v { font: inherit; text-align: left; padding: 10px 12px; border: 2px solid #cfe5ec; border-radius: 12px; background: #fff; color: #0b3a4a; cursor: pointer; }
+  .v b { display: block; font-size: 16px; }
+  .v small { color: #5b7f8b; }
+  .v.playing { border-color: #2e9cc4; background: #e3f4fa; }
+  .v.picked { border-color: #f0a500; background: #fff6dc; }
+  .v:disabled { opacity: .6; }
+  #log { white-space: pre-wrap; font: 12px/1.5 ui-monospace, Menlo, monospace; background: #0b3a4a; color: #d8f2fb; border-radius: 10px; padding: 10px; min-height: 40px; }
+  #pick { font-weight: 700; color: #b06b00; }
+</style>
+</head>
+<body>
+<main>
+  <h1>🎧 情緒島 聲線試聽</h1>
+  <p class="note">按下任一個聲線就會播放同一段話。可以調語速、切換「加強高音調提示」。聽到喜歡的，按右下角「選這個」，把畫面最下面的「我選的是」那行文字貼給我。</p>
+
+  <div class="card">
+    <label for="txt">試聽文字</label>
+    <textarea id="txt">你好，我是情緒島的小老師。今天我們一起來看看，你現在的心情是什麼顏色呢？</textarea>
+  </div>
+
+  <div class="card">
+    <label>語速：<span id="sv">0.90</span>（越小越慢，越慢聽起來越低沉）</label>
+    <input id="spd" type="range" min="0.7" max="1.1" step="0.05" value="0.9">
+  </div>
+
+  <div class="card">
+    <label>高音調提示</label>
+    <div class="seg row" id="tone">
+      <button type="button" data-t="high" class="on">加強（偏高、明亮）</button>
+      <button type="button" data-t="plain">不加（自然）</button>
+    </div>
+  </div>
+
+  <div class="card">
+    <label>聲線（點一下播放）</label>
+    <div class="grid" id="voices"></div>
+  </div>
+
+  <div class="card">
+    <div>我選的是：<span id="pick">（還沒選）</span></div>
+    <div class="row" style="margin-top:8px"><button type="button" id="choose" class="v" style="flex:none">⭐ 選這個（最後播放的）</button></div>
+  </div>
+
+  <div class="card"><label>紀錄</label><div id="log"></div></div>
+</main>
+
+<script>
+(function () {
+  var TTS = 'https://emotion-island-nu.vercel.app/api/tts';
+  var VOICES = [
+    ['nova', '偏高、清亮（目前預設）'], ['shimmer', '輕柔、偏高'], ['coral', '溫暖、親切'], ['alloy', '中性、清楚'],
+    ['ballad', '柔和、抒情'], ['sage', '平穩、輕聲'], ['verse', '有抑揚、活潑'], ['fable', '說故事感'],
+    ['ash', '偏低、穩重'], ['echo', '偏低、男聲'], ['onyx', '低沉、男聲'], ['marin', '新聲線：自然'], ['cedar', '新聲線：沉穩']
+  ];
+  var logEl = document.getElementById('log');
+  function log(m) { logEl.textContent += new Date().toTimeString().slice(0, 8) + ' ' + m + '\n'; logEl.scrollTop = logEl.scrollHeight; }
+
+  var tone = 'high', ctx = null, src = null, last = null, cache = {}, busy = false;
+  var spd = document.getElementById('spd'), sv = document.getElementById('sv');
+  spd.addEventListener('input', function () { sv.textContent = Number(spd.value).toFixed(2); });
+  document.getElementById('tone').addEventListener('click', function (e) {
+    var b = e.target.closest('button'); if (!b) return;
+    tone = b.getAttribute('data-t');
+    [].forEach.call(this.querySelectorAll('button'), function (x) { x.classList.toggle('on', x === b); });
+  });
+
+  function getCtx() {
+    if (!ctx) { var AC = window.AudioContext || window.webkitAudioContext; if (!AC) return null; ctx = new AC(); }
+    return ctx;
+  }
+  function stop() { if (src) { try { src.onended = null; src.stop(); } catch (e) {} src = null; } }
+
+  var grid = document.getElementById('voices'), btns = {};
+  VOICES.forEach(function (v) {
+    var b = document.createElement('button');
+    b.type = 'button'; b.className = 'v';
+    b.innerHTML = '<b>' + v[0] + '</b><small>' + v[1] + '</small>';
+    b.addEventListener('click', function () { play(v[0], b); });
+    grid.appendChild(b); btns[v[0]] = b;
+  });
+
+  function play(voice, btn) {
+    var c = getCtx();
+    if (!c) { log('這個瀏覽器不支援 Web Audio'); return; }
+    // 在點擊當下先喚醒（iPhone／iPad 必要）
+    var rp = c.resume();
+    try { var s0 = c.createBufferSource(); s0.buffer = c.createBuffer(1, 1, 22050); s0.connect(c.destination); s0.start(0); } catch (e) {}
+    stop();
+    [].forEach.call(grid.children, function (x) { x.classList.remove('playing'); });
+    var text = document.getElementById('txt').value.trim() || '你好';
+    var speed = Number(spd.value);
+    var key = [voice, speed, tone, text].join('|');
+    last = { voice: voice, speed: speed, tone: tone };
+    btn.classList.add('playing');
+    log('取得 ' + voice + '（速度 ' + speed.toFixed(2) + '，' + (tone === 'high' ? '加強高音' : '自然') + '）…');
+    var p = cache[key] ? Promise.resolve(cache[key]) : fetch(TTS, {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ text: text, voice: 'soft', oaiVoice: voice, speed: speed, tone: tone })
+    }).then(function (r) {
+      if (!r.ok) return r.text().then(function (t) { throw new Error('HTTP ' + r.status + ' ' + t.slice(0, 160)); });
+      return r.arrayBuffer();
+    }).then(function (ab) { cache[key] = ab; return ab; });
+    p.then(function (ab) {
+      return rp.then(function () { return new Promise(function (res, rej) { c.decodeAudioData(ab.slice(0), res, rej); }); });
+    }).then(function (buf) {
+      var s = c.createBufferSource(); s.buffer = buf; s.connect(c.destination);
+      s.onended = function () { btn.classList.remove('playing'); if (src === s) src = null; };
+      src = s; s.start(0); log('播放 ' + voice + '，' + buf.duration.toFixed(1) + ' 秒');
+    }).catch(function (e) { btn.classList.remove('playing'); log('失敗：' + (e && e.message || e)); });
+  }
+
+  document.getElementById('choose').addEventListener('click', function () {
+    if (!last) { log('請先播放一個聲線'); return; }
+    [].forEach.call(grid.children, function (x) { x.classList.remove('picked'); });
+    btns[last.voice].classList.add('picked');
+    document.getElementById('pick').textContent = last.voice + '，語速 ' + last.speed.toFixed(2) + '，' + (last.tone === 'high' ? '加強高音提示' : '不加提示');
+  });
+})();
+</script>
+</body>
+</html>
