@@ -47,13 +47,24 @@
       bar('🏝️ 情緒島已更新到新版本', '立即更新', reloadNow);
     });
     document.addEventListener('visibilitychange', function () { if (pendingReload) reloadNow(); });
+    // 使用中途收到新版：提示出現後，只要幼兒／老師 30 秒沒有操作，就自動換成新版（不會在操作到一半時重新整理）
+    var lastInput = Date.now();
+    ['pointerdown', 'touchstart', 'keydown'].forEach(function (ev) {
+      window.addEventListener(ev, function () { lastInput = Date.now(); }, { passive: true, capture: true });
+    });
+    setInterval(function () { if (pendingReload && Date.now() - lastInput >= 30000) reloadNow(); }, 5000);
     window.addEventListener('load', function () {
       navigator.serviceWorker.register(swUrl).then(function (reg) {
         // 舊版（還沒有自動更新功能的 sw.js）卡在「等待」時，直接叫它接手
         if (reg.waiting && navigator.serviceWorker.controller) reg.waiting.postMessage('SKIP_WAITING');
         reg.update();
-        document.addEventListener('visibilitychange', function () { if (!document.hidden) reg.update(); });
-        setInterval(function () { reg.update(); }, 60 * 60 * 1000);
+        // 回到畫面、重新連上網路、視窗取得焦點時都檢查一次；開著不動時每 10 分鐘也檢查
+        var check = function () { if (!document.hidden) reg.update().catch(function () {}); };
+        document.addEventListener('visibilitychange', check);
+        window.addEventListener('focus', check);
+        window.addEventListener('online', check);
+        window.addEventListener('pageshow', check);
+        setInterval(check, 10 * 60 * 1000);
       }).catch(function () {});
     });
   }

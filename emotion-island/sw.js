@@ -1,5 +1,5 @@
 // 情緒島 Service Worker（由 scripts/pwa-postbuild.mjs 在每次建置時產生，請勿直接修改 dist/sw.js）
-const BUILD_ID = 'e642ea8fb5d82b';
+const BUILD_ID = '0aead5e473581e';
 const PRECACHE = 'ei-precache-' + BUILD_ID;
 const RUNTIME = 'ei-runtime';
 const PRECACHE_URLS = [
@@ -243,8 +243,9 @@ self.addEventListener('fetch', event => {
 
   // 開啟 App（頁面導覽）：先連網路，連不上就用存在裝置上的版本
   if (req.mode === 'navigate') {
+    // cache: 'no-cache'：每次開啟都向伺服器確認有沒有新版首頁，不使用瀏覽器暫存（GitHub Pages 預設會暫存 10 分鐘，舊首頁會把舊程式帶進來）
     event.respondWith(
-      fetch(req).then(res => {
+      fetch(req.url, { cache: 'no-cache', credentials: 'same-origin' }).then(res => {
         const copy = res.clone();
         caches.open(RUNTIME).then(c => c.put(BASE, copy));
         return res;
