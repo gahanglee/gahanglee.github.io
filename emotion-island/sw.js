@@ -1,10 +1,10 @@
 // 情緒島 Service Worker（由 scripts/pwa-postbuild.mjs 在每次建置時產生，請勿直接修改 dist/sw.js）
-const BUILD_ID = '22f2022f51a844';
+const BUILD_ID = '7431d80994f7be';
 const PRECACHE = 'ei-precache-' + BUILD_ID;
 const RUNTIME = 'ei-runtime';
 const PRECACHE_URLS = [
   "/emotion-island/",
-  "/emotion-island/_expo/static/js/web/index-673845b5e3f3a2eaa05e46c9e2969345.js",
+  "/emotion-island/_expo/static/js/web/index-e0158d46be102eab24c89c9a58f6a4b1.js",
   "/emotion-island/assets/assets/cards/ai_a2_chest.6542c976e022ed8ccb903b49be1810fa.png",
   "/emotion-island/assets/assets/cards/ai_a2_drink.28d6bd6b1cb0b033094c0ad8d281b4ef.png",
   "/emotion-island/assets/assets/cards/ai_a2_find.43f50ffa84bc6b6a6d4ba3e1215a49b3.png",
@@ -184,6 +184,11 @@ const PRECACHE_URLS = [
   "/emotion-island/assets/assets/cards/sit_rush.7b4adaa747ef1e88550b25044ddf7e27.png",
   "/emotion-island/assets/assets/cards/sit_school.111209e4ac0ca4053b9f9d0b40359232.png",
   "/emotion-island/assets/assets/cards/sit_teacher.7eb13240e15c3f5d80829fba5aa8cdbe.png",
+  "/emotion-island/assets/assets/island/boat.da395b2ef39c3d65cc9bea174fabb3eb.png",
+  "/emotion-island/assets/assets/island/gull.2912fab15f08f62a9baea1930e7601b1.png",
+  "/emotion-island/assets/assets/island/island_express.a220b1b9b9f342a2e21e40316505fdb0.png",
+  "/emotion-island/assets/assets/island/island_recognize.90879cd407ccafbbcbe80427822c3170.png",
+  "/emotion-island/assets/assets/island/island_regulate.f632e19beda6d8fe442cbfa2e0c84bca.png",
   "/emotion-island/assets/assets/sfx/mixkit_cry.d90d02153303eb09c8750db1693cd1bd.mp3",
   "/emotion-island/assets/assets/sfx/mixkit_giggle.2389f45d2d4c4aa980d8ab4b426ce589.mp3",
   "/emotion-island/assets/assets/sfx/mixkit_laugh.f36bccde93dca7a41c1ac27517be4ff1.mp3",
