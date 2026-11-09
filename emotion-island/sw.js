@@ -1,11 +1,11 @@
 // 情緒島 Service Worker（由 scripts/pwa-postbuild.mjs 在每次建置時產生，請勿直接修改 dist/sw.js）
-const BUILD_ID = '08e5bd629835c6';
+const BUILD_ID = 'aeb068d3417768';
 const PRECACHE = 'ei-precache-' + BUILD_ID;
 const RUNTIME = 'ei-runtime';
 const PRECACHE_URLS = [
   "/emotion-island/",
-  "/emotion-island/_expo/static/js/web/index-0b80811887c8a0865c59b8831c8a5b00.js",
-  "/emotion-island/_expo/static/js/web/three-fc9b7f4ca5b837e1232633344b3e8807.js",
+  "/emotion-island/_expo/static/js/web/index-f78447aa592d1d021e75e5489e52f04c.js",
+  "/emotion-island/_expo/static/js/web/three-f32156f8e7382b8c0048f7f983ae5e98.js",
   "/emotion-island/assets/assets/cards/ai_a2_chest.6542c976e022ed8ccb903b49be1810fa.png",
   "/emotion-island/assets/assets/cards/ai_a2_drink.28d6bd6b1cb0b033094c0ad8d281b4ef.png",
   "/emotion-island/assets/assets/cards/ai_a2_find.43f50ffa84bc6b6a6d4ba3e1215a49b3.png",
