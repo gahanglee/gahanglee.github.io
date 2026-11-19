@@ -225,7 +225,7 @@ class Component extends DCLogic {
         { label: '已學符號', value: masteredCount + ' / 37', bg: '#CFEFE6' },
         { label: '連續學習', value: streak + ' 天', bg: '#FFE7A3' },
         { label: '最近 7 天', value: totalStr + ' 分', bg: '#E4F6FF' },
-        { label: '拼音練習', value: this.state.pinyin.length + ' / 12', bg: '#E9DDFF' },
+        { label: '拼音練習', value: this.state.pinyin.filter((x) => '爸媽大哥河包貓豆狗杯門人'.indexOf(x) >= 0).length + ' / 12', bg: '#E9DDFF' },
       ],
       legend: [
         { name: '已掌握', bg: '#7FE0C3' },
