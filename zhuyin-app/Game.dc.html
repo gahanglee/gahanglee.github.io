@@ -1,0 +1,276 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<title>聽音選字</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@500;700;900&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;font-family:'Noto Sans TC',system-ui,sans-serif;color:#2B2A4C}
+a{color:inherit;text-decoration:none}
+button{font-family:inherit;color:inherit;cursor:pointer}
+</style>
+</helmet>
+<div style="width:1280px;height:800px;box-sizing:border-box;background:#E4F6FF;padding:28px 48px 32px;display:flex;flex-direction:column;gap:20px;position:relative;overflow:hidden;font-family:'Noto Sans TC',system-ui,sans-serif;color:#2B2A4C">
+
+<div style="position:absolute;right:-80px;bottom:-120px;width:360px;height:360px;border-radius:180px;background:#FFE7A3"></div>
+
+<div style="display:flex;align-items:center;gap:20px;position:relative">
+<a href="Main.dc.html" aria-label="離開遊戲回學習地圖" style="width:56px;height:56px;border-radius:28px;background:#fff;border:3px solid #2B2A4C;display:flex;align-items:center;justify-content:center">
+<svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#2B2A4C" stroke-width="2.6" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>
+</a>
+<div style="display:flex;align-items:center;gap:8px">
+<button onClick="{{prevLevel}}" aria-label="上一關" style="{{prevStyle}}">
+<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#2B2A4C" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg>
+</button>
+<div style="font-size:24px;font-weight:900;white-space:nowrap;min-width:190px;text-align:center">第 {{lvl}} 關 · {{lvlName}}</div>
+<button onClick="{{nextLevel}}" aria-label="下一關" style="{{nextStyle}}">
+<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#2B2A4C" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg>
+</button>
+</div>
+<div style="flex:1;height:24px;border-radius:12px;background:#fff;border:3px solid #2B2A4C;overflow:hidden;box-sizing:border-box">
+<div style="width:{{progress}}%;height:100%;background:#FFC93C"></div>
+</div>
+<div style="font-size:22px;font-weight:700">第 {{idx}} 個 / {{cnt}}</div>
+<div style="display:flex;align-items:center;gap:10px;background:#fff;border:3px solid #2B2A4C;border-radius:32px;padding:6px 18px;min-height:48px;box-sizing:border-box">
+<svg width="28" height="28" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.5l2.9 6.1 6.6.8-4.9 4.6 1.3 6.6L12 17.3 6.1 20.6l1.3-6.6L2.5 9.4l6.6-.8z" fill="#FFC93C" stroke="#2B2A4C" stroke-width="1.5" stroke-linejoin="round"/></svg>
+<span style="font-size:26px;font-weight:900" aria-label="星星 {{stars}} 顆">{{stars}}</span>
+</div>
+</div>
+
+<div style="position:relative;display:flex;flex-direction:column;gap:6px">
+<div style="font-size:18px;font-weight:700;color:#3B5C78">選一個符號來練習</div>
+<div style="display:grid;grid-template-columns:repeat(5,72px);gap:10px;justify-content:start">
+<sc-for list="{{chips}}" as="c" hint-placeholder-count="37">
+<button onClick="{{c.pick}}" aria-pressed="{{c.on}}" aria-label="練習{{c.sym}}" style="{{c.style}}">{{c.label}}</button>
+</sc-for>
+</div>
+</div>
+
+<div style="display:flex;flex-direction:column;align-items:center;gap:8px;position:relative">
+<div style="font-size:36px;font-weight:900">聽聽看,是哪一個音?</div>
+<button onClick="{{play}}" style="display:flex;align-items:center;gap:14px;min-height:88px;padding:0 40px;border-radius:44px;background:#FFC93C;border:4px solid #2B2A4C;box-shadow:0 6px 0 #2B2A4C">
+<svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="#2B2A4C" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 9v6h4l5 4V5L8 9H4z" fill="#2B2A4C"/><path d="M16.5 8.5a5 5 0 0 1 0 7M19 6a8.5 8.5 0 0 1 0 12"/></svg>
+<span style="font-size:30px;font-weight:900">再聽一次</span>
+</button>
+</div>
+
+<div style="display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:28px;position:relative;margin-top:8px">
+<sc-for list="{{options}}" as="o" hint-placeholder-count="4">
+<button onClick="{{o.pick}}" style="{{o.style}}">
+<span style="font-size:96px;font-weight:900;line-height:1">{{o.label}}</span>
+</button>
+</sc-for>
+</div>
+
+<div style="display:flex;align-items:center;justify-content:center;gap:20px;position:relative;min-height:68px">
+<sc-if value="{{isWrong}}" hint-placeholder-val="{{false}}">
+<div style="background:#fff;border:3px solid #2B2A4C;border-radius:24px;padding:14px 28px;font-size:28px;font-weight:700">差一點點,再聽一次試試看!</div>
+</sc-if>
+<sc-if value="{{isRight}}" hint-placeholder-val="{{false}}">
+<div style="background:#CFEFE6;border:3px solid #2B2A4C;border-radius:24px;padding:14px 28px;font-size:28px;font-weight:900">答對了!得到 1 顆星</div>
+<button onClick="{{next}}" style="display:flex;align-items:center;gap:12px;min-height:60px;padding:0 36px;border-radius:30px;background:#FF9C8F;border:4px solid #2B2A4C;box-shadow:0 6px 0 #2B2A4C;font-size:26px;font-weight:900">下一個符號</button>
+</sc-if>
+</div>
+<sc-if value="{{showPass}}" hint-placeholder-val="{{false}}">
+<div style="position:absolute;left:0;top:0;right:0;bottom:0;background:rgba(43,42,76,0.55);display:flex;align-items:center;justify-content:center">
+<div role="dialog" aria-label="過關" style="width:560px;box-sizing:border-box;background:#fff;border:5px solid #2B2A4C;border-radius:40px;box-shadow:0 10px 0 #2B2A4C;padding:32px 40px;display:flex;flex-direction:column;align-items:center;gap:14px">
+<div style="display:flex;gap:10px">
+<svg width="64" height="64" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.5l2.9 6.1 6.6.8-4.9 4.6 1.3 6.6L12 17.3 6.1 20.6l1.3-6.6L2.5 9.4l6.6-.8z" fill="#FFC93C" stroke="#2B2A4C" stroke-width="1.5" stroke-linejoin="round"/></svg>
+<svg width="64" height="64" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.5l2.9 6.1 6.6.8-4.9 4.6 1.3 6.6L12 17.3 6.1 20.6l1.3-6.6L2.5 9.4l6.6-.8z" fill="#FFC93C" stroke="#2B2A4C" stroke-width="1.5" stroke-linejoin="round"/></svg>
+<svg width="64" height="64" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.5l2.9 6.1 6.6.8-4.9 4.6 1.3 6.6L12 17.3 6.1 20.6l1.3-6.6L2.5 9.4l6.6-.8z" fill="#FFC93C" stroke="#2B2A4C" stroke-width="1.5" stroke-linejoin="round"/></svg>
+</div>
+<div style="font-size:44px;font-weight:900">第 {{lvl}} 關 過關!</div>
+<div style="font-size:22px;font-weight:500;color:#5A5770">{{lvlName}} 全部答對了,太棒了!</div>
+<div style="display:flex;gap:14px;margin-top:8px;flex-wrap:wrap;justify-content:center">
+<button onClick="{{closePass}}" style="min-height:56px;padding:0 28px;border-radius:28px;background:#fff;border:4px solid #2B2A4C;font-size:22px;font-weight:700">繼續練習</button>
+<a href="Main.dc.html" style="display:flex;align-items:center;min-height:56px;box-sizing:border-box;padding:0 28px;border-radius:28px;background:#7FE0C3;border:4px solid #2B2A4C;font-size:22px;font-weight:700">回地圖</a>
+<sc-if value="{{hasNext}}" hint-placeholder-val="{{true}}">
+<button onClick="{{goNext}}" style="min-height:56px;padding:0 28px;border-radius:28px;background:#FF9C8F;border:4px solid #2B2A4C;box-shadow:0 5px 0 #2B2A4C;font-size:22px;font-weight:900">下一關</button>
+</sc-if>
+</div>
+</div>
+</div>
+</sc-if>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1280,"height":800}}'>
+class Component extends DCLogic {
+  constructor(props) {
+    super(props);
+    this.state = { pass: false, picked: null, level: this.readLevel(), target: this.levelSyms(this.readLevel())[0], earned: this.readEarned() };
+  }
+  readEarned() {
+    try {
+      const v = JSON.parse(localStorage.getItem('zhuyin_earned') || '[]');
+      return Array.isArray(v) ? v : [];
+    } catch (e) {
+      return [];
+    }
+  }
+  readLevel() {
+    try {
+      const n = parseInt(localStorage.getItem('zhuyin_level') || '3', 10);
+      return n >= 1 && n <= 11 ? n : 3;
+    } catch (e) {
+      return 3;
+    }
+  }
+  levelSyms(l) {
+    return ['ㄅㄆㄇㄈ', 'ㄉㄊㄋㄌ', 'ㄍㄎㄏ', 'ㄐㄑㄒ', 'ㄓㄔㄕㄖ', 'ㄗㄘㄙ', 'ㄧㄨㄩ', 'ㄚㄛㄜㄝ', 'ㄞㄟㄠㄡ', 'ㄢㄣㄤㄥㄦ', 'ˊˇˋ˙'][l - 1].split('');
+  }
+  setLevel(l) {
+    try { localStorage.setItem('zhuyin_level', String(l)); } catch (e) {}
+    const s = this.levelSyms(l)[0];
+    this.setState({ level: l, target: s, picked: null, pass: false });
+    this.say(s);
+  }
+  componentDidMount() {
+    this.timer = setInterval(() => {
+      this.logTime();
+      const l = this.readLevel();
+      if (l !== this.state.level) {
+        this.setState({ level: l, target: this.levelSyms(l)[0], picked: null });
+      }
+    }, 1000);
+  }
+  componentWillUnmount() {
+    clearInterval(this.timer);
+  }
+  logTime() {
+    if (!this.act || Date.now() - this.act > 30000) { return; }
+    try {
+      const d = new Date();
+      const k = d.getFullYear() + '-' + (d.getMonth() + 1) + '-' + d.getDate();
+      const o = JSON.parse(localStorage.getItem('zhuyin_log') || '{}') || {};
+      o[k] = (o[k] || 0) + 1;
+      localStorage.setItem('zhuyin_log', JSON.stringify(o));
+    } catch (e) {}
+  }
+  disp(s) {
+    return s.charCodeAt(0) < 0x3100 ? (s === '˙' ? '˙ㄚ' : 'ㄚ' + s) : s;
+  }
+  say(s) {
+    this.act = Date.now();
+    const tone = { 'ˊ': '麻', 'ˇ': '馬', 'ˋ': '罵', '˙': '嗎' }[s];
+    if (tone) {
+      try {
+        const u = new SpeechSynthesisUtterance(tone);
+        u.lang = 'zh-TW';
+        u.rate = 0.8;
+        window.speechSynthesis.cancel();
+        window.speechSynthesis.speak(u);
+      } catch (e) {}
+      return;
+    }
+    try {
+      if (this.audio) { this.audio.pause(); }
+      this.audio = new Audio('audio/z' + s.codePointAt(0).toString(16) + '.mp3');
+      const p = this.audio.play();
+      if (p && p.catch) { p.catch(() => {}); }
+    } catch (e) {}
+  }
+  allSyms() {
+    return 'ㄅㄆㄇㄈㄉㄊㄋㄌㄍㄎㄏㄐㄑㄒㄓㄔㄕㄖㄗㄘㄙㄧㄨㄩㄚㄛㄜㄝㄞㄟㄠㄡㄢㄣㄤㄥㄦ'.split('');
+  }
+  choices(answer) {
+    const all = this.allSyms();
+    const groups = ['ㄅㄆㄇㄈ', 'ㄉㄊㄋㄌ', 'ㄍㄎㄏ', 'ㄐㄑㄒ', 'ㄓㄔㄕㄖ', 'ㄗㄘㄙ', 'ㄧㄨㄩ', 'ㄚㄛㄜㄝ', 'ㄞㄟㄠㄡ', 'ㄢㄣㄤㄥㄦ', 'ˊˇˋ˙'];
+    const g = groups.find((x) => x.indexOf(answer) >= 0).split('');
+    const ds = g.filter((s) => s !== answer);
+    const i = Math.max(all.indexOf(answer), 0);
+    for (let k = 1; ds.length < 3 && k < all.length; k++) {
+      const s = all[(i + k) % all.length];
+      if (s !== answer && ds.indexOf(s) < 0) { ds.push(s); }
+    }
+    const out = ds.slice(0, 3);
+    out.splice(i % 4, 0, answer);
+    return out;
+  }
+  renderVals() {
+    const answer = this.state.target;
+    const all = this.levelSyms(this.state.level);
+    const picked = this.state.picked;
+    const isRight = picked === answer;
+    const isWrong = picked !== null && !isRight;
+    const options = this.choices(answer).map((s) => {
+      let bg = '#fff';
+      let shadow = '0 8px 0 #2B2A4C';
+      if (picked === s) {
+        bg = s === answer ? '#7FE0C3' : '#FFB4AA';
+      }
+      if (isRight && s !== answer) {
+        bg = '#fff';
+      }
+      return {
+        sym: s,
+        label: this.disp(s),
+        pick: () => {
+          this.act = Date.now();
+          if (isRight) { return; }
+          const earned = this.state.earned;
+          if (s === answer && earned.indexOf(s) < 0) {
+            const list = earned.concat([s]);
+            try { localStorage.setItem('zhuyin_earned', JSON.stringify(list)); } catch (e) {}
+            const completes = this.levelSyms(this.state.level).every((x) => list.indexOf(x) >= 0);
+            this.setState({ picked: s, earned: list, pass: completes });
+          } else {
+            this.setState({ picked: s });
+          }
+        },
+        style: 'min-height:200px;border-radius:36px;border:5px solid #2B2A4C;display:flex;align-items:center;justify-content:center;background:' + bg + ';box-shadow:' + shadow + ';',
+      };
+    });
+    const earned = this.state.earned;
+    const chips = all.map((s) => {
+      const on = s === answer;
+      const got = earned.indexOf(s) >= 0;
+      return {
+        sym: s,
+        label: this.disp(s),
+        on: on,
+        pick: () => { this.setState({ target: s, picked: null }); this.say(s); },
+        style: 'min-height:48px;border-radius:12px;border:2px solid #2B2A4C;font-family:inherit;font-size:26px;font-weight:900;color:#2B2A4C;cursor:pointer;background:' + (on ? '#FFC93C' : got ? '#7FE0C3' : '#fff') + ';',
+      };
+    });
+    const next = () => {
+      const nxt = all[(all.indexOf(answer) + 1) % all.length];
+      this.setState({ target: nxt, picked: null });
+      this.say(nxt);
+    };
+    const level = this.state.level;
+    let maxLv = 11;
+    for (let l = 3; l <= 11; l++) {
+      if (!this.levelSyms(l).every((x) => earned.indexOf(x) >= 0)) { maxLv = l; break; }
+    }
+    let total = 0;
+    for (let l = 1; l <= 11; l++) {
+      const ls = this.levelSyms(l);
+      const c = ls.filter((x) => earned.indexOf(x) >= 0).length;
+      total += l <= 2 || c === ls.length ? 3 : Math.round(3 * c / ls.length);
+    }
+    const canPrev = level > 1;
+    const canNext = level < maxLv;
+    const arrow = (on) => 'width:48px;height:48px;border-radius:24px;border:3px solid #2B2A4C;background:#fff;display:flex;align-items:center;justify-content:center;padding:0;opacity:' + (on ? 1 : 0.35) + ';';
+    return {
+      lvl: level,
+      lvlName: level === 11 ? '聲調' : all.join(''),
+      prevLevel: () => { if (canPrev) { this.setLevel(level - 1); } },
+      nextLevel: () => { if (canNext) { this.setLevel(level + 1); } },
+      prevStyle: arrow(canPrev),
+      nextStyle: arrow(canNext),
+      showPass: this.state.pass,
+      closePass: () => this.setState({ pass: false }),
+      goNext: () => this.setLevel(level + 1),
+      hasNext: level < 11,
+      cnt: all.length, play: () => this.say(answer), stars: total, options, chips, next, isRight, isWrong, idx: all.indexOf(answer) + 1, progress: Math.round((all.indexOf(answer) + 1) / all.length * 100) };
+  }
+}
+</script>
+</body>
+</html>

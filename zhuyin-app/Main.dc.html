@@ -1,0 +1,134 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<title>學習地圖</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@500;700;900&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;font-family:'Noto Sans TC',system-ui,sans-serif;color:#2B2A4C}
+a{color:inherit;text-decoration:none}
+</style>
+</helmet>
+<div style="width:1280px;height:800px;box-sizing:border-box;background:#FFF6E5;padding:28px 48px 32px;display:flex;flex-direction:column;gap:12px;position:relative;overflow:hidden;font-family:'Noto Sans TC',system-ui,sans-serif;color:#2B2A4C">
+
+<div style="position:absolute;right:-90px;top:-90px;width:300px;height:300px;border-radius:150px;background:#FFE7A3"></div>
+<div style="position:absolute;left:-110px;bottom:-130px;width:340px;height:340px;border-radius:170px;background:#CFEFE6"></div>
+
+<div style="display:flex;align-items:center;gap:20px;position:relative">
+<svg width="84" height="84" viewBox="0 0 72 72" aria-hidden="true"><path d="M36 9V3" stroke="#2B2A4C" stroke-width="3" stroke-linecap="round"/><circle cx="36" cy="3" r="3" fill="#FF9C8F"/><circle cx="36" cy="40" r="30" fill="#FFC93C" stroke="#2B2A4C" stroke-width="3"/><circle cx="26" cy="36" r="4" fill="#2B2A4C"/><circle cx="46" cy="36" r="4" fill="#2B2A4C"/><circle cx="20" cy="46" r="4" fill="#FF9C8F"/><circle cx="52" cy="46" r="4" fill="#FF9C8F"/><path d="M28 48Q36 56 44 48" stroke="#2B2A4C" stroke-width="3.5" fill="none" stroke-linecap="round"/></svg>
+<div style="background:#fff;border:3px solid #2B2A4C;border-radius:24px;padding:12px 24px">
+<div style="font-size:30px;font-weight:900;line-height:1.2">嗨,小朋友!今天來學{{curSyms}}</div>
+<div style="font-size:18px;font-weight:500;color:#5A5770">小注音陪你一關一關往前走</div>
+</div>
+<div style="flex:1"></div>
+<div style="display:flex;align-items:center;gap:10px;background:#fff;border:3px solid #2B2A4C;border-radius:32px;padding:8px 20px;min-height:48px;box-sizing:border-box">
+<svg width="28" height="28" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.5l2.9 6.1 6.6.8-4.9 4.6 1.3 6.6L12 17.3 6.1 20.6l1.3-6.6L2.5 9.4l6.6-.8z" fill="#FFC93C" stroke="#2B2A4C" stroke-width="1.5" stroke-linejoin="round"/></svg>
+<span style="font-size:26px;font-weight:900" aria-label="星星 {{stars}} 顆">{{stars}}</span>
+</div>
+<a href="Parent.dc.html" aria-label="家長專區" style="width:56px;height:56px;border-radius:28px;background:#fff;border:3px solid #2B2A4C;display:flex;align-items:center;justify-content:center">
+<svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#2B2A4C" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>
+</a>
+</div>
+
+<div style="display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:16px 16px;align-content:start;position:relative;flex:1">
+<sc-for list="{{nodes}}" as="n" hint-placeholder-count="10">
+<div style="display:flex;flex-direction:column;align-items:center;gap:8px;padding-top:{{n.offset}}px">
+<sc-if value="{{n.isLocked}}" hint-placeholder-val="{{false}}">
+<div style="{{n.circle}}">
+<svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="#5A5770" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-label="第{{n.id}}關尚未解鎖" role="img"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>
+</div>
+</sc-if>
+<sc-if value="{{n.isOpen}}" hint-placeholder-val="{{true}}">
+<a href="Learn.dc.html" onClick="{{n.go}}" aria-label="進入第{{n.id}}關 {{n.syms}}" style="{{n.circle}}">
+<span style="font-size:{{n.firstSize}}px;font-weight:900;line-height:1">{{n.first}}</span>
+<sc-if value="{{n.isCurrent}}" hint-placeholder-val="{{false}}">
+<span style="font-size:20px;font-weight:700;background:#2B2A4C;color:#FFF6E5;border-radius:16px;padding:0 14px;line-height:28px">開始</span>
+</sc-if>
+</a>
+</sc-if>
+<div style="display:flex;flex-direction:column;align-items:center;color:{{n.labelColor}}">
+<div style="font-size:16px;font-weight:700">第{{n.id}}關</div>
+<div style="font-size:22px;font-weight:700;letter-spacing:2px">{{n.label}}</div>
+</div>
+<div style="display:flex;gap:4px;height:22px">
+<sc-for list="{{n.starList}}" as="s" hint-placeholder-count="3">
+<svg width="22" height="22" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.5l2.9 6.1 6.6.8-4.9 4.6 1.3 6.6L12 17.3 6.1 20.6l1.3-6.6L2.5 9.4l6.6-.8z" fill="{{s.fill}}" stroke="#2B2A4C" stroke-width="1.5" stroke-linejoin="round"/></svg>
+</sc-for>
+</div>
+</div>
+</sc-for>
+</div>
+<a href="Learn.dc.html" onClick="{{goLearn}}" style="position:absolute;right:48px;bottom:36px;display:flex;align-items:center;gap:12px;min-height:64px;padding:0 32px;border-radius:32px;background:#FF9C8F;border:4px solid #2B2A4C;box-shadow:0 6px 0 #2B2A4C;font-size:26px;font-weight:900">
+<svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="#2B2A4C" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 5.5A1.5 1.5 0 0 1 5.5 4H11v15H5.5A1.5 1.5 0 0 0 4 20.5z"/><path d="M20 5.5A1.5 1.5 0 0 0 18.5 4H13v15h5.5a1.5 1.5 0 0 1 1.5 1.5z"/></svg>
+自由練習
+</a>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1280,"height":800}}'>
+class Component extends DCLogic {
+  constructor(props) {
+    super(props);
+    this.state = { earned: this.readEarned() };
+  }
+  readEarned() {
+    try {
+      const v = JSON.parse(localStorage.getItem('zhuyin_earned') || '[]');
+      return Array.isArray(v) ? v : [];
+    } catch (e) {
+      return [];
+    }
+  }
+  componentDidMount() {
+    this.timer = setInterval(() => {
+      const e = this.readEarned();
+      if (e.length !== this.state.earned.length) { this.setState({ earned: e }); }
+    }, 1000);
+  }
+  componentWillUnmount() {
+    clearInterval(this.timer);
+  }
+  renderVals() {
+    const levels = ['ㄅㄆㄇㄈ', 'ㄉㄊㄋㄌ', 'ㄍㄎㄏ', 'ㄐㄑㄒ', 'ㄓㄔㄕㄖ', 'ㄗㄘㄙ', 'ㄧㄨㄩ', 'ㄚㄛㄜㄝ', 'ㄞㄟㄠㄡ', 'ㄢㄣㄤㄥㄦ', 'ˊˇˋ˙'];
+    const earned = this.state.earned;
+    const doneColors = ['#8CCBFF', '#7FE0C3', '#BBA6FF', '#FF9C8F', '#FFD35A'];
+    const offsets = [24, 0, 24, 0, 24, 0, 24, 0, 24, 0, 24];
+    const counts = levels.map((l) => l.split('').filter((s) => earned.indexOf(s) >= 0).length);
+    const isDone = levels.map((l, i) => i < 2 || counts[i] === l.length);
+    let cur = isDone.indexOf(false);
+    if (cur < 0) { cur = levels.length - 1; }
+    const nodes = levels.map((syms, i) => {
+      const state = isDone[i] && i !== cur ? 'done' : i === cur ? 'current' : i < cur ? 'done' : 'locked';
+      const locked = state === 'locked';
+      const current = state === 'current';
+      const stars = state === 'done' ? 3 : current ? Math.round(3 * counts[i] / syms.length) : 0;
+      const bg = locked ? '#E8E1D0' : current ? '#FFC93C' : doneColors[i % doneColors.length];
+      const size = current ? 148 : 124;
+      return {
+        id: i + 1,
+        syms: syms,
+        label: i === 10 ? '聲調' : syms,
+        first: i === 10 ? '調' : syms.charAt(0),
+        firstSize: current ? 64 : 56,
+        isLocked: locked,
+        isOpen: !locked,
+        isCurrent: current,
+        offset: offsets[i],
+        labelColor: locked ? '#5A5770' : '#2B2A4C',
+        go: () => { try { localStorage.setItem('zhuyin_level', String(i + 1)); } catch (e) {} },
+        circle: 'width:' + size + 'px;height:' + size + 'px;border-radius:' + (size / 2) + 'px;box-sizing:border-box;display:flex;flex-direction:column;align-items:center;justify-content:center;border:' + (current ? 5 : 4) + 'px solid ' + (locked ? '#B9B2A0' : '#2B2A4C') + ';background:' + bg + ';' + (locked ? '' : current ? 'box-shadow:0 0 0 8px #FFE7A3,0 8px 0 5px #2B2A4C;' : 'box-shadow:0 6px 0 #2B2A4C;'),
+        starList: [0, 1, 2].map((k) => ({ fill: k < stars ? '#FFC93C' : '#FFF6E5' })),
+      };
+    });
+    const goLearn = () => { try { localStorage.setItem('zhuyin_level', String(cur + 1)); } catch (e) {} };
+    return { goLearn, nodes, curSyms: cur === 10 ? '聲調' : levels[cur], stars: levels.reduce((a, l, i) => a + (isDone[i] ? 3 : Math.round(3 * counts[i] / l.length)), 0) };
+  }
+}
+</script>
+</body>
+</html>

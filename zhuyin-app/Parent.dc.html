@@ -1,0 +1,231 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<title>家長專區</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@500;700;900&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;font-family:'Noto Sans TC',system-ui,sans-serif;color:#2B2A4C}
+a{color:inherit;text-decoration:none}
+</style>
+</helmet>
+<div style="width:1280px;height:800px;box-sizing:border-box;background:#FFF6E5;padding:28px 48px 32px;display:flex;flex-direction:column;gap:20px;overflow:hidden;font-family:'Noto Sans TC',system-ui,sans-serif;color:#2B2A4C">
+
+<div style="display:flex;align-items:center;gap:20px">
+<a href="Main.dc.html" aria-label="回孩子畫面" style="width:56px;height:56px;border-radius:28px;background:#fff;border:3px solid #2B2A4C;display:flex;align-items:center;justify-content:center">
+<svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#2B2A4C" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg>
+</a>
+<div style="font-size:32px;font-weight:900">家長專區</div>
+<div style="font-size:20px;font-weight:500;color:#5A5770">小朋友的學習進度</div>
+<div style="flex:1"></div>
+<div style="display:flex;align-items:center;gap:10px;background:#fff;border:3px solid #2B2A4C;border-radius:32px;padding:6px 18px;min-height:48px;box-sizing:border-box">
+<svg width="28" height="28" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.5l2.9 6.1 6.6.8-4.9 4.6 1.3 6.6L12 17.3 6.1 20.6l1.3-6.6L2.5 9.4l6.6-.8z" fill="#FFC93C" stroke="#2B2A4C" stroke-width="1.5" stroke-linejoin="round"/></svg>
+<span style="font-size:26px;font-weight:900" aria-label="星星 {{stars}} 顆">{{stars}}</span>
+</div>
+</div>
+
+<div style="display:flex;gap:28px;flex:1;min-height:0">
+
+<div style="width:520px;display:flex;flex-direction:column;gap:20px">
+<div style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px">
+<sc-for list="{{stats}}" as="s" hint-placeholder-count="3">
+<div style="background:{{s.bg}};border:3px solid #2B2A4C;border-radius:24px;padding:14px 16px">
+<div style="font-size:18px;font-weight:700">{{s.label}}</div>
+<div style="font-size:34px;font-weight:900;line-height:1.3;white-space:nowrap">{{s.value}}</div>
+</div>
+</sc-for>
+</div>
+
+<div style="background:#fff;border:3px solid #2B2A4C;border-radius:28px;padding:20px 24px;flex:1;display:flex;flex-direction:column;gap:12px">
+<div style="font-size:22px;font-weight:900">最近 7 天學習時間(分鐘)</div>
+<div style="display:flex;align-items:flex-end;gap:14px;height:210px;border-bottom:3px solid #2B2A4C;padding:0 4px">
+<sc-for list="{{bars}}" as="b" hint-placeholder-count="7">
+<div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;gap:4px;height:100%">
+<div style="font-size:18px;font-weight:700">{{b.v}}</div>
+<div style="{{b.style}}"></div>
+</div>
+</sc-for>
+</div>
+<div style="display:flex;gap:14px;padding:0 4px">
+<sc-for list="{{bars}}" as="b" hint-placeholder-count="7">
+<div style="flex:1;text-align:center;font-size:18px;font-weight:700;color:#5A5770">{{b.day}}</div>
+</sc-for>
+</div>
+</div>
+
+<div style="background:#fff;border:3px solid #2B2A4C;border-radius:28px;padding:16px 24px;display:flex;align-items:center;gap:14px">
+<div style="font-size:20px;font-weight:900">徽章</div>
+<sc-for list="{{badges}}" as="g" hint-placeholder-count="3">
+<div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px">
+<div style="width:56px;height:56px;border-radius:28px;background:{{g.bg}};border:3px solid #2B2A4C;box-sizing:border-box;display:flex;align-items:center;justify-content:center;font-size:26px;font-weight:900">{{g.mark}}</div>
+<div style="font-size:14px;font-weight:700;color:{{g.color}};text-align:center">{{g.name}}</div>
+</div>
+</sc-for>
+</div>
+</div>
+
+<div style="flex:1;background:#fff;border:3px solid #2B2A4C;border-radius:28px;padding:20px 24px;display:flex;flex-direction:column;gap:14px">
+<div style="display:flex;align-items:center;gap:16px">
+<div style="font-size:22px;font-weight:900;flex:1">各關卡掌握度 · 目前第 {{curLevel}} 關</div>
+<sc-for list="{{legend}}" as="l" hint-placeholder-count="3">
+<div style="display:flex;align-items:center;gap:6px;font-size:16px;font-weight:700">
+<div style="width:20px;height:20px;border-radius:6px;background:{{l.bg}};border:2px solid #2B2A4C;box-sizing:border-box"></div>{{l.name}}
+</div>
+</sc-for>
+</div>
+<div style="display:flex;flex-direction:column;gap:6px">
+<sc-for list="{{levelRows}}" as="r" hint-placeholder-count="10">
+<div style="{{r.rowStyle}}">
+<div style="width:64px;font-size:18px;font-weight:900">第{{r.id}}關</div>
+<div style="display:flex;gap:6px;flex:1">
+<sc-for list="{{r.syms}}" as="y" hint-placeholder-count="4">
+<div style="{{y.style}}">{{y.s}}</div>
+</sc-for>
+</div>
+<div style="display:flex;gap:2px" aria-label="第{{r.id}}關星星">
+<sc-for list="{{r.starList}}" as="s" hint-placeholder-count="3">
+<svg width="20" height="20" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.5l2.9 6.1 6.6.8-4.9 4.6 1.3 6.6L12 17.3 6.1 20.6l1.3-6.6L2.5 9.4l6.6-.8z" fill="{{s.fill}}" stroke="#2B2A4C" stroke-width="1.5" stroke-linejoin="round"/></svg>
+</sc-for>
+</div>
+<div style="width:96px;text-align:right;font-size:16px;font-weight:700;color:{{r.statusColor}}">{{r.status}}</div>
+</div>
+</sc-for>
+</div>
+</div>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1280,"height":800}}'>
+class Component extends DCLogic {
+  constructor(props) {
+    super(props);
+    this.state = { earned: this.readEarned(), log: this.readLog() };
+  }
+  readEarned() {
+    try {
+      const v = JSON.parse(localStorage.getItem('zhuyin_earned') || '[]');
+      return Array.isArray(v) ? v : [];
+    } catch (e) {
+      return [];
+    }
+  }
+  componentDidMount() {
+    this.timer = setInterval(() => {
+      const e = this.readEarned();
+      const lg = this.readLog();
+      if (e.length !== this.state.earned.length || JSON.stringify(lg) !== JSON.stringify(this.state.log)) {
+        this.setState({ earned: e, log: lg });
+      }
+    }, 1000);
+  }
+  componentWillUnmount() {
+    clearInterval(this.timer);
+  }
+  dayKey(d) {
+    return d.getFullYear() + '-' + (d.getMonth() + 1) + '-' + d.getDate();
+  }
+  readLog() {
+    let o = {};
+    try { o = JSON.parse(localStorage.getItem('zhuyin_log') || '{}') || {}; } catch (e) { o = {}; }
+    const sample = [12, 20, 15, 25, 18, 10];
+    const now = new Date();
+    const m = {};
+    for (let k = 6; k >= 1; k--) {
+      m[this.dayKey(new Date(now.getFullYear(), now.getMonth(), now.getDate() - k))] = sample[6 - k] * 60;
+    }
+    return Object.assign(m, o);
+  }
+  renderVals() {
+    const earned = this.state.earned;
+    const log = this.state.log;
+    const now = new Date();
+    const all = 'ㄅㄆㄇㄈㄉㄊㄋㄌㄍㄎㄏㄐㄑㄒㄓㄔㄕㄖㄗㄘㄙㄧㄨㄩㄚㄛㄜㄝㄞㄟㄠㄡㄢㄣㄤㄥㄦ'.split('');
+    const symbols = all.map((s, i) => {
+      const mastered = i < 8 || earned.indexOf(s) >= 0;
+      const learning = i >= 8 && i < 11 && !mastered;
+      const bg = mastered ? '#7FE0C3' : learning ? '#FFD35A' : '#F1EBDD';
+      const fg = mastered || learning ? '#2B2A4C' : '#5A5770';
+      return {
+        s: s,
+        style: 'height:56px;border-radius:14px;border:2px solid ' + (mastered || learning ? '#2B2A4C' : '#CFC7B2') + ';background:' + bg + ';color:' + fg + ';display:flex;align-items:center;justify-content:center;font-size:30px;font-weight:900;',
+      };
+    });
+    const levels = ['ㄅㄆㄇㄈ', 'ㄉㄊㄋㄌ', 'ㄍㄎㄏ', 'ㄐㄑㄒ', 'ㄓㄔㄕㄖ', 'ㄗㄘㄙ', 'ㄧㄨㄩ', 'ㄚㄛㄜㄝ', 'ㄞㄟㄠㄡ', 'ㄢㄣㄤㄥㄦ', 'ˊˇˋ˙'];
+    const counts = levels.map((l) => l.split('').filter((s) => earned.indexOf(s) >= 0).length);
+    const isDone = levels.map((l, i) => i < 2 || counts[i] === l.length);
+    let cur = isDone.indexOf(false);
+    if (cur < 0) { cur = levels.length - 1; }
+    const levelRows = levels.map((syms, i) => {
+      const state = i < cur ? 'done' : i === cur ? 'current' : 'locked';
+      return {
+        id: i + 1,
+        starList: [0, 1, 2].map((k) => ({ fill: k < (state === 'done' ? 3 : state === 'current' ? Math.round(3 * counts[i] / syms.length) : 0) ? '#FFC93C' : '#FFF6E5' })),
+        status: state === 'done' ? '已完成' : state === 'current' ? '學習中 ' + counts[i] + '/' + syms.length : '未解鎖',
+        statusColor: state === 'locked' ? '#5A5770' : '#2B2A4C',
+        rowStyle: 'display:flex;align-items:center;gap:8px;min-height:46px;box-sizing:border-box;padding:0 12px;border-radius:14px;border:2px solid ' + (state === 'current' ? '#2B2A4C' : 'transparent') + ';background:' + (state === 'current' ? '#FFF6D6' : 'transparent') + ';',
+        syms: syms.split('').map((s) => {
+          const got = i < 2 || earned.indexOf(s) >= 0;
+          const bg = got ? '#7FE0C3' : state === 'current' ? '#FFD35A' : '#F1EBDD';
+          const active = got || state === 'current';
+          return { s: s.charCodeAt(0) < 0x3100 ? (s === '˙' ? '˙ㄚ' : 'ㄚ' + s) : s, style: 'min-width:40px;height:36px;padding:0 6px;border-radius:12px;box-sizing:border-box;border:2px solid ' + (active ? '#2B2A4C' : '#CFC7B2') + ';background:' + bg + ';color:' + (active ? '#2B2A4C' : '#5A5770') + ';display:flex;align-items:center;justify-content:center;font-size:24px;font-weight:900;' };
+        }),
+      };
+    });
+    const week = [];
+    let totalSec = 0;
+    for (let k = 6; k >= 0; k--) {
+      const d = new Date(now.getFullYear(), now.getMonth(), now.getDate() - k);
+      const sec = log[this.dayKey(d)] || 0;
+      totalSec += sec;
+      const min = sec / 60;
+      week.push(['日一二三四五六'.charAt(d.getDay()), min >= 10 ? Math.round(min) : Math.round(min * 10) / 10, min]);
+    }
+    let streak = 0;
+    let sk = (log[this.dayKey(now)] || 0) > 0 ? 0 : 1;
+    for (; sk < 60; sk++) {
+      const d = new Date(now.getFullYear(), now.getMonth(), now.getDate() - sk);
+      if ((log[this.dayKey(d)] || 0) > 0) { streak++; } else { break; }
+    }
+    const totalMin = totalSec / 60;
+    const totalStr = String(totalMin >= 10 ? Math.round(totalMin) : Math.round(totalMin * 10) / 10);
+    const masteredCount = all.filter((s, i) => i < 8 || earned.indexOf(s) >= 0).length;
+    const l3 = ['ㄍ', 'ㄎ', 'ㄏ'].every((s) => earned.indexOf(s) >= 0);
+    const stars = levels.reduce((a, l, i) => a + (isDone[i] ? 3 : Math.round(3 * counts[i] / l.length)), 0);
+    const badgeDefs = [
+      ['一', '第一關完成', true, '#FFD35A'],
+      ['連', '連續 3 天', streak >= 3, '#8CCBFF'],
+      ['耳', '聽音小耳朵', earned.length >= 1, '#7FE0C3'],
+      ['三', '第三關完成', l3, '#FF9C8F'],
+      ['星', '15 顆星', stars >= 15, '#BBA6FF'],
+    ];
+    const badges = badgeDefs.map((b) => ({ name: b[1], mark: b[0], bg: b[2] ? b[3] : '#F1EBDD', color: b[2] ? '#2B2A4C' : '#5A5770' }));
+    const bars = week.map((w) => ({ day: w[0], v: w[1], h: w[2] > 0 ? Math.max(6, Math.round(Math.min(w[2], 30) / 30 * 150)) : 6, color: w[2] === 0 ? '#F1EBDD' : '#8CCBFF', style: w[2] > 0 ? 'width:100%;height:' + Math.max(6, Math.round(Math.min(w[2], 30) / 30 * 150)) + 'px;border-radius:12px 12px 0 0;background:#8CCBFF;border:3px solid #2B2A4C;box-sizing:border-box;' : 'width:100%;height:0;' }));
+    return {
+      curLevel: cur + 1,
+      stars,
+      levelRows,
+      symbols,
+      bars,
+      stats: [
+        { label: '已學符號', value: masteredCount + ' / 37', bg: '#CFEFE6' },
+        { label: '連續學習', value: streak + ' 天', bg: '#FFE7A3' },
+        { label: '最近 7 天', value: totalStr + ' 分', bg: '#E4F6FF' },
+      ],
+      legend: [
+        { name: '已掌握', bg: '#7FE0C3' },
+        { name: '學習中', bg: '#FFD35A' },
+        { name: '未學', bg: '#F1EBDD' },
+      ],
+      badges,
+    };
+  }
+}
+</script>
+</body>
+</html>
