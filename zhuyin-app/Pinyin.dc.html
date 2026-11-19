@@ -32,42 +32,55 @@ button{font-family:inherit;color:inherit;cursor:pointer}
 </div>
 
 <sc-if value="{{isBuild}}" hint-placeholder-val="{{true}}">
-<div style="display:flex;flex-direction:column;align-items:center;gap:18px;position:relative">
+<div style="display:flex;flex-direction:column;align-items:center;gap:16px;position:relative">
 <div style="display:flex;align-items:center;gap:20px">
 <div style="width:96px;height:96px;border-radius:24px;background:#FFD35A;border:4px solid #2B2A4C;display:flex;align-items:center;justify-content:center;font-size:60px;font-weight:900">{{han}}</div>
-<div style="font-size:34px;font-weight:900">把兩個符號拼起來,拼出「{{han}}」</div>
+<div style="font-size:34px;font-weight:900">把符號和聲調拼起來,拼出「{{han}}」</div>
 </div>
-<div style="display:flex;align-items:center;gap:20px">
+<div style="display:flex;align-items:center;gap:14px">
 <div style="{{slot1Style}}">{{slot1}}</div>
-<div style="font-size:48px;font-weight:900">+</div>
+<div style="font-size:44px;font-weight:900">+</div>
 <div style="{{slot2Style}}">{{slot2}}</div>
-<div style="font-size:48px;font-weight:900">=</div>
+<div style="font-size:44px;font-weight:900">+</div>
+<div style="{{slot3Style}}">{{slot3}}</div>
+<div style="font-size:44px;font-weight:900">=</div>
 <div style="{{resStyle}}">{{resText}}</div>
 </div>
-<div style="display:flex;gap:56px;align-items:flex-start">
+<div style="display:flex;gap:36px;align-items:flex-start">
 <div style="display:flex;flex-direction:column;align-items:center;gap:8px">
-<div style="font-size:20px;font-weight:700;color:#5A5770">先選前面的符號</div>
-<div style="display:flex;gap:14px">
+<div style="font-size:20px;font-weight:700;color:#5A5770">① 前面的符號</div>
+<div style="display:flex;gap:12px">
 <sc-for list="{{iniTiles}}" as="t" hint-placeholder-count="3">
 <button onClick="{{t.pick}}" aria-pressed="{{t.on}}" aria-label="聲符 {{t.s}}" style="{{t.style}}">{{t.s}}</button>
 </sc-for>
 </div>
 </div>
 <div style="display:flex;flex-direction:column;align-items:center;gap:8px">
-<div style="font-size:20px;font-weight:700;color:#5A5770">再選後面的符號</div>
-<div style="display:flex;gap:14px">
+<div style="font-size:20px;font-weight:700;color:#5A5770">② 後面的符號</div>
+<div style="display:flex;gap:12px">
 <sc-for list="{{finTiles}}" as="t" hint-placeholder-count="3">
 <button onClick="{{t.pick}}" aria-pressed="{{t.on}}" aria-label="韻符 {{t.s}}" style="{{t.style}}">{{t.s}}</button>
+</sc-for>
+</div>
+</div>
+<div style="display:flex;flex-direction:column;align-items:center;gap:8px">
+<div style="font-size:20px;font-weight:700;color:#5A5770">③ 聲調</div>
+<div style="display:flex;gap:12px">
+<sc-for list="{{toneTiles}}" as="t" hint-placeholder-count="4">
+<div style="display:flex;flex-direction:column;align-items:center;gap:4px">
+<button onClick="{{t.pick}}" aria-pressed="{{t.on}}" aria-label="{{t.name}}" style="{{t.style}}">{{t.s}}</button>
+<div style="font-size:16px;font-weight:700;color:#5A5770">{{t.name}}</div>
+</div>
 </sc-for>
 </div>
 </div>
 </div>
 <div style="display:flex;align-items:center;justify-content:center;gap:20px;min-height:68px">
 <sc-if value="{{isBad}}" hint-placeholder-val="{{false}}">
-<div style="background:#fff;border:3px solid #2B2A4C;border-radius:24px;padding:12px 28px;font-size:26px;font-weight:700">差一點點,換一個符號試試看!</div>
+<div style="background:#fff;border:3px solid #2B2A4C;border-radius:24px;padding:12px 28px;font-size:26px;font-weight:700">差一點點,換一個試試看!</div>
 </sc-if>
 <sc-if value="{{isOk}}" hint-placeholder-val="{{false}}">
-<div style="background:#CFEFE6;border:3px solid #2B2A4C;border-radius:24px;padding:12px 28px;font-size:26px;font-weight:900">拼對了!{{pair}} 念 {{zy}}</div>
+<div style="background:#CFEFE6;border:3px solid #2B2A4C;border-radius:24px;padding:12px 28px;font-size:26px;font-weight:900">拼對了!{{syl}} 念「{{han}}」</div>
 <button onClick="{{hear}}" style="min-height:56px;padding:0 24px;border-radius:28px;background:#fff;border:4px solid #2B2A4C;font-size:22px;font-weight:700">再聽一次</button>
 <button onClick="{{toListen}}" style="min-height:60px;padding:0 32px;border-radius:30px;background:#FF9C8F;border:4px solid #2B2A4C;box-shadow:0 6px 0 #2B2A4C;font-size:24px;font-weight:900">聽音選拼音</button>
 </sc-if>
@@ -85,7 +98,7 @@ button{font-family:inherit;color:inherit;cursor:pointer}
 <div style="display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:24px;width:100%;margin-top:8px">
 <sc-for list="{{opts}}" as="o" hint-placeholder-count="4">
 <button onClick="{{o.pick}}" style="{{o.style}}">
-<span style="font-size:84px;font-weight:900;line-height:1;letter-spacing:4px">{{o.label}}</span>
+<span style="font-size:68px;font-weight:900;line-height:1;letter-spacing:2px">{{o.label}}</span>
 </button>
 </sc-for>
 </div>
@@ -94,7 +107,7 @@ button{font-family:inherit;color:inherit;cursor:pointer}
 <div style="background:#fff;border:3px solid #2B2A4C;border-radius:24px;padding:12px 28px;font-size:26px;font-weight:700">差一點點,再聽一次試試看!</div>
 </sc-if>
 <sc-if value="{{lRight}}" hint-placeholder-val="{{false}}">
-<div style="background:#CFEFE6;border:3px solid #2B2A4C;border-radius:24px;padding:12px 28px;font-size:26px;font-weight:900">答對了!{{han}}({{zy}})</div>
+<div style="background:#CFEFE6;border:3px solid #2B2A4C;border-radius:24px;padding:12px 28px;font-size:26px;font-weight:900">答對了!{{han}}({{syl}})</div>
 <button onClick="{{nextQ}}" style="min-height:60px;padding:0 32px;border-radius:30px;background:#FF9C8F;border:4px solid #2B2A4C;box-shadow:0 6px 0 #2B2A4C;font-size:24px;font-weight:900">{{nextLabel}}</button>
 </sc-if>
 </div>
@@ -117,21 +130,24 @@ button{font-family:inherit;color:inherit;cursor:pointer}
 class Component extends DCLogic {
   constructor(props) {
     super(props);
-    this.state = { i: 0, phase: 'build', pi: null, pf: null, lp: null, done: this.readDone() };
+    this.state = { i: 0, phase: 'build', pi: null, pf: null, pt: null, lp: null, done: this.readDone() };
   }
   combos() {
+    // [聲符, 韻符, 例字, 聲調, 另一個真實聲調, [另兩個真實聲符(同聲調)]]
     return [
-      ['ㄅ', 'ㄚ', '爸', 'ㄅㄚˋ'], ['ㄇ', 'ㄚ', '媽', 'ㄇㄚ'], ['ㄉ', 'ㄚ', '大', 'ㄉㄚˋ'],
-      ['ㄍ', 'ㄜ', '哥', 'ㄍㄜ'], ['ㄏ', 'ㄜ', '河', 'ㄏㄜˊ'], ['ㄅ', 'ㄠ', '包', 'ㄅㄠ'],
-      ['ㄇ', 'ㄠ', '貓', 'ㄇㄠ'], ['ㄉ', 'ㄡ', '豆', 'ㄉㄡˋ'], ['ㄍ', 'ㄡ', '狗', 'ㄍㄡˇ'],
-      ['ㄅ', 'ㄟ', '杯', 'ㄅㄟ'], ['ㄇ', 'ㄣ', '門', 'ㄇㄣˊ'], ['ㄖ', 'ㄣ', '人', 'ㄖㄣˊ'],
+      ['ㄅ', 'ㄚ', '爸', 'ˋ', 'ˇ', ['ㄆ', 'ㄉ']],
+      ['ㄇ', 'ㄚ', '媽', '', 'ˇ', ['ㄆ', 'ㄊ']],
+      ['ㄉ', 'ㄚ', '大', 'ˋ', 'ˊ', ['ㄅ', 'ㄊ']],
+      ['ㄍ', 'ㄜ', '哥', '', 'ˊ', ['ㄎ', 'ㄏ']],
+      ['ㄏ', 'ㄜ', '河', 'ˊ', 'ˋ', ['ㄍ', 'ㄎ']],
+      ['ㄅ', 'ㄠ', '包', '', 'ˇ', ['ㄆ', 'ㄉ']],
+      ['ㄇ', 'ㄠ', '貓', '', 'ˊ', ['ㄊ', 'ㄉ']],
+      ['ㄉ', 'ㄡ', '豆', 'ˋ', '', ['ㄊ', 'ㄌ']],
+      ['ㄍ', 'ㄡ', '狗', 'ˇ', 'ˋ', ['ㄎ', 'ㄏ']],
+      ['ㄅ', 'ㄟ', '杯', '', 'ˇ', ['ㄆ', 'ㄈ']],
+      ['ㄇ', 'ㄣ', '門', 'ˊ', 'ˋ', ['ㄈ', 'ㄖ']],
+      ['ㄖ', 'ㄣ', '人', 'ˊ', 'ˋ', ['ㄇ', 'ㄈ']],
     ];
-  }
-  valid() {
-    return {
-      'ㄚ': 'ㄅㄆㄇㄈㄉㄊㄋㄌㄍㄎㄏ', 'ㄜ': 'ㄇㄉㄊㄋㄌㄍㄎㄏㄓㄔㄕㄖ', 'ㄠ': 'ㄅㄆㄇㄉㄊㄋㄌㄍㄎㄏㄓㄔㄕㄖ',
-      'ㄡ': 'ㄆㄇㄈㄉㄊㄌㄍㄎㄏㄓㄔㄕㄖ', 'ㄟ': 'ㄅㄆㄇㄈㄉㄋㄌㄍㄏ', 'ㄣ': 'ㄅㄆㄇㄈㄋㄍㄎㄏㄓㄔㄕㄖ',
-    };
   }
   readDone() {
     try {
@@ -157,17 +173,17 @@ class Component extends DCLogic {
       localStorage.setItem('zhuyin_log', JSON.stringify(o));
     } catch (e) {}
   }
-  say2(a, b) {
+  say(han) {
     this.act = Date.now();
     try {
       if (this.au) { this.au.pause(); }
-      const x = new Audio('audio/z' + a.codePointAt(0).toString(16) + '.mp3');
-      const y = new Audio('audio/z' + b.codePointAt(0).toString(16) + '.mp3');
-      this.au = x;
-      x.addEventListener('ended', () => { const p = y.play(); if (p && p.catch) { p.catch(() => {}); } });
-      const p0 = x.play();
-      if (p0 && p0.catch) { p0.catch(() => {}); }
+      this.au = new Audio('audio/w' + han.codePointAt(0).toString(16) + '.mp3');
+      const p = this.au.play();
+      if (p && p.catch) { p.catch(() => {}); }
     } catch (e) {}
+  }
+  toneName(t) {
+    return { '': '一聲', 'ˊ': '二聲', 'ˇ': '三聲', 'ˋ': '四聲' }[t];
   }
   renderVals() {
     const st = this.state;
@@ -175,38 +191,40 @@ class Component extends DCLogic {
     const c = all[st.i];
     const ini = c[0];
     const fin = c[1];
-    const valid = this.valid();
+    const han = c[2];
+    const tone = c[3];
+    const syl = ini + fin + tone;
     const rot = (arr, n) => arr.map((x, k) => arr[(k + n) % arr.length]);
-    const pool = valid[fin].split('').filter((x) => x !== ini);
-    const iniArr = rot([ini, pool[st.i % pool.length], pool[(st.i + 3) % pool.length]], st.i);
+    const iniArr = rot([ini, c[5][0], c[5][1]], st.i);
     const finOthers = ['ㄚ', 'ㄜ', 'ㄠ', 'ㄡ', 'ㄟ', 'ㄣ'].filter((x) => x !== fin);
     const finArr = rot([fin, finOthers[st.i % finOthers.length], finOthers[(st.i + 2) % finOthers.length]], st.i + 1);
-    const tile = (s, on) => 'width:96px;height:96px;border-radius:24px;border:4px solid #2B2A4C;font-size:56px;font-weight:900;line-height:1;display:flex;align-items:center;justify-content:center;background:' + (on ? '#FFC93C' : '#fff') + ';box-shadow:' + (on ? '0 0 0 4px #FFE7A3' : '0 6px 0 #2B2A4C') + ';';
-    const iniTiles = iniArr.map((s) => ({ s, on: st.pi === s, style: tile(s, st.pi === s), pick: () => this.pick('pi', s) }));
-    const finTiles = finArr.map((s) => ({ s, on: st.pf === s, style: tile(s, st.pf === s), pick: () => this.pick('pf', s) }));
-    const both = st.pi !== null && st.pf !== null;
-    const ok = both && st.pi === ini && st.pf === fin;
-    const bad = both && !ok;
-    const slot = (v) => 'width:112px;height:112px;border-radius:28px;border:4px dashed #2B2A4C;box-sizing:border-box;display:flex;align-items:center;justify-content:center;font-size:64px;font-weight:900;background:' + (v ? '#fff' : '#FBF8FF') + ';';
+    const toneArr = rot(['', 'ˊ', 'ˇ', 'ˋ'], st.i % 4);
+    const tile = (on) => 'width:88px;height:88px;border-radius:22px;border:4px solid #2B2A4C;font-size:48px;font-weight:900;line-height:1;display:flex;align-items:center;justify-content:center;padding:0;background:' + (on ? '#FFC93C' : '#fff') + ';box-shadow:' + (on ? '0 0 0 4px #FFE7A3' : '0 6px 0 #2B2A4C') + ';';
+    const iniTiles = iniArr.map((s) => ({ s, on: st.pi === s, style: tile(st.pi === s), pick: () => this.pick('pi', s) }));
+    const finTiles = finArr.map((s) => ({ s, on: st.pf === s, style: tile(st.pf === s), pick: () => this.pick('pf', s) }));
+    const toneTiles = toneArr.map((t) => ({ s: fin + t, name: this.toneName(t), on: st.pt === t, style: tile(st.pt === t), pick: () => this.pick('pt', t) }));
+    const all3 = st.pi !== null && st.pf !== null && st.pt !== null;
+    const ok = all3 && st.pi === ini && st.pf === fin && st.pt === tone;
+    const bad = all3 && !ok;
+    const slot = (v) => 'width:104px;height:104px;border-radius:26px;border:4px dashed #2B2A4C;box-sizing:border-box;display:flex;align-items:center;justify-content:center;font-size:60px;font-weight:900;background:' + (v ? '#fff' : '#FBF8FF') + ';';
     const phaseName = st.phase === 'build' ? '拼一拼' : st.phase === 'listen' ? '聽音選拼音' : '完成';
-    const listenOpts = (() => {
-      const others = pool.filter((x) => x !== ini);
-      const three = [others[st.i % others.length], others[(st.i + 1) % others.length], others[(st.i + 2) % others.length]].filter((x, k, a) => a.indexOf(x) === k);
-      const labels = [ini + fin].concat(three.map((x) => x + fin)).slice(0, 4);
-      return rot(labels, st.i % 4);
+    const labels = (() => {
+      const alt = [ini + fin + c[4], c[5][0] + fin + tone, c[5][1] + fin + tone];
+      return rot([syl].concat(alt), st.i % 4);
     })();
-    const lRight = st.lp === ini + fin;
+    const lRight = st.lp === syl;
     const lWrong = st.lp !== null && !lRight;
-    const opts = listenOpts.map((l) => {
+    const opts = labels.map((l) => {
       let bg = '#fff';
-      if (st.lp === l) { bg = l === ini + fin ? '#7FE0C3' : '#FFB4AA'; }
+      if (st.lp === l) { bg = l === syl ? '#7FE0C3' : '#FFB4AA'; }
       return {
         label: l,
         style: 'min-height:190px;border-radius:32px;border:5px solid #2B2A4C;box-shadow:0 8px 0 #2B2A4C;display:flex;align-items:center;justify-content:center;background:' + bg + ';',
-        pick: () => this.pickL(l, ini + fin, c),
+        pick: () => this.pickL(l, syl, han),
       };
     });
     const last = st.i === all.length - 1;
+    const slot3 = st.pt === null ? '?' : st.pt === '' ? '一聲' : st.pt;
     return {
       stepName: phaseName,
       progress: Math.round(((st.i + (st.phase === 'build' ? 0 : st.phase === 'listen' ? 0.5 : 1)) / all.length) * 100),
@@ -215,30 +233,32 @@ class Component extends DCLogic {
       isBuild: st.phase === 'build',
       isListen: st.phase === 'listen',
       isFinish: st.phase === 'finish',
-      han: c[2],
-      zy: c[3],
-      pair: ini + fin,
+      han: han,
+      syl: syl,
       slot1: st.pi || '?',
       slot2: st.pf || '?',
+      slot3: slot3,
       slot1Style: slot(st.pi),
       slot2Style: slot(st.pf),
-      resText: ok ? ini + fin : '?',
-      resStyle: 'min-width:150px;height:112px;padding:0 16px;border-radius:28px;border:4px solid #2B2A4C;box-sizing:border-box;display:flex;align-items:center;justify-content:center;font-size:64px;font-weight:900;letter-spacing:4px;background:' + (ok ? '#7FE0C3' : '#fff') + ';',
+      slot3Style: slot(st.pt !== null) + (st.pt === '' ? 'font-size:34px;' : ''),
+      resText: ok ? syl : '?',
+      resStyle: 'min-width:170px;height:104px;padding:0 14px;border-radius:26px;border:4px solid #2B2A4C;box-sizing:border-box;display:flex;align-items:center;justify-content:center;font-size:60px;font-weight:900;letter-spacing:2px;background:' + (ok ? '#7FE0C3' : '#fff') + ';',
       iniTiles,
       finTiles,
+      toneTiles,
       isOk: ok,
       isBad: bad,
-      hear: () => this.say2(ini, fin),
-      toListen: () => { this.setState({ phase: 'listen', lp: null }); this.say2(ini, fin); },
+      hear: () => this.say(han),
+      toListen: () => { this.setState({ phase: 'listen', lp: null }); this.say(han); },
       opts,
       lRight,
       lWrong,
       nextLabel: last ? '看結果' : '下一題',
       nextQ: () => {
-        if (last) { this.setState({ phase: 'finish' }); } else { this.setState({ i: st.i + 1, phase: 'build', pi: null, pf: null, lp: null }); }
+        if (last) { this.setState({ phase: 'finish' }); } else { this.setState({ i: st.i + 1, phase: 'build', pi: null, pf: null, pt: null, lp: null }); }
       },
-      doneCount: st.done.length,
-      restart: () => this.setState({ i: 0, phase: 'build', pi: null, pf: null, lp: null }),
+      doneCount: st.done.filter((x) => '爸媽大哥河包貓豆狗杯門人'.indexOf(x) >= 0).length,
+      restart: () => this.setState({ i: 0, phase: 'build', pi: null, pf: null, pt: null, lp: null }),
     };
   }
   pick(key, s) {
@@ -248,14 +268,15 @@ class Component extends DCLogic {
     const c = this.combos()[this.state.i];
     const pi = key === 'pi' ? s : this.state.pi;
     const pf = key === 'pf' ? s : this.state.pf;
+    const pt = key === 'pt' ? s : this.state.pt;
     this.setState(next);
-    if (pi === c[0] && pf === c[1]) { this.say2(c[0], c[1]); }
+    if (pi === c[0] && pf === c[1] && pt === c[3]) { this.say(c[2]); }
   }
-  pickL(label, answer, c) {
+  pickL(label, answer, han) {
     this.act = Date.now();
     if (this.state.lp === answer) { return; }
-    if (label === answer && this.state.done.indexOf(answer) < 0) {
-      const list = this.state.done.concat([answer]);
+    if (label === answer && this.state.done.indexOf(han) < 0) {
+      const list = this.state.done.concat([han]);
       try { localStorage.setItem('zhuyin_pinyin', JSON.stringify(list)); } catch (e) {}
       this.setState({ lp: label, done: list });
     } else {
