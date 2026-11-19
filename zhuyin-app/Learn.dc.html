@@ -1,0 +1,266 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<title>符號學習</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@500;700;900&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;font-family:'Noto Sans TC',system-ui,sans-serif;color:#2B2A4C}
+a{color:inherit;text-decoration:none}
+button{font-family:inherit;color:inherit;cursor:pointer}
+</style>
+</helmet>
+<div style="width:1280px;height:800px;box-sizing:border-box;background:#FFF6E5;padding:28px 48px 32px;display:flex;flex-direction:column;gap:20px;position:relative;overflow:hidden;font-family:'Noto Sans TC',system-ui,sans-serif;color:#2B2A4C">
+
+<div style="display:flex;align-items:center;gap:20px">
+<a href="Main.dc.html" aria-label="回學習地圖" style="width:56px;height:56px;border-radius:28px;background:#fff;border:3px solid #2B2A4C;display:flex;align-items:center;justify-content:center">
+<svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#2B2A4C" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg>
+</a>
+<div style="font-size:32px;font-weight:900">第 {{lvl}} 關 · {{lvlSyms}}</div>
+<div style="flex:1;height:20px;border-radius:10px;background:#fff;border:3px solid #2B2A4C;overflow:hidden;box-sizing:border-box">
+<div style="width:{{prog}}%;height:100%;background:#7FE0C3"></div>
+</div>
+<div style="font-size:20px;font-weight:700">{{idx}} / {{lvlCount}}</div>
+</div>
+
+<div style="display:flex;gap:28px;flex:1;min-height:0">
+
+<div style="width:212px;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;align-content:start;overflow-y:auto;padding:2px 6px 10px 2px">
+<sc-for list="{{tabs}}" as="t" hint-placeholder-count="37">
+<button onClick="{{t.pick}}" aria-pressed="{{t.on}}" aria-label="{{t.sym}}" style="{{t.style}}">
+<span style="font-size:44px;font-weight:900;line-height:1">{{t.label}}</span>
+</button>
+</sc-for>
+</div>
+
+<div style="flex:1;background:#fff;border:4px solid #2B2A4C;border-radius:32px;padding:24px 28px;display:flex;flex-direction:column;align-items:center;gap:16px;box-shadow:0 8px 0 #2B2A4C">
+<div style="font-size:22px;font-weight:700;color:#5A5770">看筆順:第 {{step}} 畫 / 共 {{total}} 畫</div>
+<div style="width:380px;height:380px;position:relative;border:3px dashed #B9B2A0;border-radius:20px;box-sizing:border-box;background:#FFFBF2;display:flex;align-items:center;justify-content:center">
+<div style="position:absolute;left:50%;top:10px;bottom:10px;border-left:2px dashed #E3DCCB"></div>
+<div style="position:absolute;top:50%;left:10px;right:10px;border-top:2px dashed #E3DCCB"></div>
+<svg viewBox="-5 -5 110 110" width="340" height="340" style="position:relative" role="img" aria-label="{{sym}}的筆順動畫"><sc-for list="{{strokes}}" as="p" hint-placeholder-count="2"><path d="{{p.d}}" fill="none" stroke="#E3DCCB" stroke-width="9" stroke-linecap="round" stroke-linejoin="round"/></sc-for><sc-for list="{{strokes}}" as="p" hint-placeholder-count="2"><path d="{{p.d}}" pathLength="1" fill="none" stroke="#FF6B5B" stroke-width="9" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="1" stroke-dashoffset="{{p.off}}"/></sc-for><sc-for list="{{strokes}}" as="p" hint-placeholder-count="2"><g opacity="{{p.badge}}"><circle cx="{{p.x}}" cy="{{p.y}}" r="5.5" fill="#2B2A4C"/><text x="{{p.x}}" y="{{p.ty}}" text-anchor="middle" font-size="7.5" font-weight="900" fill="#FFF6E5" font-family="Noto Sans TC, sans-serif">{{p.n}}</text></g></sc-for></svg>
+</div>
+<div style="display:flex;gap:16px">
+<button onClick="{{replay}}" style="min-height:52px;padding:0 28px;border-radius:26px;background:#fff;border:3px solid #2B2A4C;font-size:22px;font-weight:700">再看一次</button>
+<button style="min-height:52px;padding:0 28px;border-radius:26px;background:#7FE0C3;border:3px solid #2B2A4C;font-size:22px;font-weight:700;box-shadow:0 4px 0 #2B2A4C">我來描</button>
+</div>
+</div>
+
+<div style="width:380px;display:flex;flex-direction:column;gap:10px">
+<button onClick="{{play}}" style="display:flex;align-items:center;gap:16px;min-height:88px;padding:0 24px;border-radius:44px;background:#FFC93C;border:4px solid #2B2A4C;box-shadow:0 6px 0 #2B2A4C;text-align:left">
+<svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="#2B2A4C" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 9v6h4l5 4V5L8 9H4z" fill="#2B2A4C"/><path d="M16.5 8.5a5 5 0 0 1 0 7M19 6a8.5 8.5 0 0 1 0 12"/></svg>
+<span style="font-size:28px;font-weight:900">聽聽「{{sym}}」的聲音</span>
+</button>
+<sc-if value="{{hasInfo}}" hint-placeholder-val="{{true}}">
+<div style="background:#E4F6FF;border:3px solid #2B2A4C;border-radius:24px;padding:16px 20px">
+<div style="font-size:18px;font-weight:700;color:#3B5C78;margin-bottom:4px">嘴巴怎麼做?</div>
+<div style="font-size:22px;font-weight:500;line-height:1.5">{{hint}}</div>
+</div>
+<div style="font-size:20px;font-weight:700;margin-top:4px">哪些字有「{{sym}}」?</div>
+<div style="display:flex;flex-direction:column;gap:8px">
+<sc-for list="{{words}}" as="w" hint-placeholder-count="3">
+<div style="display:flex;align-items:center;gap:16px;background:#fff;border:3px solid #2B2A4C;border-radius:20px;padding:8px 16px 8px 8px">
+<div style="width:64px;height:64px;border-radius:16px;background:{{w.bg}};border:3px solid #2B2A4C;box-sizing:border-box;display:flex;align-items:center;justify-content:center;font-size:40px;font-weight:900">{{w.han}}</div>
+<div style="font-size:30px;font-weight:700;letter-spacing:2px">{{w.zy}}</div>
+</div>
+</sc-for>
+</div>
+</sc-if>
+<sc-if value="{{noInfo}}" hint-placeholder-val="{{false}}">
+<div style="background:#fff;border:3px dashed #B9B2A0;border-radius:24px;padding:24px 20px;font-size:22px;font-weight:500;line-height:1.5;color:#5A5770">「{{sym}}」的例字和嘴型提示製作中</div>
+</sc-if>
+</div>
+</div>
+
+<div style="display:flex;justify-content:flex-end">
+<a href="Game.dc.html" style="display:flex;align-items:center;gap:12px;min-height:64px;padding:0 36px;border-radius:32px;background:#FF9C8F;border:4px solid #2B2A4C;box-shadow:0 6px 0 #2B2A4C;font-size:28px;font-weight:900">
+去玩遊戲
+<svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#2B2A4C" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg>
+</a>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1280,"height":800}}'>
+class Component extends DCLogic {
+  constructor(props) {
+    super(props);
+    const lv = this.readLevel();
+    this.state = { level: lv, picked: this.levels()[lv - 1].charAt(0), t: 0 };
+  }
+  levels() {
+    return ['ㄅㄆㄇㄈ', 'ㄉㄊㄋㄌ', 'ㄍㄎㄏ', 'ㄐㄑㄒ', 'ㄓㄔㄕㄖ', 'ㄗㄘㄙ', 'ㄧㄨㄩ', 'ㄚㄛㄜㄝ', 'ㄞㄟㄠㄡ', 'ㄢㄣㄤㄥㄦ', 'ˊˇˋ˙'];
+  }
+  readLevel() {
+    try {
+      const n = parseInt(localStorage.getItem('zhuyin_level') || '3', 10);
+      return n >= 1 && n <= 11 ? n : 3;
+    } catch (e) {
+      return 3;
+    }
+  }
+  componentDidMount() {
+    this.timer = setInterval(() => {
+      const n = this.state.t + 1;
+      const patch = { t: n };
+      if (n % 25 === 0) {
+        this.logTime();
+        const l = this.readLevel();
+        if (l !== this.state.level) {
+          patch.level = l;
+          patch.picked = this.levels()[l - 1].charAt(0);
+          patch.t = 0;
+        }
+      }
+      this.setState(patch);
+    }, 40);
+  }
+  componentWillUnmount() {
+    clearInterval(this.timer);
+  }
+  logTime() {
+    if (!this.act || Date.now() - this.act > 30000) { return; }
+    try {
+      const d = new Date();
+      const k = d.getFullYear() + '-' + (d.getMonth() + 1) + '-' + d.getDate();
+      const o = JSON.parse(localStorage.getItem('zhuyin_log') || '{}') || {};
+      o[k] = (o[k] || 0) + 1;
+      localStorage.setItem('zhuyin_log', JSON.stringify(o));
+    } catch (e) {}
+  }
+  disp(s) {
+    return s.charCodeAt(0) < 0x3100 ? (s === '˙' ? '˙ㄚ' : 'ㄚ' + s) : s;
+  }
+  say(s) {
+    this.act = Date.now();
+    const tone = { 'ˊ': '麻', 'ˇ': '馬', 'ˋ': '罵', '˙': '嗎' }[s];
+    if (tone) {
+      try {
+        const u = new SpeechSynthesisUtterance(tone);
+        u.lang = 'zh-TW';
+        u.rate = 0.8;
+        window.speechSynthesis.cancel();
+        window.speechSynthesis.speak(u);
+      } catch (e) {}
+      return;
+    }
+    try {
+      if (this.audio) { this.audio.pause(); }
+      this.audio = new Audio('audio/z' + s.codePointAt(0).toString(16) + '.mp3');
+      const p = this.audio.play();
+      if (p && p.catch) { p.catch(() => {}); }
+    } catch (e) {}
+  }
+  renderVals() {
+    const data = {
+      'ㄍ': { hint: '舌頭後面碰到上顎,再放開,不要吹氣。', words: [['狗', 'ㄍㄡˇ', '#FFD35A'], ['鍋', 'ㄍㄨㄛ', '#8CCBFF'], ['哥', 'ㄍㄜ', '#7FE0C3']] },
+      'ㄎ': { hint: '位置和ㄍ一樣,放開的時候吹一口氣。', words: [['開', 'ㄎㄞ', '#FFD35A'], ['苦', 'ㄎㄨˇ', '#8CCBFF'], ['看', 'ㄎㄢˋ', '#7FE0C3']] },
+      'ㄏ': { hint: '嘴巴張開,像哈氣一樣輕輕吹出來。', words: [['花', 'ㄏㄨㄚ', '#FFD35A'], ['河', 'ㄏㄜˊ', '#8CCBFF'], ['好', 'ㄏㄠˇ', '#7FE0C3']] },
+    };
+    const cur = this.state.picked;
+    const more = {
+      'ㄅ': ['雙唇閉起來,再放開,不要吹氣。', '爸|ㄅㄚˋ', '包|ㄅㄠ', '杯|ㄅㄟ'],
+      'ㄆ': ['和ㄅ一樣,放開時吹一口氣。', '皮|ㄆㄧˊ', '跑|ㄆㄠˇ', '盤|ㄆㄢˊ'],
+      'ㄇ': ['雙唇閉起來,聲音從鼻子出來。', '媳|ㄇㄚ', '貓|ㄇㄠ', '米|ㄇㄧˇ'],
+      'ㄈ': ['上排牙齒輕碰下嘴唇,再吹氣。', '飛|ㄈㄟ', '飯|ㄈㄢˋ', '風|ㄈㄥ'],
+      'ㄉ': ['舌尖頂住上排牙齒後面,再放開,不吹氣。', '刀|ㄉㄠ', '大|ㄉㄚˋ', '豆|ㄉㄡˋ'],
+      'ㄊ': ['位置和ㄉ一樣,放開時吹一口氣。', '太|ㄊㄞˋ', '兔|ㄊㄨˋ', '桃|ㄊㄠˊ'],
+      'ㄋ': ['舌尖頂住上排牙齒後面,聲音從鼻子出來。', '牛|ㄋㄧㄡˊ', '奶|ㄋㄞˇ', '鳥|ㄋㄧㄠˇ'],
+      'ㄌ': ['舌尖輕碰上排牙齒後面,聲音從舌頭兩邊出來。', '辣|ㄌㄚˋ', '梨|ㄌㄧˊ', '路|ㄌㄨˋ'],
+      'ㄐ': ['嘴角微笑,舌面貼近上黠,不吹氣。', '雞|ㄐㄧ', '家|ㄐㄧㄚ', '九|ㄐㄧㄡˇ'],
+      'ㄑ': ['和ㄐ一樣,放開時吹一口氣。', '七|ㄑㄧ', '球|ㄑㄧㄡˊ', '氣|ㄑㄧˋ'],
+      'ㄒ': ['嘴角微笑,舌面靠近上黠,讓氣輕輕擠出來。', '西|ㄒㄧ', '蝦|ㄒㄧㄚ', '小|ㄒㄧㄠˇ'],
+      'ㄓ': ['舌尖往上捲,輕碰上黠,不吹氣。', '豬|ㄓㄨ', '紙|ㄓˇ', '枝|ㄓ'],
+      'ㄔ': ['和ㄓ一樣,放開時吹一口氣。', '吃|ㄔ', '車|ㄔㄜ', '蟲|ㄔㄨㄥˊ'],
+      'ㄕ': ['舌尖往上捲,但不碰上黠,氣從中間擠出來。', '獅|ㄕ', '書|ㄕㄨ', '手|ㄕㄡˇ'],
+      'ㄖ': ['發音位置和ㄕ一樣,聲帶有震動。', '日|ㄖˋ', '肉|ㄖㄡˋ', '熱|ㄖㄜˋ'],
+      'ㄗ': ['舌尖頂住上下牙齒中間,不吹氣。', '字|ㄗˋ', '左|ㄗㄨㄛˇ', '早|ㄗㄠˇ'],
+      'ㄘ': ['和ㄗ一樣,放開時吹一口氣。', '草|ㄘㄠˇ', '菜|ㄘㄞˋ', '醋|ㄘㄨˋ'],
+      'ㄙ': ['舌尖靠近上下牙齒,氣從縫隙擠出來。', '四|ㄙˋ', '三|ㄙㄢ', '絲|ㄙ'],
+      'ㄧ': ['嘴角往兩邊拉,像笑一樣。', '衣|ㄧ', '椅|ㄧˇ', '鴨|ㄧㄚ'],
+      'ㄨ': ['嘴唇圆圆噘起來。', '屋|ㄨ', '五|ㄨˇ', '蛙|ㄨㄚ'],
+      'ㄩ': ['嘴唇噘成小圓,發「ㄧ」的音。', '魚|ㄩˊ', '雨|ㄩˇ', '月|ㄩㄝˋ'],
+      'ㄚ': ['嘴巴張大,舌頭放平。', '阿|ㄚ', '八|ㄅㄚ', '拉|ㄌㄚ'],
+      'ㄛ': ['嘴巴半開,嘴唇微圓。', '波|ㄅㄛ', '破|ㄆㄛˋ', '摸|ㄇㄛ'],
+      'ㄜ': ['嘴巴半開,嘴角自然放鬆。', '鵝|ㄜˊ', '哥|ㄍㄜ', '河|ㄏㄜˊ'],
+      'ㄝ': ['嘴角微微往兩邊拉,嘴巴半開。', '爹|ㄉㄧㄝ', '姐|ㄐㄧㄝˇ', '葉|ㄧㄝˋ'],
+      'ㄞ': ['先張大嘴,再往「ㄧ」滑過去。', '愛|ㄞˋ', '菜|ㄘㄞˋ', '白|ㄅㄞˊ'],
+      'ㄟ': ['嘴巴半開,再往「ㄧ」滑過去。', '杯|ㄅㄟ', '飛|ㄈㄟ', '美|ㄇㄟˇ'],
+      'ㄠ': ['先張大嘴,再慢慢變圓。', '包|ㄅㄠ', '貓|ㄇㄠ', '桃|ㄊㄠˊ'],
+      'ㄡ': ['嘴巴半開,再慢慢變圓。', '豆|ㄉㄡˋ', '頭|ㄊㄡˊ', '手|ㄕㄡˇ'],
+      'ㄢ': ['嘴巴張開,舌尖往上頂。', '山|ㄕㄢ', '飯|ㄈㄢˋ', '看|ㄎㄢˋ'],
+      'ㄣ': ['嘴巴半開,舌尖往上頂。', '門|ㄇㄣˊ', '人|ㄖㄣˊ', '本|ㄅㄣˇ'],
+      'ㄤ': ['嘴巴張大,舌根往後頂,聲音從鼻子出來。', '羊|ㄧㄤˊ', '床|ㄔㄨㄤˊ', '湯|ㄊㄤ'],
+      'ㄥ': ['嘴巴半開,舌根往後頂,聲音從鼻子出來。', '燈|ㄉㄥ', '風|ㄈㄥ', '冷|ㄌㄥˇ'],
+      'ㄦ': ['舌頭往上捲,發出捲舌的聲音。', '兒|ㄦˊ', '耳|ㄦˇ', '二|ㄦˋ'],
+      'ˊ': ['二聲:聲音從中間往上揚,像在問「嗯?」。', '麻|ㄇㄚˊ', '牛|ㄋㄧㄡˊ', '紅|ㄏㄨㄥˊ'],
+      'ˇ': ['三聲:聲音先往下降,再往上升。', '馬|ㄇㄚˇ', '手|ㄕㄡˇ', '狗|ㄍㄡˇ'],
+      'ˋ': ['四聲:聲音從高處快速往下掉。', '罵|ㄇㄚˋ', '大|ㄉㄚˋ', '菜|ㄘㄞˋ'],
+      '˙': ['輕聲:又輕又短,寫在注音的前面。', '子|˙ㄗ', '的|˙ㄉㄜ', '嗎|˙ㄇㄚ'],
+    };
+    let d = data[cur] || null;
+    if (!d && more[cur]) {
+      const bgs = ['#FFD35A', '#8CCBFF', '#7FE0C3'];
+      d = { hint: more[cur][0], words: more[cur].slice(1).map((x, i) => { const p = x.split('|'); return [p[0], p[1], bgs[i]]; }) };
+    }
+    const all = this.levels()[this.state.level - 1].split('');
+    const tabs = all.map((s) => {
+      const on = s === cur;
+      return {
+        sym: s,
+        label: this.disp(s),
+        on: on,
+        pick: () => { this.setState({ picked: s, t: 0 }); this.say(s); },
+        style: 'height:76px;border-radius:20px;border:3px solid #2B2A4C;display:flex;align-items:center;justify-content:center;font-family:inherit;background:' + (on ? '#FFC93C' : '#fff') + ';' + (on ? 'box-shadow:0 6px 0 #2B2A4C;' : ''),
+      };
+    });
+    const shapes = {
+      'ㄅ':['M36 9C32 13 15 28 12 34C10 39 9 41 20 41C32 40 68 29 79 29C90 29 89 33 88 40C86 47 78 63 72 72C66 80 57 92 51 93C45 95 39 82 36 80'],'ㄆ':['M41 10C38 14 23 27 21 31C19 36 21 37 30 36C39 35 67 25 75 24C84 24 84 26 81 33C77 40 66 55 55 65C43 74 20 86 13 90','M28 51C32 54 45 60 55 66C65 72 82 85 87 88'],'ㄇ':['M13 20C13 25 13 41 14 51C15 62 16 79 17 84','M18 26C23 24 42 21 52 19C62 17 75 14 80 15C86 15 87 12 88 24C88 36 84 75 83 86'],'ㄈ':['M10 22C16 21 35 21 48 20C60 19 79 16 86 16','M16 27C16 31 16 45 16 53C16 62 15 72 17 78C19 83 15 85 28 86C40 87 81 85 91 84'],'ㄉ':['M31 9C28 13 13 28 11 33C10 38 9 39 20 39C32 38 69 28 80 28C91 27 88 31 87 37C87 43 81 55 76 64C71 73 63 89 58 92C53 95 46 83 43 81','M47 38C45 42 39 56 33 64C27 72 16 82 13 86'],'ㄊ':['M10 45C14 44 28 43 38 43C47 42 55 41 64 41C73 40 87 39 92 39','M54 13C53 16 49 26 45 34C42 41 38 50 33 58C29 66 21 76 21 81C20 85 23 87 31 87C40 86 66 78 73 76','M69 65L84 87'],'ㄋ':['M17 17C25 15 53 6 61 6C70 5 72 8 69 14C65 20 45 36 42 40C39 45 46 44 51 43C57 42 72 36 77 36C82 36 83 40 82 45C81 51 74 61 69 69C63 76 54 89 48 91C42 93 34 83 31 81'],'ㄌ':['M27 10C24 14 12 29 11 34C11 38 10 40 22 38C33 37 69 27 80 26C91 25 88 27 88 33C88 40 85 55 80 65C75 75 65 90 59 93C53 97 48 85 45 84','M59 5C57 10 53 27 49 36C46 46 43 54 37 63C31 72 16 85 12 89'],'ㄍ':['M40 8C37 12 31 24 26 31C21 39 10 45 10 52C11 59 22 66 27 73C33 80 40 91 42 94','M84 9C82 12 76 22 71 30C66 37 55 45 55 52C55 59 66 66 71 73C77 80 84 90 87 94'],'ㄎ':['M11 17C15 16 27 15 36 14C44 13 53 13 63 13C72 12 86 12 91 12','M42 20C39 23 27 37 26 41C24 45 27 46 34 46C41 45 59 38 66 38C73 38 76 39 76 45C76 50 70 63 66 71C63 79 57 89 53 91C48 93 42 83 40 82'],'ㄏ':['M26 20C29 20 39 19 47 19C54 18 63 18 71 18C78 17 88 17 91 17','M30 24C30 27 30 38 29 45C28 52 27 60 24 67C21 74 12 83 10 86'],'ㄐ':['M27 9C27 13 25 24 25 33C24 42 21 57 23 63C25 69 27 71 35 70C43 68 65 56 71 53','M74 5C74 10 74 24 74 34C74 44 73 53 73 63C73 74 74 90 74 96'],'ㄑ':['M71 8C67 11 56 22 48 29C39 36 22 45 22 52C23 59 42 63 50 70C59 77 72 89 76 93'],'ㄒ':['M7 15C12 15 28 15 37 14C47 14 54 13 63 13C72 12 87 12 92 12','M51 17C51 22 51 37 51 49C51 61 51 83 51 90'],'ㄓ':['M19 19C19 23 17 35 16 42C15 48 12 55 14 59C15 62 17 63 24 63C30 63 43 58 52 57C62 56 75 56 79 55','M80 19C80 23 78 34 77 40C76 46 75 55 75 57','M48 7C48 11 48 24 48 32C47 40 47 47 47 56C47 65 47 81 47 86','M8 89C13 89 27 87 36 87C45 86 52 86 61 86C71 86 87 85 92 85'],'ㄔ':['M67 6C64 9 56 19 50 25C43 30 32 38 28 40','M75 29C71 32 63 43 54 49C46 56 29 65 23 68','M57 51L58 95'],'ㄕ':['M29 16C33 15 47 13 56 11C65 9 77 6 82 6C87 7 88 8 88 14C87 19 78 35 77 39','M33 44L82 40','M33 40C33 45 33 60 29 69C25 78 15 90 12 94'],'ㄖ':['M18 10C18 16 18 32 18 46C18 60 20 86 20 93','M18 15C23 14 38 11 48 10C58 8 72 5 78 5C84 6 83 8 84 15C85 21 84 32 84 45C84 58 85 84 83 91C81 98 72 88 70 88','M36 35L58 61','M17 90C22 90 38 89 49 89C59 88 75 88 80 88'],'ㄗ':['M10 14C16 13 31 12 42 11C54 9 71 5 78 6C86 7 89 9 89 15C89 21 83 32 79 40C75 48 70 61 65 63C61 64 54 53 52 51','M40 14C40 18 40 30 40 39C39 47 39 56 39 65C39 75 39 89 39 94'],'ㄘ':['M8 35C12 34 26 33 35 32C44 31 52 31 62 30C71 29 87 28 91 28','M46 4C45 9 42 25 39 34C37 43 32 53 32 57C33 62 36 62 42 61C49 60 64 52 71 52C77 52 81 55 80 60C80 64 72 74 66 80C61 86 50 94 47 97'],'ㄙ':['M55 8C52 14 44 30 36 44C28 57 8 81 6 88C3 95 9 89 21 88C34 86 73 79 83 77','M77 59L93 90'],'ㄚ':['M16 9C19 12 27 22 33 29C39 35 48 45 51 49','M84 7C81 10 73 21 68 28C62 35 54 45 51 48','M51 43C52 48 52 60 52 69C52 78 52 91 52 96'],'ㄛ':['M7 17C14 16 37 14 51 13C65 12 86 11 92 11','M55 16C55 21 61 40 57 45C54 49 39 40 32 43C26 46 18 58 19 65C19 72 26 82 34 86C42 89 56 91 65 89C74 86 85 75 89 72'],'ㄜ':['M8 32C12 32 27 30 36 30C46 29 57 28 66 27C75 26 88 26 92 25','M52 5C53 13 59 44 55 53C50 61 33 51 27 54C21 58 19 69 20 75C22 81 31 88 38 91C45 93 55 93 63 91C71 89 82 80 86 78'],'ㄝ':['M4 48C9 47 25 46 35 45C46 44 54 44 65 43C75 42 91 42 97 41','M69 7C68 12 68 27 68 38C67 49 66 68 65 73','M26 11C26 18 27 38 28 50C29 62 26 78 29 85C32 92 37 92 46 92C55 93 79 89 85 88'],'ㄞ':['M8 12C15 12 37 10 51 10C65 9 85 8 92 8','M18 25C17 29 9 43 10 47C10 52 10 53 21 51C33 49 67 38 78 37C89 36 86 39 87 45C87 50 84 61 80 69C75 78 63 91 60 95','M50 12C50 18 50 35 47 44C45 54 41 62 35 70C29 78 15 90 11 93'],'ㄟ':['M6 18C11 16 28 5 34 9C40 12 38 28 41 38C45 47 50 56 57 65C64 73 80 85 85 89'],'ㄠ':['M53 6C50 9 40 19 33 25C27 31 12 38 14 43C16 49 40 56 45 58','M78 27C73 31 59 45 49 55C38 65 17 78 13 84C9 91 15 93 25 92C36 92 69 82 78 80','M71 65L85 93'],'ㄡ':['M14 14C19 13 36 11 46 9C57 8 71 4 77 5C83 6 82 10 80 16C78 21 72 28 65 37C59 46 49 60 39 69C29 78 9 87 3 91','M20 31C24 34 34 41 42 48C50 54 60 61 70 69C79 76 92 89 96 93'],'ㄢ':['M13 14C22 12 55 4 67 3C78 3 81 6 80 11C78 16 62 30 58 34','M29 20C26 25 15 44 14 50C14 55 15 54 26 53C36 51 67 41 77 40C87 40 91 41 87 51C82 60 57 89 51 97'],'ㄣ':['M15 5C14 12 7 35 8 42C8 50 8 51 21 50C33 49 71 37 83 36C94 35 96 34 90 44C84 54 56 87 49 95'],'ㄤ':['M14 43C20 43 40 40 52 39C64 38 82 37 88 36','M52 5C51 9 51 22 49 30C47 39 45 49 41 57C37 66 31 75 25 81C19 87 9 92 6 95','M57 42C57 47 55 60 55 68C55 77 48 89 55 93C61 96 87 90 93 90'],'ㄥ':['M52 11C48 17 36 36 29 48C21 60 7 76 6 83C5 89 6 89 21 89C35 88 82 83 94 82'],'ㄦ':['M32 10C31 18 33 47 29 60C25 74 10 88 6 93','M60 8C60 15 60 36 60 49C59 63 52 82 58 88C64 94 88 85 94 85'],'ㄧ':['M5 52C12 52 34 50 49 49C65 49 89 48 97 48'],'ㄨ':['M82 8C79 14 71 33 63 44C56 55 44 66 35 74C25 82 10 88 6 91','M15 20C20 24 38 36 47 43C57 50 63 56 70 64C78 72 90 87 94 91'],'ㄩ':['M15 18C14 23 13 42 12 53C11 64 6 77 8 83C10 88 11 87 24 86C36 85 74 78 84 76','M85 9C85 15 86 33 87 46C88 58 93 81 91 86C89 91 80 78 78 77'],
+      'ˊ': ['M34 68L68 26'],
+      'ˇ': ['M26 30L50 70L74 30'],
+      'ˋ': ['M32 26L68 68'],
+      '˙': ['M50 46L50 54'],
+    };
+    const ds = shapes[cur];
+    const n = ds.length;
+    const F = 26;
+    const cycle = n * F + 40;
+    const tt = this.state.t % cycle;
+    const step = Math.min(Math.floor(tt / F) + 1, n);
+    const strokes = ds.map((d, i) => {
+      const p = Math.max(0, Math.min(1, (tt - i * F) / F));
+      const e = 1 - (1 - p) * (1 - p);
+      const m = d.match(/M(\d+) (\d+)|M(\d+)(\d*)/);
+      const sp = d.slice(1).split(/[A-Za-z]/)[0].trim().split(/\s+/);
+      const x = Number(sp[0]);
+      const y = Number(sp[1]);
+      return { d: d, off: 1 - e, badge: p > 0 ? 1 : 0, x: x, y: y, ty: y + 2.7, n: i + 1 };
+    });
+    return {
+      step: step,
+      total: n,
+      strokes: strokes,
+      replay: () => this.setState({ t: 0 }),
+      play: () => this.say(cur),
+      sym: cur,
+      hint: d ? d.hint : '',
+      hasInfo: !!d,
+      noInfo: !d,
+      idx: all.indexOf(cur) + 1,
+      prog: Math.round((all.indexOf(cur) + 1) / all.length * 100),
+      lvl: this.state.level,
+      lvlSyms: this.state.level === 11 ? '聲調' : all.join(''),
+      lvlCount: all.length,
+      tabs: tabs,
+      words: d ? d.words.map((w) => ({ han: w[0], zy: w[1], bg: w[2] })) : [],
+    };
+  }
+}
+</script>
+</body>
+</html>
