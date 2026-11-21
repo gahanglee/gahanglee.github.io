@@ -67,7 +67,7 @@ label.chk{display:flex;align-items:center;gap:8px;font-size:15px;cursor:pointer}
   <header>
     <p style="margin:0 0 6px"><a href="/portfolio/learning-area/" style="font-size:14px">← 回到幼兒學習環境設計實作</a>　<a href="/portfolio/learning-area/flow-sim.html" style="font-size:14px">動線模擬（俯視）</a></p>
     <h1>學習區 3D 教室：當一天的幼兒</h1>
-    <p class="lead">以幼兒的視角走進模擬教室：從前門進來、到選區板插卡、走到自己選的學習區玩，收拾後到中間低區集合，再從後門出去。可以切換成坐輪椅的幼兒，體驗走道寬度是否足夠。</p>
+    <p class="lead">以幼兒的視角走進模擬教室（同學穿淺藍色園服，會操作教具、轉頭聊天；有同學在走道走動、一位同學坐輪椅，老師在中間低區巡視）：從前門進來、到選區板插卡、走到自己選的學習區玩，收拾後到中間低區集合，再從後門出去。可以切換成坐輪椅的幼兒，體驗走道寬度是否足夠。</p>
   </header>
 
   <div class="stage" id="stage">
@@ -192,20 +192,143 @@ function solidBox(x0,z0,x1,z1,h,mat){box(x0,z0,x1,z1,0,h,mat);OBS.push([x0,z0,x1
 for(const k in Z){const s=Z[k].shelf;solidBox(s[0],s[1],s[2],s[3],0.85,mats.shelf);
   const [x,y,w,h]=Z[k].r;const lp={art:[2.0,2.55],math:[1.6,5.95],con:[5.15,2.6],lang:[8.35,2.4],blk:[8.35,4.0]}[k];label(Z[k].n,lp[0],1.55,lp[1],'#'+Z[k].col.toString(16).padStart(6,'0'),1);}
 label('中間低區',5,1.3,5.6,'#5B7083',0.9);
+const CHAIRS=[]; // each chair can be taken away for a wheelchair
 for(const t of TABLES){const [x,y,w,h]=t.r;solidBox(x,y,x+w,y+h,0.52,mats.table);
-  t.ch.forEach(([cx,cz])=>{solidBox(cx-0.15,cz-0.15,cx+0.15,cz+0.15,0.3,mats.chair);box(cx-0.15,cz-0.15,cx+0.15,cz+0.15,0.3,0.55,mats.chair).scale.z=0.15;});}
+  const tc=[x+w/2,y+h/2];
+  t.ch.forEach(([cx,cz])=>{const g=new THREE.Group();
+    const seat=new THREE.Mesh(new THREE.BoxGeometry(0.3,0.04,0.3),mats.chair);seat.position.y=0.3;
+    const back=new THREE.Mesh(new THREE.BoxGeometry(0.3,0.26,0.03),mats.chair);back.position.set(0,0.45,-0.135);
+    g.add(seat,back);[[-1,-1],[1,-1],[-1,1],[1,1]].forEach(([a,b])=>{const l=new THREE.Mesh(new THREE.BoxGeometry(0.03,0.28,0.03),mats.chair);l.position.set(a*0.12,0.14,b*0.12);g.add(l);});
+    g.position.set(cx,0,cz);g.rotation.y=Math.atan2(tc[0]-cx,tc[1]-cz);scene.add(g);
+    OBS.push([cx-0.15,cz-0.15,cx+0.15,cz+0.15]);CHAIRS.push({x:cx,z:cz,g,oi:OBS.length-1,box:OBS[OBS.length-1],tc});});}
 solidBox(BOARD[0],BOARD[1],BOARD[2],BOARD[3],1.2,new THREE.MeshLambertMaterial({color:0x007C89}));label('選區板',2.6,1.5,5.6,'#007C89',0.8);
 solidBox(4.75,6.82,5.5,6.98,0.7,mats.wood);solidBox(5.8,6.82,6.3,6.98,0.6,mats.wood);label('配膳台',5.12,1.0,6.9,'#5B7083',0.6);
 // block-area carpet bits and some blocks for life
 for(let i=0;i<14;i++){const c=[0xD9822B,0x3E7CC0,0xC25A8A,0x1E9E5A,0xE0C040][i%5];box(7.6+(i%5)*0.25,4.6+Math.floor(i/5)*0.35,7.75+(i%5)*0.25,4.7+Math.floor(i/5)*0.35,0,0.06+0.05*(i%3),M(c));}
-// other children (simple figures) — placed after choices
+// ---------- people: soft toon-shaded Q-style children in the school uniform, a teacher, a wheelchair ----------
+const UNI={shirt:0x9ED8E6,collar:0xFFFFFF,bottom:0x2E4A7A,sock:0xFFFFFF,shoe:0x4A3F3A}; // light-blue uniform like the field photos
+const SKIN=[0xF8DCC6,0xF1CBAE,0xE8BE9C,0xF5D3B9],HAIR=[0x2B1D16,0x3B2A20,0x1E1A18,0x5A3B26];
+const grad=(()=>{const d=new Uint8Array([90,170,255]);const t=new THREE.DataTexture(d,3,1,THREE.LuminanceFormat);t.minFilter=t.magFilter=THREE.NearestFilter;t.needsUpdate=true;return t;})();
+const mm={};const MC=c=>mm[c]||(mm[c]=new THREE.MeshToonMaterial({color:c,gradientMap:grad}));
+const OUT=new THREE.MeshBasicMaterial({color:0x2A2522,side:THREE.BackSide});
+function outline(m,s){const o=new THREE.Mesh(m.geometry,OUT);o.scale.setScalar(s||1.06);m.add(o);return m;}
+function cyl(rt,rb,h,c,seg){return new THREE.Mesh(new THREE.CylinderGeometry(rt,rb,h,seg||16),MC(c));}
+function sph(r,c,ws,hs,ts,tl){return new THREE.Mesh(new THREE.SphereGeometry(r,ws||20,hs||16,0,Math.PI*2,ts||0,tl||Math.PI),MC(c));}
+function at(m,x,y,z){m.position.set(x,y,z);return m;}
+// a rounded limb segment hanging down from its pivot (capsule = cylinder + two spheres)
+function seg(len,r1,r2,c){const g=new THREE.Group();const b=cyl(r1,r2,len,c,14);b.position.y=-len/2;g.add(b);g.add(sph(r1,c,14,10));const e=sph(r2,c,14,10);e.position.y=-len;g.add(e);return g;}
+function joint(parent,x,y,z){const p=new THREE.Group();p.position.set(x,y,z);parent.add(p);return p;}
+function head(parent,y,o){const R=o.adult?0.115:0.14,skin=o.skin,hair=o.hairC;const h=joint(parent,0,y,0);
+  const sk=outline(sph(R,skin,24,18),1.045);sk.scale.set(1,0.96,0.97);sk.position.y=R*0.95;h.add(sk);
+  const c=R*0.95; // centre height of the face
+  [-1,1].forEach(sd=>{h.add(at(sph(R*0.2,skin,10,8),sd*R*0.98,c,0));});
+  const eyes=[-1,1].map(sd=>{const e=sph(R*0.115,0x2A2320,12,10);e.scale.set(1,1.25,0.6);e.position.set(sd*R*0.36,c+R*0.08,R*0.9);h.add(e);
+    const hl=sph(R*0.04,0xFFFFFF,8,6);hl.position.set(sd*R*0.36+R*0.035,c+R*0.13,R*0.98);h.add(hl);return e;});
+  [-1,1].forEach(sd=>{const ck=new THREE.Mesh(new THREE.CircleGeometry(R*0.15,16),new THREE.MeshBasicMaterial({color:0xF4A3A0,transparent:true,opacity:0.55}));ck.position.set(sd*R*0.6,c-R*0.18,R*0.82);ck.rotation.y=sd*0.62;h.add(ck);});
+  h.add(at(sph(R*0.07,0xE9B39A,8,6),0,c-R*0.06,R*0.98));
+  const mouth=new THREE.Mesh(new THREE.TorusGeometry(R*0.16,R*0.035,6,14,Math.PI),MC(0xB5544F));mouth.position.set(0,c-R*0.3,R*0.93);mouth.rotation.z=Math.PI;h.add(mouth);
+  // hair: soft cap, fringe tufts, then the style
+  const cap=sph(R*1.07,hair,22,14,0,Math.PI*0.54);cap.rotation.x=-0.45;cap.position.y=c;h.add(outline(cap,1.03));
+  for(let i=-2;i<=2;i++){const t=sph(R*0.3,hair,10,8);t.scale.set(1,0.75,0.8);t.position.set(i*R*0.3,c+R*0.62-Math.abs(i)*R*0.06,R*0.76-Math.abs(i)*R*0.12);h.add(t);}
+  const st=o.hair;
+  if(st==='bob'){const b=sph(R*1.12,hair,22,14,0,Math.PI*0.66);b.rotation.x=-1.25;b.position.y=c;h.add(b);[-1,1].forEach(sd=>{const s=sph(R*0.42,hair,12,10);s.scale.set(0.6,1.2,0.9);s.position.set(sd*R*0.95,c-R*0.15,R*0.05);h.add(s);});}
+  if(st==='pony'){const p=sph(R*0.42,hair);p.scale.set(0.9,1.25,0.9);p.position.set(0,c+R*0.15,-R*1.25);h.add(p);h.add(at(new THREE.Mesh(new THREE.TorusGeometry(R*0.2,R*0.07,8,14),MC(0xE85D7A)),0,c+R*0.42,-R*1.0));}
+  if(st==='twin'){[-1,1].forEach(sd=>{const p=sph(R*0.36,hair);p.scale.set(0.9,1.3,0.9);p.position.set(sd*R*1.12,c-R*0.1,-R*0.2);h.add(p);h.add(at(sph(R*0.13,0xF4C64F,10,8),sd*R*0.98,c+R*0.28,-R*0.15));});}
+  if(st==='bun'){h.add(at(sph(R*0.48,hair),0,c+R*0.85,-R*0.55));const b=sph(R*1.1,hair,22,14,0,Math.PI*0.6);b.rotation.x=-1.1;b.position.y=c;h.add(b);}
+  return {h,eyes};}
+function person(o){ // pose: 'stand' | 'sit' (chair) | 'floor' (carpet) | 'chair' (wheelchair) | 'walk'
+  const A=!!o.adult,g=new THREE.Group();
+  const L=A?{th:0.38,sh:0.36,tor:0.5,sw:0.15,arm:0.28,fore:0.26,r:0.055}:{th:0.14,sh:0.13,tor:0.27,sw:0.115,arm:0.12,fore:0.11,r:0.038};
+  const stand=L.th+L.sh+0.05;
+  const pelvis=joint(g,0,stand,0);
+  // legs (thigh -> knee -> shin -> shoe)
+  const legC=A?0x3D4A5C:UNI.sock,thighC=A?0x3D4A5C:(o.skirt?UNI.sock:UNI.bottom);
+  const legs=[-1,1].map(sd=>{const hp=joint(pelvis,sd*(A?0.085:0.055),0,0);hp.add(seg(L.th,L.r*1.1,L.r,thighC));
+    const kn=joint(hp,0,-L.th,0);kn.add(seg(L.sh,L.r,L.r*0.9,legC));
+    const shoe=sph(L.r*1.35,A?0x2F2A28:UNI.shoe,14,10);shoe.scale.set(1,0.65,1.6);shoe.position.set(0,-L.sh-L.r*0.6,L.r*0.7);kn.add(shoe);return {hp,kn};});
+  // body
+  const torso=joint(pelvis,0,0,0);
+  if(A){const hipm=sph(0.17,0x3D4A5C,18,12);hipm.scale.set(1,0.6,0.8);torso.add(hipm);
+    const ch=outline(sph(0.18,0xF4E6D2,20,16),1.04);ch.scale.set(1,1.55,0.78);ch.position.y=0.3;torso.add(ch);
+    const ap=new THREE.Mesh(new THREE.CylinderGeometry(0.15,0.19,0.5,20,1,true,-0.85,1.7),new THREE.MeshToonMaterial({color:0xE07A3F,gradientMap:grad,side:THREE.DoubleSide}));ap.position.y=0.22;ap.scale.z=0.82;torso.add(ap);}
+  else{if(o.skirt){const sk=cyl(0.1,0.155,0.13,UNI.bottom,20);sk.position.y=0.02;torso.add(outline(sk,1.04));}
+    else{const sh=sph(0.11,UNI.bottom,18,12);sh.scale.set(1.05,0.6,0.85);sh.position.y=0.02;torso.add(sh);}
+    const body=outline(sph(0.115,UNI.shirt,20,16),1.05);body.scale.set(1,1.35,0.85);body.position.y=0.15;torso.add(body);
+    const col=new THREE.Mesh(new THREE.TorusGeometry(0.06,0.02,8,18),MC(UNI.collar));col.rotation.x=Math.PI/2;col.position.y=0.28;torso.add(col);
+    if(o.badge!==undefined){const bd=new THREE.Mesh(new THREE.BoxGeometry(0.055,0.04,0.012),MC(o.badge));bd.position.set(0.05,0.18,0.095);torso.add(bd);}}
+  // arms (shoulder -> elbow -> hand)
+  const shY=A?0.52:0.25,armC=A?0xF4E6D2:UNI.shirt;
+  const arms=[-1,1].map(sd=>{const s=joint(torso,sd*L.sw,shY,0);s.add(seg(L.arm,L.r*0.95,L.r*0.85,armC));
+    const el=joint(s,0,-L.arm,0);el.add(seg(L.fore,L.r*0.8,L.r*0.75,o.skin));const hd=sph(L.r*1.05,o.skin,12,10);hd.position.y=-L.fore-L.r*0.5;el.add(hd);return {s,el,sd};});
+  const hd=head(torso,A?0.78:0.31,o);
+  // pose
+  const P=o.pose;
+  if(P==='sit'||P==='chair'){pelvis.position.y=P==='chair'?0.5:0.33;legs.forEach(l=>{l.hp.rotation.x=-Math.PI/2;l.kn.rotation.x=Math.PI/2;});
+    arms.forEach(a=>{a.s.rotation.x=-0.55;a.el.rotation.x=-1.1;a.s.rotation.z=a.sd*0.08;});}
+  else if(P==='floor'){pelvis.position.y=0.07;legs.forEach((l,i)=>{l.hp.rotation.order='YXZ';l.hp.rotation.set(-Math.PI/2+0.15,(i?-1:1)*0.75,0);l.kn.rotation.x=2.4;});
+    torso.rotation.x=0.22;arms.forEach(a=>{a.s.rotation.x=-0.75;a.el.rotation.x=-0.7;});}
+  else arms.forEach(a=>{a.s.rotation.z=a.sd*0.12;a.el.rotation.x=-0.15;});
+  g.userData={pelvis,torso,legs,arms,hd:hd.h,eyes:hd.eyes,ph:Math.random()*6.28,pose:P,base:pelvis.position.y,blink:2+Math.random()*3};
+  return g;}
+function animate(u,tt,dt,walkSpeed){if(!u||!u.arms)return;const ph=u.ph,P=u.pose;
+  // blinking
+  u.blink-=dt;const bl=u.blink<0.12?0.12:1;if(u.blink<0)u.blink=2.5+Math.random()*3;u.eyes.forEach(e=>e.scale.y=1.25*bl);
+  // breathing
+  u.torso.scale.y=1+Math.sin(tt*2.4+ph)*0.012;
+  if(P==='walk'){const w=walkSpeed||0,s=Math.sin(tt*7+ph)*0.55*w;u.legs[0].hp.rotation.x=s;u.legs[1].hp.rotation.x=-s;
+    u.legs[0].kn.rotation.x=Math.max(0,-s)*1.1;u.legs[1].kn.rotation.x=Math.max(0,s)*1.1;
+    u.arms[0].s.rotation.x=-s*0.8;u.arms[1].s.rotation.x=s*0.8;u.pelvis.position.y=u.base+Math.abs(Math.cos(tt*7+ph))*0.015*w;
+    u.hd.rotation.y=Math.sin(tt*0.7+ph)*0.15;return;}
+  if(P==='sit'||P==='chair'||P==='floor'){ // hands busy on the table / carpet, head looks at work or at a friend
+    const b=P==='floor'?-0.7:-1.1;u.arms[0].el.rotation.x=b+Math.sin(tt*2.6+ph)*0.28;u.arms[1].el.rotation.x=b+Math.sin(tt*2.1+ph+1.9)*0.28;
+    u.arms[0].s.rotation.y=Math.sin(tt*1.3+ph)*0.15;u.arms[1].s.rotation.y=Math.sin(tt*1.1+ph+1)*0.15;
+    const talk=Math.sin(tt*0.35+ph)>0.75;u.hd.rotation.y+=((talk?Math.sin(ph*3)>0?0.7:-0.7:Math.sin(tt*0.5+ph)*0.15)-u.hd.rotation.y)*Math.min(1,dt*3);
+    u.hd.rotation.x=(talk?0:0.28)+Math.sin(tt*1.7+ph)*0.04;u.torso.rotation.z=Math.sin(tt*0.8+ph)*0.04;return;}
+  u.hd.rotation.y=Math.sin(tt*0.5+ph)*0.35;u.torso.rotation.z=Math.sin(tt*0.9+ph)*0.03;}
+function wheelchair(){const g=new THREE.Group(),frame=0x5C6670,seat=0x2F5D8A;
+  g.add(at(new THREE.Mesh(new THREE.BoxGeometry(0.4,0.05,0.38),MC(seat)),0,0.46,0));
+  g.add(at(new THREE.Mesh(new THREE.BoxGeometry(0.4,0.36,0.04),MC(seat)),0,0.68,-0.2));
+  [-1,1].forEach(sd=>{const w=new THREE.Mesh(new THREE.TorusGeometry(0.27,0.022,8,28),MC(0x2A2A2A));w.rotation.y=Math.PI/2;w.position.set(sd*0.25,0.29,-0.06);g.add(w);
+    const rim=new THREE.Mesh(new THREE.TorusGeometry(0.24,0.008,6,28),MC(0xBFC6CC));rim.rotation.y=Math.PI/2;rim.position.set(sd*0.27,0.29,-0.06);g.add(rim);
+    for(let i=0;i<6;i++){const sp=cyl(0.005,0.005,0.5,0xBFC6CC,4);sp.rotation.x=i*Math.PI/6;sp.position.set(sd*0.25,0.29,-0.06);g.add(sp);}
+    const cs=new THREE.Mesh(new THREE.TorusGeometry(0.06,0.015,6,14),MC(0x2A2A2A));cs.rotation.y=Math.PI/2;cs.position.set(sd*0.17,0.06,0.2);g.add(cs);
+    const post=cyl(0.012,0.012,0.4,frame,6);post.position.set(sd*0.17,0.26,0.2);g.add(post);
+    const hb=cyl(0.014,0.014,0.5,frame,6);hb.position.set(sd*0.2,0.72,-0.23);g.add(hb);
+    const grip=cyl(0.022,0.022,0.1,0x2A2A2A,8);grip.rotation.x=Math.PI/2;grip.position.set(sd*0.2,0.97,-0.28);g.add(grip);
+    const ar=new THREE.Mesh(new THREE.BoxGeometry(0.04,0.03,0.3),MC(frame));ar.position.set(sd*0.21,0.64,-0.03);g.add(ar);});
+  g.add(at(new THREE.Mesh(new THREE.BoxGeometry(0.3,0.02,0.12),MC(frame)),0,0.1,0.3));
+  return g;}
+function kidOpts(badge,pose){const hs=['short','bob','pony','twin','short'];const h=hs[Math.floor(Math.random()*hs.length)];
+  return {pose,hair:h,hairC:HAIR[Math.floor(Math.random()*HAIR.length)],skin:SKIN[Math.floor(Math.random()*SKIN.length)],skirt:h!=='short'&&Math.random()<0.7,badge};}
 const kidGroup=new THREE.Group();scene.add(kidGroup);
-function kid(x,z,col,sit){const g=new THREE.Group();const b=new THREE.Mesh(new THREE.CylinderGeometry(0.12,0.14,sit?0.45:0.7,12),M(col));b.position.y=sit?0.55:0.35;
-  const h=new THREE.Mesh(new THREE.SphereGeometry(0.12,14,10),M(0xF2D2B6));h.position.y=sit?0.92:0.84;g.add(b,h);g.position.set(x,0,z);kidGroup.add(g);}
+function kid(x,z,col,pose,face,wc){let g;
+  if(wc){g=new THREE.Group();g.add(wheelchair());const p=person(kidOpts(col,'chair'));g.add(p);g.userData=p.userData;}
+  else g=person(kidOpts(col,pose));
+  g.position.set(x,0,z);if(face)g.rotation.y=Math.atan2(face[0]-x,face[1]-z);kidGroup.add(g);return g;}
+// walkers: two children walking the ring corridor (they stop and wait when someone is in front of them)
+const WALK=[[3.25,3.2],[5,3.2],[6.7,3.2],[6.7,6.2],[5,6.2],[3.25,6.2]];
+const walkers=[];
+function addWalkers(){walkers.forEach(w=>{scene.remove(w.g);OBS[w.oi]=null;});walkers.length=0;
+  [0,3].forEach((start,i)=>{const g=person(kidOpts(0xFFFFFF,'walk'));scene.add(g);OBS.push(null);walkers.push({g,seg:start,t:Math.random(),oi:OBS.length-1,dir:i?1:-1});});}
+function walkStep(w,dt,tt){const n=WALK.length,a=WALK[w.seg],b=WALK[(w.seg+(w.dir>0?1:n-1))%n],L=Math.hypot(b[0]-a[0],b[1]-a[1]);
+  const x=a[0]+(b[0]-a[0])*w.t,z=a[1]+(b[1]-a[1])*w.t,ux=(b[0]-a[0])/L,uz=(b[1]-a[1])/L;
+  let blockedAhead=S.x!==undefined&&Math.hypot(S.x-(x+ux*0.5),S.y-(z+uz*0.5))<0.55;
+  const sp=blockedAhead?0:0.75;w.t+=sp*dt/L;if(w.t>=1){w.t=0;w.seg=(w.seg+(w.dir>0?1:n-1))%n;}
+  w.g.position.set(x,0,z);w.g.rotation.y=Math.atan2(ux,uz);OBS[w.oi]=[x-0.14,z-0.14,x+0.14,z+0.14];
+  animate(w.g.userData,tt,dt,blockedAhead?0:1);}
+// the teacher walks slowly along the gathering area, looking over every learning area
+const teacher=person({adult:true,pose:'walk',hair:'bun',hairC:0x2B1D16,skin:0xF0CDB0});scene.add(teacher);OBS.push(null);const TOI=OBS.length-1;
+const tLabel=label('老師',0,2.0,0,'#E07A3F',0.6);scene.remove(tLabel);teacher.add(tLabel);
+let tT=0;
+function teacherStep(dt,tt){tT+=dt*0.12;const s=(Math.sin(tT)+1)/2,x=3.95+s*2.1,z=5.45,v=Math.cos(tT);
+  const pause=Math.abs(v)<0.25;teacher.position.set(x,0,z);
+  teacher.rotation.y=pause?Math.PI+Math.sin(tt*0.4)*1.2:(v>0?Math.PI/2:-Math.PI/2);
+  OBS[TOI]=[x-0.2,z-0.2,x+0.2,z+0.2];animate(teacher.userData,tt,dt,pause?0:0.7);
+  if(pause){teacher.userData.legs.forEach(l=>{l.hp.rotation.x*=0.9;l.kn.rotation.x*=0.9;});}}
 // player avatar (visible in top view)
-const me=new THREE.Group();const meBody=new THREE.Mesh(new THREE.CylinderGeometry(0.15,0.17,0.75,14),M(0xE07A3F));meBody.position.y=0.38;
-const meHead=new THREE.Mesh(new THREE.SphereGeometry(0.13,14,10),M(0xF2D2B6));meHead.position.y=0.9;
-const meChair=new THREE.Mesh(new THREE.TorusGeometry(0.28,0.04,8,24),M(0x333333));meChair.rotation.y=Math.PI/2;meChair.position.y=0.28;me.add(meBody,meHead,meChair);scene.add(me);
+const me=new THREE.Group();const meKid=person({pose:'walk',hair:'short',hairC:0x2B1D16,skin:0xF6D7BF,badge:0xE07A3F});
+const meWc=new THREE.Group();meWc.add(wheelchair());const meSit=person({pose:'chair',hair:'short',hairC:0x2B1D16,skin:0xF6D7BF,badge:0xE07A3F});meWc.add(meSit);
+me.add(meKid,meWc);const meTag=label('你',0,1.5,0,'#E07A3F',0.5);scene.remove(meTag);me.add(meTag);scene.add(me);
 
 // ---------- game state ----------
 const ZK=Object.keys(Z);
@@ -220,12 +343,22 @@ function reset(){
   yaw=0;pitch=-0.05;
   // 19 classmates choose first (random), respecting each area's limit
   const used={};ZK.forEach(z=>used[z]=0);while(kidGroup.children.length)kidGroup.remove(kidGroup.children[0]);
+  CHAIRS.forEach(c=>{c.g.visible=true;OBS[c.oi]=c.box;});
   for(let i=0;i<19;i++){const open=ZK.filter(z=>used[z]<Z[z].cap);const z=open[Math.floor(Math.random()*open.length)];used[z]++;}
   S.used=used;
   const seats={};TABLES.forEach(t=>{const z=ZK.find(k=>isIn(k,t.r[0]+0.1,t.r[1]+0.1));if(z)(seats[z]=seats[z]||[]).push(...t.ch);});
   seats.blk=[[7.5,4.4],[8.2,4.5],[8.8,4.9],[7.6,5.6],[8.4,5.9],[9.0,5.5]];
-  for(const z of ZK){const list=shuffle(seats[z].slice());for(let i=0;i<used[z];i++){const p=list[i];kid(p[0],p[1],Z[z].col,z!=='blk');}}
-  meChair.visible=wc;setTask();
+  // one classmate (random) uses a wheelchair: the chair nearest the area's entrance is taken away for them
+  const DOORS={art:[1.6,2.75],con:[5.15,2.75],lang:[8.35,2.75],math:[3.0,3.95],blk:[7.05,3.95]};
+  const wcZone=shuffle(ZK.filter(z=>used[z]>0))[0];
+  for(const z of ZK){let list=shuffle(seats[z].slice());let first=null;
+    if(z===wcZone){const d=DOORS[z];list.sort((a,b)=>Math.hypot(a[0]-d[0],a[1]-d[1])-Math.hypot(b[0]-d[0],b[1]-d[1]));first=list.shift();list=[first,...shuffle(list)];}
+    for(let i=0;i<used[z];i++){const p=list[i],isWc=z===wcZone&&i===0;
+      const ch=CHAIRS.find(c=>c.x===p[0]&&c.z===p[1]);
+      if(isWc&&ch){ch.g.visible=false;OBS[ch.oi]=null;}
+      const face=ch?ch.tc:[8.3,5.1];
+      kid(p[0],p[1],Z[z].col,z==='blk'?'floor':'sit',face,isWc);}}
+  meKid.visible=!wc;meWc.visible=wc;addWalkers();setTask();
 }
 const TASKS=['從綠色腳印的<b>前門</b>走進教室','走到藍色的<b>選區板</b>，插上姓名卡','走到你選的<b>{z}</b>（沿橘色虛線走道，不穿過別區）','走到<b>{z}的教具櫃</b>拿教具','收拾時間到！把教具<b>放回櫃子</b>（物歸原位）','到<b>中間低區</b>集合','從紅色腳印的<b>後門</b>出去'];
 const HINTS=['','靠近選區板後按「插卡選區」','','靠近櫃子後按「拿教具」','靠近櫃子後按「物歸原位」','走到中間淺色的區域',''];
@@ -237,7 +370,7 @@ function blocked(x,y,r){
   if(x<r||x>W-r||y<r||y>8.4-r)return true;
   // front wall z=7 except the two doors
   if(Math.abs(y-H)<r+0.05){const inF=x-r>=DOOR_F[0]&&x+r<=DOOR_F[1],inB=x-r>=DOOR_B[0]&&x+r<=DOOR_B[1];if(!inF&&!inB)return true;}
-  for(const o of OBS){const dx=Math.max(o[0]-x,0,x-o[2]),dy=Math.max(o[1]-y,0,y-o[3]);if(dx*dx+dy*dy<r*r)return true;}
+  for(const o of OBS){if(!o)continue;const dx=Math.max(o[0]-x,0,x-o[2]),dy=Math.max(o[1]-y,0,y-o[3]);if(dx*dx+dy*dy<r*r)return true;}
   if(y>7.12){for(const o of [[0.6,7.15,2.7,7.47],[7.4,7.15,9.5,7.47],[3.95,7.15,6.1,7.45]]){const dx=Math.max(o[0]-x,0,x-o[2]),dy=Math.max(o[1]-y,0,y-o[3]);if(dx*dx+dy*dy<r*r)return true;}}
   return false;}
 let stuckFlag=false;
@@ -313,7 +446,7 @@ function drawMini(){const dpr=Math.min(2,devicePixelRatio||1),w=mini.clientWidth
   mg.fillStyle='#F4F8F8';mg.fillRect(X(0),Y(0),10*s,7*s);
   for(const k in Z){const [x,y,w2,h2]=Z[k].r;mg.fillStyle='#'+Z[k].col.toString(16).padStart(6,'0');mg.globalAlpha=k===S.zone?0.55:0.22;mg.fillRect(X(x),Y(y),w2*s,h2*s);}
   mg.globalAlpha=1;mg.fillStyle='#F3E4CF';mg.fillRect(X(HUB[0]),Y(HUB[1]),HUB[2]*s,HUB[3]*s);
-  mg.fillStyle='#9DBDBD';OBS.forEach(o=>mg.fillRect(X(o[0]),Y(o[1]),(o[2]-o[0])*s,(o[3]-o[1])*s));
+  mg.fillStyle='#9DBDBD';OBS.forEach(o=>o&&mg.fillRect(X(o[0]),Y(o[1]),(o[2]-o[0])*s,(o[3]-o[1])*s));
   mg.strokeStyle='#E07A3F';mg.setLineDash([3*dpr,3*dpr]);mg.lineWidth=1.5*dpr;mg.beginPath();RING.forEach((p,i)=>i?mg.lineTo(X(p[0]),Y(p[1])):mg.moveTo(X(p[0]),Y(p[1])));mg.stroke();mg.setLineDash([]);
   mg.strokeStyle='#8FB3B3';mg.lineWidth=2*dpr;mg.beginPath();mg.moveTo(X(DOOR_F[0]),Y(7));mg.lineTo(X(0),Y(7));mg.lineTo(X(0),Y(0));mg.lineTo(X(10),Y(0));mg.lineTo(X(10),Y(7));mg.lineTo(X(DOOR_B[1]),Y(7));mg.moveTo(X(DOOR_F[1]),Y(7));mg.lineTo(X(DOOR_B[0]),Y(7));mg.stroke();
   mg.fillStyle='#1E9E5A';mg.fillRect(X(DOOR_F[0]),Y(6.95),(DOOR_F[1]-DOOR_F[0])*s,3*dpr);mg.fillStyle='#C2453A';mg.fillRect(X(DOOR_B[0]),Y(6.95),(DOOR_B[1]-DOOR_B[0])*s,3*dpr);
@@ -326,7 +459,11 @@ addEventListener('resize',resize);
 function frame(ts){requestAnimationFrame(frame);
   const dt=Math.min(0.05,(ts-last)/1000||0);last=ts;
   if(S.x!==undefined&&S.stage<7&&!document.querySelector('.panel.on')){move(dt);logic();}
-  if(S.x!==undefined){me.position.set(S.x,0,S.y);me.rotation.y=yaw;me.visible=top;
+  const tt=ts/1000;
+  kidGroup.children.forEach(k=>animate(k.userData,tt,dt));
+  walkers.forEach(w=>walkStep(w,dt,tt));teacherStep(dt,tt);
+  animate(meKid.userData,tt,dt,(keys.f||keys.b)&&!document.querySelector('.panel.on')?1:0);animate(meSit.userData,tt,dt);
+  if(S.x!==undefined){me.position.set(S.x,0,S.y);me.rotation.y=yaw+Math.PI;me.visible=top;
     if(top){cam.position.set(5,10.5,10.2);cam.lookAt(5,0,3.9);}
     else{cam.position.set(S.x,S.eye,S.y);const d=new THREE.Vector3(-Math.sin(yaw)*Math.cos(pitch),Math.sin(pitch),-Math.cos(yaw)*Math.cos(pitch));cam.lookAt(cam.position.clone().add(d));}}
   else{cam.position.set(5,10.5,10.2);cam.lookAt(5,0,3.9);}
