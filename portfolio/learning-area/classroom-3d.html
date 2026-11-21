@@ -1,0 +1,340 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>學習區 3D 教室</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&family=Noto+Serif+TC:wght@700&display=swap">
+<style>
+html{color-scheme:light}
+:root{
+  --bg:#F3F7F7; --surface:#FFFFFF; --fg:#1B3A5C; --muted:#5B7083; --line:#D3E2E2;
+  --accent:#007C89; --accent-soft:#E0F0F0; --route:#E07A3F; --bad:#C2453A; --go:#1E9E5A;
+  --display:"Noto Serif TC",Georgia,serif; --body:"Noto Sans TC","PingFang TC","Microsoft JhengHei",sans-serif;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#0F1C22; --surface:#16262D; --fg:#E3EEF0; --muted:#9AB0B8; --line:#2A3F47;
+  --accent:#4FC3CE; --accent-soft:#1D3940; --route:#F09A63; --bad:#F07A6E; --go:#4CC98A; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0F1C22; --surface:#16262D; --fg:#E3EEF0; --muted:#9AB0B8; --line:#2A3F47;
+  --accent:#4FC3CE; --accent-soft:#1D3940; --route:#F09A63; --bad:#F07A6E; --go:#4CC98A; color-scheme:dark}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--fg);font-family:var(--body);font-size:15px;line-height:1.6;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:20px 32px}
+.wrap{max-width:1200px;margin:0 auto;display:flex;flex-direction:column;gap:14px}
+h1{font-family:var(--display);font-size:clamp(1.5rem,3vw,2.1rem);line-height:1.25;margin:0}
+.lead{color:var(--muted);margin:4px 0 0;max-width:68ch}
+a{color:var(--accent)}
+.stage{position:relative;width:100%;aspect-ratio:16/9;min-height:360px;border-radius:14px;overflow:hidden;background:#cfe3e3;border:1px solid var(--line);touch-action:none;user-select:none;-webkit-user-select:none}
+.stage canvas{display:block;width:100%;height:100%}
+.hud{position:absolute;left:12px;top:12px;right:224px;display:flex;flex-direction:column;gap:8px;pointer-events:none}
+.task{background:color-mix(in srgb,var(--surface) 92%,transparent);border:1px solid var(--line);border-radius:12px;padding:8px 12px;font-size:15px;font-weight:700;max-width:560px}
+.task small{display:block;font-weight:400;color:var(--muted);font-size:13px}
+.toast{background:var(--bad);color:#fff;border-radius:10px;padding:6px 12px;font-size:14px;font-weight:700;align-self:flex-start;display:none}
+.toast.ok{background:var(--go)}
+#mini{position:absolute;right:12px;top:12px;width:200px;height:156px;border-radius:10px;border:1px solid var(--line);background:var(--surface)}
+.act{position:absolute;left:50%;bottom:18px;transform:translateX(-50%);display:flex;gap:8px}
+.btn{font:inherit;font-size:15px;font-weight:700;border:1px solid var(--line);background:var(--surface);color:var(--fg);border-radius:999px;padding:8px 18px;cursor:pointer}
+.btn.primary{background:var(--route);border-color:var(--route);color:#fff}
+.btn.acc{background:var(--accent);border-color:var(--accent);color:#fff}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+button:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+.pad{position:absolute;left:14px;bottom:14px;display:grid;grid-template-columns:repeat(3,48px);grid-template-rows:repeat(2,48px);gap:6px}
+.pad button{font:inherit;font-size:20px;border-radius:12px;border:1px solid var(--line);background:color-mix(in srgb,var(--surface) 88%,transparent);color:var(--fg);touch-action:none}
+.view{position:absolute;right:12px;bottom:14px}
+.panel{position:absolute;inset:0;display:none;align-items:center;justify-content:center;background:rgba(15,28,34,.45);padding:16px}
+.panel.on{display:flex}
+.card{background:var(--surface);color:var(--fg);border-radius:16px;padding:20px 22px;max-width:560px;width:100%;max-height:100%;overflow:auto;display:flex;flex-direction:column;gap:12px;border:1px solid var(--line)}
+.card h2{font-family:var(--display);font-size:22px;margin:0}
+.card p{margin:0}
+.zones{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:8px}
+.zbtn{font:inherit;text-align:left;border:2px solid var(--line);background:var(--bg);color:var(--fg);border-radius:12px;padding:10px 12px;cursor:pointer}
+.zbtn b{display:block;font-size:16px}
+.zbtn span{font-size:13px;color:var(--muted)}
+.zbtn:disabled{opacity:.5;cursor:not-allowed}
+.kv{display:grid;grid-template-columns:auto 1fr;gap:4px 12px;font-size:14px}
+.kv dt{color:var(--muted)}
+.kv dd{margin:0}
+.row{display:flex;gap:8px;flex-wrap:wrap}
+label.chk{display:flex;align-items:center;gap:8px;font-size:15px;cursor:pointer}
+.note{font-size:13px;color:var(--muted);margin:0}
+.keys{font-size:13px;color:var(--muted)}
+@media (max-width:700px){.hud{right:12px;top:auto;bottom:130px}#mini{width:140px;height:110px}.task{font-size:14px}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <p style="margin:0 0 6px"><a href="/portfolio/learning-area/" style="font-size:14px">← 回到幼兒學習環境設計實作</a>　<a href="/portfolio/learning-area/flow-sim.html" style="font-size:14px">動線模擬（俯視）</a></p>
+    <h1>學習區 3D 教室：當一天的幼兒</h1>
+    <p class="lead">以幼兒的視角走進模擬教室：從前門進來、到選區板插卡、走到自己選的學習區玩，收拾後到中間低區集合，再從後門出去。可以切換成坐輪椅的幼兒，體驗走道寬度是否足夠。</p>
+  </header>
+
+  <div class="stage" id="stage">
+    <canvas id="cv" aria-label="3D 教室，第一人稱視角"></canvas>
+    <div class="hud">
+      <div class="task" id="task" aria-live="polite"></div>
+      <div class="toast" id="toast" role="status"></div>
+    </div>
+    <canvas id="mini" aria-label="教室小地圖"></canvas>
+    <div class="act" id="act"></div>
+    <div class="pad" id="pad" aria-label="移動按鈕">
+      <span></span><button type="button" data-k="f" aria-label="前進">▲</button><span></span>
+      <button type="button" data-k="l" aria-label="左轉">◀</button><button type="button" data-k="b" aria-label="後退">▼</button><button type="button" data-k="r" aria-label="右轉">▶</button>
+    </div>
+    <button type="button" class="btn view" id="viewBtn">俯視</button>
+
+    <div class="panel on" id="pStart"><div class="card">
+      <h2>當一天的幼兒</h2>
+      <p>你是大中混齡班 20 位幼兒之一。其他 19 位已經先選好學習區（每次隨機），每區有人數上限，額滿要選別區。</p>
+      <label class="chk"><input type="checkbox" id="wc"> 我坐輪椅（輪椅寬約 70 公分，走得比較慢）</label>
+      <p class="keys">電腦：方向鍵或 W A S D 移動、轉向，拖曳畫面看四周，E 鍵或按鈕互動。手機：左下方向鍵、拖曳畫面轉向。</p>
+      <div class="row"><button type="button" class="btn primary" id="go">開始</button></div>
+    </div></div>
+
+    <div class="panel" id="pBoard"><div class="card">
+      <h2>選區板：插上你的姓名卡</h2>
+      <p class="note">數字是剩下的位置。額滿的區要等有人離開，或選別區。</p>
+      <div class="zones" id="zlist"></div>
+    </div></div>
+
+    <div class="panel" id="pInfo"><div class="card">
+      <h2 id="iTitle"></h2>
+      <dl class="kv" id="iKv"></dl>
+      <div class="row"><button type="button" class="btn primary" id="play">開始玩</button></div>
+    </div></div>
+
+    <div class="panel" id="pEnd"><div class="card">
+      <h2>今天結束囉！</h2>
+      <dl class="kv" id="eKv"></dl>
+      <p class="note" id="eNote"></p>
+      <div class="row"><button type="button" class="btn primary" id="again">再玩一次</button></div>
+    </div></div>
+  </div>
+
+  <p class="note">教室以 10 × 7 公尺示意，配置與動線模擬相同（B403 實際尺寸待量測）。前後門在同一面牆：前門貼綠色腳印、掛「進來」圖卡，後門貼紅色腳印、掛「出去」圖卡；橘色虛線是環狀主走道。示意圖的門寬放寬為 90 公分，實際門寬需量測（無障礙規範 205.2.3：門框間距至少 90 公分）。</p>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script>
+(function(){
+'use strict';
+const W=10,H=7;
+// ---------- layout (meters; x = left→right, z = back wall 0 → front wall 7) ----------
+const Z={
+  art:{n:'美勞區',r:[0.3,0.35,2.6,2.45],shelf:[0.35,0.8,0.65,2.4],col:0xD9822B,cap:6,
+       mat:'自然素材光桌、黏土（兩個區中區）',lvl:'光桌範例卡依編號由易到難；黏土基本功圖卡',core:'想像創造、表達溝通',play:'你在光桌上用樹枝、葉子排出一隻小鳥。'},
+  con:{n:'組合建構區',r:[3.9,0.35,2.5,2.45],shelf:[4.25,0.35,6.05,0.65],col:0x8A5CB8,cap:4,
+       mat:'LaQ、磁力片壁面（兩個區中區）',lvl:'LaQ 零件表與步驟圖；Plus-Plus 範例圖卡',core:'想像創造、覺知辨識',play:'你對照步驟圖，用 LaQ 組出一架飛機。'},
+  lang:{n:'語文區',r:[7.0,0.35,2.7,2.45],shelf:[9.35,0.8,9.65,2.4],col:0x3E7CC0,cap:4,
+       mat:'視聽區、說演區（兩個區中區），繪本封面朝外',lvl:'聽故事步驟圖＋按鍵貼數字；注音印章畫寫',core:'表達溝通、推理賞析',play:'你戴上耳機聽故事，再戴上頭套演一段給朋友看。'},
+  math:{n:'數學區',r:[0.3,3.6,2.6,2.6],shelf:[0.35,4.1,0.65,5.7],col:0xC25A8A,cap:4,
+       mat:'六形六色、拼圖分級（兩個區中區）',lvl:'拼圖三色分級：20、60、100 片',core:'推理賞析、自主管理',play:'你完成了 20 片的拼圖，在「我完成了」紀錄表貼上名條。'},
+  blk:{n:'積木區',r:[7.0,3.6,2.7,3.0],shelf:[9.35,4.3,9.65,5.9],col:0xB5832F,cap:6,
+       mat:'大地毯、兩座收納櫃附輪廓標示；彩虹積木、得寶',lvl:'彩虹積木手冊 STAGE 1 平面 → STAGE 2 立體',core:'關懷合作、推理賞析',play:'你和朋友一起搭彈珠軌道，討論每層要差幾個積木。'}
+};
+const HUB=[3.6,3.6,2.8,2.3];
+function four(x,y,w,h){return [[x+w*0.25,y-0.25],[x+w*0.75,y-0.25],[x+w*0.25,y+h+0.25],[x+w*0.75,y+h+0.25]];}
+const TABLES=[
+  {r:[1.6,0.85,1.2,0.8],ch:[[1.9,0.6],[2.5,0.6],[1.9,1.9],[2.5,1.9],[3.05,1.05],[3.05,1.45]]},
+  {r:[1.6,4.25,0.9,0.6],ch:four(1.6,4.25,0.9,0.6)},
+  {r:[4.6,1.6,0.9,0.6],ch:[[4.35,1.72],[4.35,2.08],[5.75,1.72],[5.75,2.08]]},
+  {r:[7.2,1.0,1.2,0.6],ch:four(7.2,1.0,1.2,0.6)},
+  {r:[3.85,4.03,1.1,0.52],ch:four(3.85,4.03,1.1,0.52)},
+  {r:[5.05,4.03,1.1,0.52],ch:four(5.05,4.03,1.1,0.52)}];
+const BOARD=[2.7,5.2,2.83,6.0];
+const DOOR_F=[2.8,3.7],DOOR_B=[6.25,7.15]; // 90 cm openings in the front wall (z = 7)
+const RING=[[3.25,3.2],[5,3.2],[6.7,3.2],[6.7,6.4],[5,6.4],[3.25,6.4],[3.25,3.2]];
+const SPURS=[[[3.25,3.2],[1.6,3.2]],[[1.6,3.2],[1.6,2.75]],[[6.7,3.2],[8.35,3.2]],[[8.35,3.2],[8.35,2.75]],[[5,3.2],[5.15,2.75]],[[3.25,6.4],[3.25,6.95]],[[3.25,3.95],[3.0,3.95]],[[6.7,3.95],[7.05,3.95]]];
+
+// ---------- three.js scene ----------
+const cv=document.getElementById('cv'),stage=document.getElementById('stage');
+const renderer=new THREE.WebGLRenderer({canvas:cv,antialias:true});
+renderer.setPixelRatio(Math.min(2,window.devicePixelRatio||1));
+const scene=new THREE.Scene();scene.background=new THREE.Color(0xdfeeee);
+const cam=new THREE.PerspectiveCamera(70,16/9,0.05,60);
+scene.add(new THREE.HemisphereLight(0xffffff,0xb8c6c6,0.9));
+const sun=new THREE.DirectionalLight(0xffffff,0.55);sun.position.set(-4,9,3);scene.add(sun);
+const M=c=>new THREE.MeshLambertMaterial({color:c});
+const mats={floor:M(0xEDE3D2),wall:M(0xF7F7F2),wood:M(0xD9B68A),shelf:M(0x9DBDBD),table:M(0xF2EDE4),chair:M(0xB9A58A),out:M(0xD8DEDE),hub:M(0xF3E4CF)};
+function box(x0,z0,x1,z1,y0,y1,mat){const g=new THREE.BoxGeometry(x1-x0,y1-y0,z1-z0),m=new THREE.Mesh(g,mat);m.position.set((x0+x1)/2,(y0+y1)/2,(z0+z1)/2);scene.add(m);return m;}
+function flat(x0,z0,x1,z1,y,color,op){const g=new THREE.PlaneGeometry(x1-x0,z1-z0),m=new THREE.Mesh(g,new THREE.MeshLambertMaterial({color,transparent:op<1,opacity:op}));m.rotation.x=-Math.PI/2;m.position.set((x0+x1)/2,y,(z0+z1)/2);scene.add(m);return m;}
+function label(text,x,y,z,color,size){const c=document.createElement('canvas');c.width=512;c.height=128;const g=c.getContext('2d');
+  g.fillStyle='rgba(255,255,255,0.92)';g.beginPath();g.roundRect?g.roundRect(8,8,496,112,40):g.rect(8,8,496,112);g.fill();
+  g.fillStyle=color||'#1B3A5C';g.font='700 64px "Noto Sans TC",sans-serif';g.textAlign='center';g.textBaseline='middle';g.fillText(text,256,68);
+  const t=new THREE.CanvasTexture(c);const s=new THREE.Sprite(new THREE.SpriteMaterial({map:t,depthTest:true}));s.position.set(x,y,z);s.scale.set((size||1)*1.2,(size||1)*0.3,1);scene.add(s);return s;}
+// floor, outside corridor
+flat(0,0,W,H,0,0xEDE3D2,1);flat(0,7,W,8.5,0,0xD8DEDE,1);
+// zones & hub mats
+for(const k in Z){const [x,y,w,h]=Z[k].r;flat(x,y,x+w,y+h,0.004,k==='blk'?0xF3D9B8:Z[k].col,k==='blk'?1:0.18);}
+flat(HUB[0],HUB[1],HUB[0]+HUB[2],HUB[1]+HUB[3],0.004,0xF3E4CF,1);
+// walls (2.6 m) with window on the left wall and two door openings in the front wall
+const WH=2.6,T=0.1;
+box(-T,0,0,H,0,WH,mats.wall);box(W,0,W+T,H,0,WH,mats.wall);box(-T,-T,W+T,0,0,WH,mats.wall);
+box(0,H,DOOR_F[0],H+T,0,WH,mats.wall);box(DOOR_F[1],H,DOOR_B[0],H+T,0,WH,mats.wall);box(DOOR_B[1],H,W,H+T,0,WH,mats.wall);
+box(DOOR_F[0],H,DOOR_F[1],H+T,2.1,WH,mats.wall);box(DOOR_B[0],H,DOOR_B[1],H+T,2.1,WH,mats.wall);
+const win=box(-T-0.01,0.6,0.01,2.5,0.9,2.0,new THREE.MeshLambertMaterial({color:0xBFE3F2}));
+// outside: shoe cabinets and sinks
+box(0.6,7.15,2.7,7.47,0,0.9,mats.out);box(7.4,7.15,9.5,7.47,0,0.9,mats.out);box(3.95,7.15,6.1,7.45,0,0.75,new THREE.MeshLambertMaterial({color:0xBFDCDF}));
+label('門外鞋櫃',1.65,1.15,7.3,'#5B7083',0.8);label('門外鞋櫃',8.45,1.15,7.3,'#5B7083',0.8);label('門外洗手台',5.02,1.05,7.3,'#007C89',0.8);
+// door signs and footprints
+label('前門・進來',3.25,2.35,7.0,'#1E9E5A',1);label('後門・出去',6.7,2.35,7.0,'#C2453A',1);
+function foot(x,z,col,flip){const g=new THREE.CircleGeometry(0.07,16),m=new THREE.Mesh(g,M(col));m.rotation.x=-Math.PI/2;m.scale.set(1,1.6,1);m.position.set(x,0.008,z);scene.add(m);}
+[[3.12,6.82],[3.38,6.55],[3.12,6.28],[3.12,7.4],[3.38,7.7]].forEach(([x,z])=>foot(x,z,0x1E9E5A));
+[[6.82,6.45],[6.58,6.75],[6.82,7.05],[6.58,7.4]].forEach(([x,z])=>foot(x,z,0xC2453A));
+// corridor ring (dashed)
+function dash(a,b){const L=Math.hypot(b[0]-a[0],b[1]-a[1]),n=Math.floor(L/0.25);for(let i=0;i<n;i+=2){const t0=i/n*L,t1=Math.min(L,(i+1)/n*L),ux=(b[0]-a[0])/L,uz=(b[1]-a[1])/L;
+  const m=new THREE.Mesh(new THREE.PlaneGeometry(0.06,t1-t0),M(0xE07A3F));m.rotation.x=-Math.PI/2;m.rotation.z=-Math.atan2(ux,-uz);m.position.set(a[0]+ux*(t0+t1)/2,0.009,a[1]+uz*(t0+t1)/2);scene.add(m);}}
+for(let i=0;i<RING.length-1;i++)dash(RING[i],RING[i+1]);SPURS.forEach(([a,b])=>dash(a,b));
+// furniture
+const OBS=[]; // collision boxes [x0,z0,x1,z1]
+function solidBox(x0,z0,x1,z1,h,mat){box(x0,z0,x1,z1,0,h,mat);OBS.push([x0,z0,x1,z1]);}
+for(const k in Z){const s=Z[k].shelf;solidBox(s[0],s[1],s[2],s[3],0.85,mats.shelf);
+  const [x,y,w,h]=Z[k].r;const lp={art:[2.0,2.55],math:[1.6,5.95],con:[5.15,2.6],lang:[8.35,2.4],blk:[8.35,4.0]}[k];label(Z[k].n,lp[0],1.55,lp[1],'#'+Z[k].col.toString(16).padStart(6,'0'),1);}
+label('中間低區',5,1.3,5.6,'#5B7083',0.9);
+for(const t of TABLES){const [x,y,w,h]=t.r;solidBox(x,y,x+w,y+h,0.52,mats.table);
+  t.ch.forEach(([cx,cz])=>{solidBox(cx-0.15,cz-0.15,cx+0.15,cz+0.15,0.3,mats.chair);box(cx-0.15,cz-0.15,cx+0.15,cz+0.15,0.3,0.55,mats.chair).scale.z=0.15;});}
+solidBox(BOARD[0],BOARD[1],BOARD[2],BOARD[3],1.2,new THREE.MeshLambertMaterial({color:0x007C89}));label('選區板',2.6,1.5,5.6,'#007C89',0.8);
+solidBox(4.75,6.82,5.5,6.98,0.7,mats.wood);solidBox(5.8,6.82,6.3,6.98,0.6,mats.wood);label('配膳台',5.12,1.0,6.9,'#5B7083',0.6);
+// block-area carpet bits and some blocks for life
+for(let i=0;i<14;i++){const c=[0xD9822B,0x3E7CC0,0xC25A8A,0x1E9E5A,0xE0C040][i%5];box(7.6+(i%5)*0.25,4.6+Math.floor(i/5)*0.35,7.75+(i%5)*0.25,4.7+Math.floor(i/5)*0.35,0,0.06+0.05*(i%3),M(c));}
+// other children (simple figures) — placed after choices
+const kidGroup=new THREE.Group();scene.add(kidGroup);
+function kid(x,z,col,sit){const g=new THREE.Group();const b=new THREE.Mesh(new THREE.CylinderGeometry(0.12,0.14,sit?0.45:0.7,12),M(col));b.position.y=sit?0.55:0.35;
+  const h=new THREE.Mesh(new THREE.SphereGeometry(0.12,14,10),M(0xF2D2B6));h.position.y=sit?0.92:0.84;g.add(b,h);g.position.set(x,0,z);kidGroup.add(g);}
+// player avatar (visible in top view)
+const me=new THREE.Group();const meBody=new THREE.Mesh(new THREE.CylinderGeometry(0.15,0.17,0.75,14),M(0xE07A3F));meBody.position.y=0.38;
+const meHead=new THREE.Mesh(new THREE.SphereGeometry(0.13,14,10),M(0xF2D2B6));meHead.position.y=0.9;
+const meChair=new THREE.Mesh(new THREE.TorusGeometry(0.28,0.04,8,24),M(0x333333));meChair.rotation.y=Math.PI/2;meChair.position.y=0.28;me.add(meBody,meHead,meChair);scene.add(me);
+
+// ---------- game state ----------
+const ZK=Object.keys(Z);
+let S={},keys={},yaw=0,pitch=-0.05,top=false,last=0;
+const isIn=(z,x,y)=>{const [a,b,w,h]=Z[z].r;return x>=a&&x<=a+w&&y>=b&&y<=b+h;};
+const zoneAt=(x,y)=>ZK.find(z=>isIn(z,x,y))||null;
+const inHub=(x,y)=>x>=HUB[0]&&x<=HUB[0]+HUB[2]&&y>=HUB[1]&&y<=HUB[1]+HUB[3];
+function shuffle(a){for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}
+function reset(){
+  const wc=document.getElementById('wc').checked;
+  S={wc,r:wc?0.36:0.18,speed:wc?0.9:1.25,eye:wc?0.85:0.95,x:3.25,y:8.0,stage:0,zone:null,wrong:0,cross:0,stuck:0,t0:performance.now(),played:0,inside:false,lastZone:null,lastZ:8.0};
+  yaw=0;pitch=-0.05;
+  // 19 classmates choose first (random), respecting each area's limit
+  const used={};ZK.forEach(z=>used[z]=0);while(kidGroup.children.length)kidGroup.remove(kidGroup.children[0]);
+  for(let i=0;i<19;i++){const open=ZK.filter(z=>used[z]<Z[z].cap);const z=open[Math.floor(Math.random()*open.length)];used[z]++;}
+  S.used=used;
+  const seats={};TABLES.forEach(t=>{const z=ZK.find(k=>isIn(k,t.r[0]+0.1,t.r[1]+0.1));if(z)(seats[z]=seats[z]||[]).push(...t.ch);});
+  seats.blk=[[7.5,4.4],[8.2,4.5],[8.8,4.9],[7.6,5.6],[8.4,5.9],[9.0,5.5]];
+  for(const z of ZK){const list=shuffle(seats[z].slice());for(let i=0;i<used[z];i++){const p=list[i];kid(p[0],p[1],Z[z].col,z!=='blk');}}
+  meChair.visible=wc;setTask();
+}
+const TASKS=['從綠色腳印的<b>前門</b>走進教室','走到藍色的<b>選區板</b>，插上姓名卡','走到你選的<b>{z}</b>（沿橘色虛線走道，不穿過別區）','走到<b>{z}的教具櫃</b>拿教具','收拾時間到！把教具<b>放回櫃子</b>（物歸原位）','到<b>中間低區</b>集合','從紅色腳印的<b>後門</b>出去'];
+const HINTS=['','靠近選區板後按「插卡選區」','','靠近櫃子後按「拿教具」','靠近櫃子後按「物歸原位」','走到中間淺色的區域',''];
+function setTask(){const zn=S.zone?Z[S.zone].n:'';document.getElementById('task').innerHTML=(S.stage+1)+' / 7　'+TASKS[S.stage].replace('{z}',zn)+(HINTS[S.stage]?'<small>'+HINTS[S.stage]+'</small>':'');}
+let toastT=0;function toast(msg,ok){const t=document.getElementById('toast');t.textContent=msg;t.className='toast'+(ok?' ok':'');t.style.display='block';toastT=performance.now()+2600;}
+
+// ---------- movement & collision ----------
+function blocked(x,y,r){
+  if(x<r||x>W-r||y<r||y>8.4-r)return true;
+  // front wall z=7 except the two doors
+  if(Math.abs(y-H)<r+0.05){const inF=x-r>=DOOR_F[0]&&x+r<=DOOR_F[1],inB=x-r>=DOOR_B[0]&&x+r<=DOOR_B[1];if(!inF&&!inB)return true;}
+  for(const o of OBS){const dx=Math.max(o[0]-x,0,x-o[2]),dy=Math.max(o[1]-y,0,y-o[3]);if(dx*dx+dy*dy<r*r)return true;}
+  if(y>7.12){for(const o of [[0.6,7.15,2.7,7.47],[7.4,7.15,9.5,7.47],[3.95,7.15,6.1,7.45]]){const dx=Math.max(o[0]-x,0,x-o[2]),dy=Math.max(o[1]-y,0,y-o[3]);if(dx*dx+dy*dy<r*r)return true;}}
+  return false;}
+let stuckFlag=false;
+function move(dt){
+  const f=(keys.f?1:0)-(keys.b?1:0),turn=(keys.r?1:0)-(keys.l?1:0);
+  yaw-=turn*dt*1.9;
+  if(!f){stuckFlag=false;return;}
+  const sp=S.speed*f*dt,dx=-Math.sin(yaw)*sp,dy=-Math.cos(yaw)*sp;
+  let nx=S.x+dx,ny=S.y+dy,moved=false;
+  if(!blocked(nx,ny,S.r)){S.x=nx;S.y=ny;moved=true;}
+  else if(!blocked(S.x+dx,S.y,S.r)){S.x+=dx;moved=true;}
+  else if(!blocked(S.x,S.y+dy,S.r)){S.y+=dy;moved=true;}
+  if(!moved){if(!stuckFlag&&S.wc&&!blocked(nx,ny,0.18)){S.stuck++;toast('輪椅過不去：這裡不到 70 公分寬');}stuckFlag=true;}else stuckFlag=false;
+  // doors: front = in, back = out
+  if(S.lastZ>7.0&&S.y<=7.0){if(S.x>5){S.wrong++;toast('走錯門：後門是出去的，請從前門進來');}}
+  if(S.lastZ<7.0&&S.y>=7.0){if(S.x<5){S.wrong++;toast('走錯門：前門只進不出，請從後門出去');}else if(S.stage===6)finish();}
+  S.lastZ=S.y;
+  // walking through another area
+  const z=zoneAt(S.x,S.y);
+  if(z!==S.lastZone){if(z&&S.stage>=2&&z!==S.zone){S.cross++;toast('你走進了'+Z[z].n+'，會打擾正在玩的同學');}S.lastZone=z;}
+}
+// ---------- stage logic & action buttons ----------
+const act=document.getElementById('act');
+function setAct(list){const key=list.map(a=>a[0]).join('|');if(act.dataset.k===key)return;act.dataset.k=key;act.innerHTML='';
+  list.forEach(([label,fn])=>{const b=document.createElement('button');b.type='button';b.className='btn acc';b.textContent=label;b.addEventListener('click',fn);act.appendChild(b);});}
+let actFn=null;
+function nearShelf(){const s=Z[S.zone].shelf,dx=Math.max(s[0]-S.x,0,S.x-s[2]),dy=Math.max(s[1]-S.y,0,S.y-s[3]);return Math.hypot(dx,dy)<S.r+0.55;}
+function logic(){
+  let a=[];
+  if(S.stage===0&&S.y<6.8){S.stage=1;setTask();}
+  if(S.stage===1&&Math.hypot(S.x-3.05,S.y-5.6)<0.9)a=[['插卡選區',openBoard]];
+  if(S.stage===2&&isIn(S.zone,S.x,S.y)){S.stage=3;setTask();toast('到了！',true);}
+  if(S.stage===3&&nearShelf())a=[['拿教具',openInfo]];
+  if(S.stage===4&&nearShelf())a=[['物歸原位',()=>{S.stage=5;setTask();toast('教具放回原位了',true);}]];
+  if(S.stage===5&&inHub(S.x,S.y)){S.stage=6;setTask();toast('集合完成，準備放學',true);}
+  actFn=a.length?a[0][1]:null;setAct(a);
+}
+function openBoard(){const zl=document.getElementById('zlist');zl.innerHTML='';
+  ZK.forEach(z=>{const left=Z[z].cap-S.used[z];const b=document.createElement('button');b.type='button';b.className='zbtn';b.disabled=left<=0;
+    b.style.borderColor='#'+Z[z].col.toString(16).padStart(6,'0');b.innerHTML='<b>'+Z[z].n+'</b><span>'+(left>0?'剩 '+left+' 個位置':'額滿了，請選別區或等待')+'</span>';
+    b.addEventListener('click',()=>{S.zone=z;S.used[z]++;S.stage=2;setTask();show('pBoard',false);toast('你選了'+Z[z].n,true);});zl.appendChild(b);});
+  show('pBoard',true);}
+function openInfo(){const z=Z[S.zone];document.getElementById('iTitle').textContent=z.n;
+  document.getElementById('iKv').innerHTML='<dt>區中區與材料</dt><dd>'+z.mat+'</dd><dt>難中易</dt><dd>'+z.lvl+'</dd><dt>核心素養</dt><dd>'+z.core+'</dd><dt>你做了什麼</dt><dd>'+z.play+'</dd>';show('pInfo',true);}
+document.getElementById('play').addEventListener('click',()=>{show('pInfo',false);S.stage=4;setTask();toast('玩得很開心！收拾時間到',true);});
+function finish(){const sec=Math.round((performance.now()-S.t0)/1000);
+  document.getElementById('eKv').innerHTML='<dt>選的學習區</dt><dd>'+Z[S.zone].n+'</dd><dt>用時</dt><dd>'+sec+' 秒</dd><dt>走錯門</dt><dd>'+S.wrong+' 次</dd><dt>穿越其他區</dt><dd>'+S.cross+' 次</dd>'+(S.wc?'<dt>輪椅過不去</dt><dd>'+S.stuck+' 次</dd>':'');
+  document.getElementById('eNote').textContent=(S.wrong||S.cross)?'沿著腳印和橘色虛線走，就不會走錯門或穿過別人的學習區。':(S.wc?'輪椅也能從前門進來、到學習區、再從後門出去：走道與迴轉空間夠寬，每個孩子都能自己選區。':'你照著動線走：前門進、後門出，沒有打擾到別人。');
+  S.stage=7;show('pEnd',true);}
+function show(id,on){document.getElementById(id).classList.toggle('on',on);}
+document.getElementById('go').addEventListener('click',()=>{reset();show('pStart',false);last=performance.now();});
+document.getElementById('again').addEventListener('click',()=>{show('pEnd',false);show('pStart',true);});
+
+// ---------- input ----------
+const KM={ArrowUp:'f',KeyW:'f',ArrowDown:'b',KeyS:'b',ArrowLeft:'l',KeyA:'l',ArrowRight:'r',KeyD:'r'};
+addEventListener('keydown',e=>{if(document.querySelector('.panel.on'))return;if(KM[e.code]){keys[KM[e.code]]=true;e.preventDefault();}if(e.code==='KeyE'&&actFn){actFn();e.preventDefault();}});
+addEventListener('keyup',e=>{if(KM[e.code])keys[KM[e.code]]=false;});
+addEventListener('blur',()=>{keys={};});
+document.querySelectorAll('#pad button').forEach(b=>{const k=b.dataset.k;
+  b.addEventListener('pointerdown',e=>{keys[k]=true;b.setPointerCapture(e.pointerId);e.preventDefault();});
+  ['pointerup','pointercancel','lostpointercapture'].forEach(ev=>b.addEventListener(ev,()=>{keys[k]=false;}));});
+let drag=null;
+cv.addEventListener('pointerdown',e=>{drag={x:e.clientX,y:e.clientY};cv.setPointerCapture(e.pointerId);});
+cv.addEventListener('pointermove',e=>{if(!drag)return;yaw-=(e.clientX-drag.x)*0.006;pitch=Math.max(-0.9,Math.min(0.6,pitch-(e.clientY-drag.y)*0.004));drag={x:e.clientX,y:e.clientY};});
+['pointerup','pointercancel'].forEach(ev=>cv.addEventListener(ev,()=>{drag=null;}));
+document.getElementById('viewBtn').addEventListener('click',e=>{top=!top;e.target.textContent=top?'第一人稱':'俯視';});
+
+// ---------- minimap ----------
+const mini=document.getElementById('mini'),mg=mini.getContext('2d');
+function drawMini(){const dpr=Math.min(2,devicePixelRatio||1),w=mini.clientWidth,h=mini.clientHeight;if(mini.width!==Math.round(w*dpr)){mini.width=Math.round(w*dpr);mini.height=Math.round(h*dpr);}
+  const s=Math.min(w/10.6,h/8.8)*dpr,ox=0.3*s,oy=0.2*s;mg.clearRect(0,0,mini.width,mini.height);
+  const X=x=>ox+x*s,Y=y=>oy+y*s;
+  mg.fillStyle='#F4F8F8';mg.fillRect(X(0),Y(0),10*s,7*s);
+  for(const k in Z){const [x,y,w2,h2]=Z[k].r;mg.fillStyle='#'+Z[k].col.toString(16).padStart(6,'0');mg.globalAlpha=k===S.zone?0.55:0.22;mg.fillRect(X(x),Y(y),w2*s,h2*s);}
+  mg.globalAlpha=1;mg.fillStyle='#F3E4CF';mg.fillRect(X(HUB[0]),Y(HUB[1]),HUB[2]*s,HUB[3]*s);
+  mg.fillStyle='#9DBDBD';OBS.forEach(o=>mg.fillRect(X(o[0]),Y(o[1]),(o[2]-o[0])*s,(o[3]-o[1])*s));
+  mg.strokeStyle='#E07A3F';mg.setLineDash([3*dpr,3*dpr]);mg.lineWidth=1.5*dpr;mg.beginPath();RING.forEach((p,i)=>i?mg.lineTo(X(p[0]),Y(p[1])):mg.moveTo(X(p[0]),Y(p[1])));mg.stroke();mg.setLineDash([]);
+  mg.strokeStyle='#8FB3B3';mg.lineWidth=2*dpr;mg.beginPath();mg.moveTo(X(DOOR_F[0]),Y(7));mg.lineTo(X(0),Y(7));mg.lineTo(X(0),Y(0));mg.lineTo(X(10),Y(0));mg.lineTo(X(10),Y(7));mg.lineTo(X(DOOR_B[1]),Y(7));mg.moveTo(X(DOOR_F[1]),Y(7));mg.lineTo(X(DOOR_B[0]),Y(7));mg.stroke();
+  mg.fillStyle='#1E9E5A';mg.fillRect(X(DOOR_F[0]),Y(6.95),(DOOR_F[1]-DOOR_F[0])*s,3*dpr);mg.fillStyle='#C2453A';mg.fillRect(X(DOOR_B[0]),Y(6.95),(DOOR_B[1]-DOOR_B[0])*s,3*dpr);
+  if(S.x!==undefined){mg.fillStyle='#E07A3F';mg.beginPath();mg.arc(X(S.x),Y(S.y),4*dpr,0,7);mg.fill();
+    mg.strokeStyle='#1B3A5C';mg.lineWidth=2*dpr;mg.beginPath();mg.moveTo(X(S.x),Y(S.y));mg.lineTo(X(S.x-Math.sin(yaw)*0.6),Y(S.y-Math.cos(yaw)*0.6));mg.stroke();}}
+
+// ---------- loop ----------
+function resize(){const r=stage.getBoundingClientRect();renderer.setSize(r.width,r.height,false);cam.aspect=r.width/r.height;cam.updateProjectionMatrix();}
+addEventListener('resize',resize);
+function frame(ts){requestAnimationFrame(frame);
+  const dt=Math.min(0.05,(ts-last)/1000||0);last=ts;
+  if(S.x!==undefined&&S.stage<7&&!document.querySelector('.panel.on')){move(dt);logic();}
+  if(S.x!==undefined){me.position.set(S.x,0,S.y);me.rotation.y=yaw;me.visible=top;
+    if(top){cam.position.set(5,10.5,10.2);cam.lookAt(5,0,3.9);}
+    else{cam.position.set(S.x,S.eye,S.y);const d=new THREE.Vector3(-Math.sin(yaw)*Math.cos(pitch),Math.sin(pitch),-Math.cos(yaw)*Math.cos(pitch));cam.lookAt(cam.position.clone().add(d));}}
+  else{cam.position.set(5,10.5,10.2);cam.lookAt(5,0,3.9);}
+  if(toastT&&ts>toastT){document.getElementById('toast').style.display='none';toastT=0;}
+  renderer.render(scene,cam);drawMini();}
+resize();S={};requestAnimationFrame(frame);
+if(document.fonts&&document.fonts.ready)document.fonts.ready.then(()=>{});
+})();
+</script>
+</body>
+</html>
