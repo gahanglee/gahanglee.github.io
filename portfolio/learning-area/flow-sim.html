@@ -201,12 +201,14 @@ const SINKS=[4.15,4.5,4.85,5.2,5.55,5.9].map(x=>[x,7.62]);
 const SEATS=TABLES.flatMap(t=>t.ch.map(p=>({zone:t.zone,p})));
 const pick=a=>a[Math.floor(Math.random()*a.length)];
 let ASSIGN=[],HUBMAP=[],SEATMAP=[],MOVES=[],MOVEDEST=[];
+// meal seats are fixed: each child always eats at the same seat, whichever area they chose (no meals at the listening table)
+const FIXSEAT=(()=>{const m=SEATS.filter(x=>x.zone!=='lang');for(let i=m.length-1;i>0;i--){const j=Math.floor(R()*(i+1));[m[i],m[j]]=[m[j],m[i]];}return m.slice(0,20);})();
 function choose(){
   const occ={};for(const z in plan)occ[z]=new Set();ASSIGN=[];
   for(let i=0;i<20;i++){const z=pick(Object.keys(plan).filter(q=>occ[q].size<CAP[q]));const sp=pick(zoneSpots[z].filter(p=>!occ[z].has(p)));occ[z].add(sp);ASSIGN.push({zone:z,spot:sp});}
   const idx=ASSIGN.map((a,i)=>i).sort((p,q)=>Z[ASSIGN[p].zone].shelf[0]-Z[ASSIGN[q].zone].shelf[0]||Z[ASSIGN[p].zone].shelf[1]-Z[ASSIGN[q].zone].shelf[1]);
   const hs=hubSpots.slice().sort((p,q)=>p[0]-q[0]||p[1]-q[1]);HUBMAP=[];idx.forEach((k,j)=>HUBMAP[k]=hs[j]);
-  const free=SEATS.slice();SEATMAP=[];ASSIGN.forEach((a,i)=>{let bi=0;free.forEach((st,j)=>{if(d2(st.p,a.spot)<d2(free[bi].p,a.spot))bi=j;});SEATMAP[i]=free.splice(bi,1)[0];});
+  SEATMAP=FIXSEAT;
   // area time: 6 children change their mind and move to another area that still has room
   const kids=ASSIGN.map((a,i)=>i);for(let i=kids.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[kids[i],kids[j]]=[kids[j],kids[i]];}
   MOVES=[];MOVEDEST=[];
@@ -219,7 +221,7 @@ const SCEN=[
  {d:'學習區時間中，6 位幼兒要換區：先回選區板換姓名卡，再走到新的學習區。其他幼兒留在原區。'},
  {d:'收拾時間：每位幼兒先把教具放回自己那一區的櫃子，再到中間低區集合。'},
  {d:'集合後放學：幼兒從中間低區依序走後門出去，到門外鞋櫃換鞋；前門只進不出，不會交錯。'},
- {d:'午餐：從學習區走後門出去洗手 → 前門進來到配膳台取餐 → 入座吃飯 → 餐具送回收區 → 再走後門出去漱口刷牙 → 前門進來回座位。座位在中間低區與數學、美勞、組合建構區的桌子。'},
+ {d:'午餐：從學習區走後門出去洗手 → 前門進來到配膳台取餐 → 入座吃飯 → 餐具送回收區 → 再走後門出去漱口刷牙 → 前門進來回座位。每位幼兒有固定的用餐座位，在中間低區與數學、美勞、組合建構區的桌子。'},
  {d:'點心：走後門出去洗手 → 前門進來到配膳台拿點心 → 入座 → 吃完送回收區 → 回到原本的學習區。'}
 ];
 
