@@ -119,7 +119,7 @@ label.chk{display:flex;align-items:center;gap:8px;font-size:15px;cursor:pointer}
     </div></div>
   </div>
 
-  <p class="note">教室以 10 × 7 公尺示意，配置與動線模擬相同。人物模型取自 Kenney「Mini Characters」（CC0 授權，kenney.nl），並改成淺藍色園服；身形依 3–5 歲幼兒比例重新調整（身高約 103 公分，頭約為身高 1/5，腿約 43%，手臂約 40%，手約 11%），老師約 160 公分（B403 實際尺寸待量測）。前後門在同一面牆：前門貼綠色腳印、掛「進來」圖卡，後門貼紅色腳印、掛「出去」圖卡；橘色虛線是環狀主走道。示意圖的門寬放寬為 90 公分，實際門寬需量測（無障礙規範 205.2.3：門框間距至少 90 公分）。</p>
+  <p class="note">教室以 10 × 7 公尺示意，配置與動線模擬相同。人物模型取自 Kenney「Mini Characters」（CC0 授權，kenney.nl），並改成淺藍色園服；身形調整為約 3 頭身的 Q 版幼兒（身高約 103 公分），老師約 160 公分（B403 實際尺寸待量測）。前後門在同一面牆：前門貼綠色腳印、掛「進來」圖卡，後門貼紅色腳印、掛「出去」圖卡；橘色虛線是環狀主走道。示意圖的門寬放寬為 90 公分，實際門寬需量測（無障礙規範 205.2.3：門框間距至少 90 公分）。</p>
 </div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
@@ -248,7 +248,7 @@ const KDIR='/portfolio/learning-area/assets/kenney-mini/';
 const KIDS=['female-b','female-c','female-d','female-e','female-f','male-a','male-d','male-e','male-f']; // child faces only
 const KS=1.43,TS=2.2; // child ≈ 1.03 m (4-year-old median), teacher ≈ 1.6 m
 // Re-proportion a Kenney mini character (rest height 0.722) to child or adult body ratios.
-// Child (3–5 y, Taiwan uses the WHO growth standard: about 103 cm at 4 y): head about 1/5 of height, legs about 43 %, arms about 40 %, hands about 11 %.
+// Child: Q-style about 3 heads tall at the height of a 4-year-old (about 103 cm, WHO growth standard used in Taiwan).
 // Mesh vertices and bone pivots are moved in the bind pose, the skeleton is re-bound, and position tracks of the clips are rescaled to match.
 // p: {leg, torsoY, torsoX, torsoZ, limb, armL, head}
 function reproportion(root,clips,p){
@@ -284,7 +284,7 @@ function reproportion(root,clips,p){
     let f=[1,1,1];if(rest0[n]){const a=rest0[n],b=newT[n];f=[Math.abs(a.x)>1e-6?b.x/a.x:1,Math.abs(a.y)>1e-6?b.y/a.y:1,Math.abs(a.z)>1e-6?b.z/a.z:1];}
     else if(n==='root')f=[1,p.leg,1];
     for(let i=0;i<t.values.length;i+=3){t.values[i]*=f[0];t.values[i+1]*=f[1];t.values[i+2]*=f[2];}});return cc;});};
-const CHILD={leg:1.76,torsoY:1.58,torsoX:0.55,torsoZ:0.7,limb:0.6,armL:1.0,head:0.387,hand:0.62};
+const CHILD={leg:1.31,torsoY:1.5,torsoX:0.62,torsoZ:0.75,limb:0.7,armL:0.95,head:0.63,hand:0.7}; // Q-style, about 3 heads tall
 const ADULT={leg:2.0,torsoY:1.53,torsoX:0.62,torsoZ:0.72,limb:0.62,armL:1.15,head:0.3,hand:0.62};
 const MODELS={};let WHEEL=null,peopleReady=false;
 // clothing vertices are remapped to the light-blue cell (top) and the blue cell (bottom); skin (taken from the hands), hair, face and shoes stay
@@ -306,7 +306,7 @@ function loadPeople(done){const L=new THREE.GLTFLoader();let left=KIDS.length+1;
 // one character instance with its own animation mixer
 function character(name,opt){const M0=MODELS[name];const o=THREE.SkeletonUtils.clone(opt.plain?M0.plain:M0.uni);const g=new THREE.Group();
   o.scale.setScalar(opt.scale||KS);g.add(o);
-  if(opt.wheel&&WHEEL){const w=WHEEL.clone();w.scale.setScalar(opt.scale||KS);g.add(w);o.position.y=0.12;} // the longer legs need a slightly higher seat in the chair
+  if(opt.wheel&&WHEEL){const w=WHEEL.clone();w.scale.setScalar(opt.scale||KS);g.add(w);o.position.y=0.06;} // the longer legs need a slightly higher seat in the chair
   const mixer=new THREE.AnimationMixer(o),acts={};(opt.plain?M0.clipsP:M0.clipsU).forEach(c=>acts[c.name]=mixer.clipAction(c));
   let head=null;const arms=[];o.traverse(b=>{if(b.isBone&&b.name==='head')head=b;if(b.isBone&&/^arm/.test(b.name))arms.push(b);});
   const u={mixer,acts,head,arms,a0:arms.map(a=>a.quaternion.clone()),h0:head?head.quaternion.clone():null,cur:null,ph:Math.random()*6.28,pose:opt.pose,talk:0};g.userData=u;
@@ -318,7 +318,7 @@ function animate(u,tt,dt,walk){if(!u||!u.mixer)return;
   if(u.pose==='wheel-me')play(u,walk>0.1?'wheelchair-move-forward':'wheelchair-sit',0.2);
   if(u.head)u.head.quaternion.copy(u.h0);u.arms.forEach((a,i)=>a.quaternion.copy(u.a0[i])); // back to rest before the clip (or our offset) is applied, so offsets never pile up
   u.mixer.update(dt);
-  const drop=u.pose==='sit'||u.pose==='wheel'||u.pose==='wheel-me'?0.5:0.9; // the clips were made for short arms: let the longer arms hang down / rest on the table
+  const drop=u.pose==='sit'||u.pose==='wheel'||u.pose==='wheel-me'?0.4:0.7; // the clips were made for short arms: let the longer arms hang down / rest on the table
   u.arms.forEach(a=>{a.rotation.z+=a.name==='arm-left'?-drop:drop;});
   if(u.head&&(u.pose==='sit'||u.pose==='wheel')){const talk=Math.sin(tt*0.35+u.ph)>0.7;u.talk+=((talk?(Math.sin(u.ph*3)>0?0.6:-0.6):Math.sin(tt*0.6+u.ph)*0.15)-u.talk)*Math.min(1,dt*3);u.head.rotation.y+=u.talk;u.head.rotation.x+=talk?0:0.06;}}
 const kidGroup=new THREE.Group();scene.add(kidGroup);
