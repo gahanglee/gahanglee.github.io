@@ -67,7 +67,7 @@ canvas{width:100%;max-width:100%;display:block;border-radius:8px;aspect-ratio:10
   <header>
     <p style="margin:0 0 8px"><a href="/portfolio/learning-area/" style="color:var(--accent);font-size:14px">← 回到幼兒學習環境設計實作</a></p>
     <h1>學習區動線模擬</h1>
-    <p class="lead">20 個圓點代表大中混齡班的幼兒。左邊照動線規劃走：前門進、先到選區板插卡，再沿環狀走道進區，離開走後門；右邊是沒有規劃、直線亂走的情況。</p>
+    <p class="lead">20 個圓點代表大中混齡班的幼兒。左邊照動線規劃走：前門進、往前到選區板插卡，再沿環狀走道進區，離開走後門；右邊是沒有規劃、直線亂走的情況。</p>
   </header>
 
   <div class="bar">
@@ -93,6 +93,7 @@ canvas{width:100%;max-width:100%;display:block;border-radius:8px;aspect-ratio:10
       </div>
     </div>
     <label class="chk"><input type="checkbox" id="trail" checked> 顯示軌跡</label>
+    <label class="chk"><input type="checkbox" id="avoid" checked> 互相閃避</label>
   </div>
   <p class="desc" id="sdesc"></p>
 
@@ -119,7 +120,7 @@ canvas{width:100%;max-width:100%;display:block;border-radius:8px;aspect-ratio:10
     <span><i style="background:var(--go)"></i>前門綠腳印：進來</span>
     <span><i style="background:var(--bad)"></i>後門紅腳印：出去</span>
   </div>
-  <p class="note">教室以 10 × 7 公尺示意（B403 實際尺寸待量測），配置依簡報「規劃模擬教室」平面圖：後排美勞、組合建構、語文；前排數學、中間低區、積木，前後門在同一面牆，門外是鞋櫃：前門在數學區與中間低區之間（進來），後門在中間低區與積木區之間（出去）；門口地上貼腳印、門上掛「進來」「出去」圖卡。幼兒步行約每秒 0.8 公尺，在選區板停 2 秒插姓名卡。這是簡化模擬，沒有模擬幼兒互相閃避，只比較路線本身。「穿越其他區」不計中間低區，因為它本來就是動線樞紐。桌椅依人數上限配置（每張桌子 4 張椅子）：美勞區 2 張併桌、數學、組合建構、語文（視聽桌）各 1 張、中間低區 2 張；積木區是地毯，不放桌子。學習時間幼兒坐在椅子上；規劃後的路線會繞開桌椅，「擠過桌椅」是從別人的桌椅之間穿過的次數。午餐、點心：洗手台在門外走廊、兩門之間；配膳台與回收區在教室內靠前牆，規劃後一律後門出、前門進，形成單向循環。「走錯門」是從前門出去或從後門進來的次數。</p>
+  <p class="note">教室以 10 × 7 公尺示意（B403 實際尺寸待量測），配置依簡報「規劃模擬教室」平面圖：後排美勞、組合建構、語文；前排數學、中間低區、積木，前後門在同一面牆，門外是鞋櫃：前門在數學區與中間低區之間（進來），後門在中間低區與積木區之間（出去）；門口地上貼腳印、門上掛「進來」「出去」圖卡。幼兒步行約每秒 0.8 公尺，在選區板停 2 秒插姓名卡。幼兒會互相閃避：前面有人同方向走就放慢跟著走，迎面或交錯時放慢並往右側讓開；「閃避讓路」是兩位幼兒迎面或交錯、需要讓路的次數（排隊跟著走、在學習區內走動不算）。「穿越其他區」不計中間低區，因為它本來就是動線樞紐。桌椅依人數上限配置（每張桌子 4 張椅子）：美勞區 2 張併桌、數學、組合建構、語文（視聽桌）各 1 張、中間低區 2 張；積木區是地毯，不放桌子。學習時間幼兒坐在椅子上；規劃後的路線會繞開桌椅，「擠過桌椅」是從別人的桌椅之間穿過的次數。午餐、點心：洗手台在門外走廊、兩門之間；配膳台與回收區在教室內靠前牆，規劃後一律後門出、前門進，形成單向循環。「走錯門」是從前門出去或從後門進來的次數。</p>
 </div>
 
 <script>
@@ -165,9 +166,9 @@ function clearPath(a,b){if(segClear(a,b))return [b];
   cells[cells.length-1]=b;const out=[];let from=a,i=0;
   while(i<cells.length){let j=cells.length-1;while(j>i&&!segClear(from,cells[j]))j--;out.push(cells[j]);from=cells[j];i=j+1;}
   return out;}
-const N={E:[3.25,6.95],BD:[6.7,6.95],S:[4.2,6.55],B:[5.0,6.4],BL:[3.25,6.4],BR:[6.7,6.4],HC:[5.0,4.75],HT:[5.0,3.2],L:[3.25,3.2],R:[6.7,3.2],TL:[1.6,3.2],TR:[8.35,3.2],
-  dArt:[1.6,2.75],dMath:[1.6,3.65],dCon:[5.15,2.75],ML:[3.25,4.75],MR:[6.7,4.75],BX:[6.7,7.65],OE:[3.25,7.65],SV:[5.1,6.55],RC:[6.05,6.55],dLang:[8.35,2.75],dBlk:[8.35,3.65]};
-const EDGES=[['E','S'],['BR','BD'],['BD','BX'],['S','B'],['L','ML'],['ML','BL'],['R','MR'],['MR','BR'],['B','BL'],['B','BR'],['L','HT'],['HT','R'],['L','TL'],['R','TR'],['TL','dArt'],['TL','dMath'],['HT','dCon'],['B','SV'],['SV','RC'],['RC','BR'],['TR','dLang'],['TR','dBlk']];
+const N={E:[3.25,6.95],BD:[6.7,6.95],S:[3.25,5.6],B:[5.0,6.4],BL:[3.25,6.4],BR:[6.7,6.4],HC:[5.0,4.75],HT:[5.0,3.2],L:[3.25,3.2],R:[6.7,3.2],TL:[1.6,3.2],TR:[8.35,3.2],
+  dArt:[1.6,2.75],dMath:[2.85,3.95],LM:[3.25,3.95],RM:[6.7,3.95],dCon:[5.15,2.75],ML:[3.25,4.75],MR:[6.7,4.75],BX:[6.7,7.65],OE:[3.25,7.65],SV:[5.1,6.55],RC:[6.05,6.55],dLang:[8.35,2.75],dBlk:[7.05,3.95]};
+const EDGES=[['E','BL'],['BL','S'],['S','ML'],['BR','BD'],['BD','BX'],['L','LM'],['LM','ML'],['LM','dMath'],['R','RM'],['RM','MR'],['RM','dBlk'],['MR','BR'],['B','BL'],['B','BR'],['L','HT'],['HT','R'],['L','TL'],['R','TR'],['TL','dArt'],['HT','dCon'],['B','SV'],['SV','RC'],['RC','BR'],['TR','dLang']];
 const adj={};for(const k in N)adj[k]=[];
 const d2=(a,b)=>Math.hypot(a[0]-b[0],a[1]-b[1]);
 EDGES.forEach(([a,b])=>{const w=d2(N[a],N[b]);adj[a].push([b,w]);adj[b].push([a,w]);});
@@ -205,7 +206,7 @@ const MOVEDEST=[];
     occ[s].delete(ASSIGN[idx].spot);const free=zoneSpots[dst[k]].find(p=>!occ[dst[k]].has(p));occ[dst[k]].add(free);MOVEDEST[k]=free;});})();
 
 const SCEN=[
- {d:'幼兒每隔約 1.5 秒進門，在門外鞋櫃換好鞋，從前門進來，先到門旁的選區板插姓名卡，再走到自己選的學習區。'},
+ {d:'幼兒每隔約 1.5 秒進門，在門外鞋櫃換好鞋，從前門進來，往前走到走道旁的選區板插姓名卡，再走到自己選的學習區。'},
  {d:'學習區時間中，6 位幼兒要換區：先回選區板換姓名卡，再走到新的學習區。其他幼兒留在原區。'},
  {d:'收拾時間：每位幼兒先把教具放回自己那一區的櫃子，再到中間低區集合。'},
  {d:'集合後放學：幼兒從中間低區依序走後門出去，到門外鞋櫃換鞋；前門只進不出，不會交錯。'},
@@ -254,7 +255,7 @@ function buildKids(s,planned){
         k.wp=[...legPts(here,LOC_S,planned).map((p,j,arr)=>({p,pause:j===arr.length-1?2:0})),
               ...legPts(LOC_S,{zone:nz,p:ns},planned).map(p=>({p,pause:0}))];}}
     else if(s===3){k.pos=HUBMAP[i].slice();k.t0=i*0.7;k.allowed=new Set(['hub']);k.out=true;
-      k.wp=legPts({zone:'hub',p:HUBMAP[i]},{node:'BX',p:N.BX},planned).map(p=>({p,pause:0}));}
+      k.wp=(planned?[...clearPath(HUBMAP[i],[6.45,6.15]),N.BD,N.BX]:legPts({zone:'hub',p:HUBMAP[i]},{node:'BX',p:N.BX},false)).map(p=>({p,pause:0}));}
     else if(s===4||s===5){const st=SEATMAP[i];k.pos=a.spot.slice();k.t0=i*(s===4?0.9:0.6);k.allowed=new Set([a.zone,st.zone,'hub']);
       const start={zone:a.zone,p:a.spot},sink={out:true,p:SINKS[i%SINKS.length]},sv={node:'SV',p:N.SV},rc={node:'RC',p:N.RC},seat={zone:st.zone,p:st.p};
       const steps=s===4?[[sink,4],[sv,2.5],[seat,18],[rc,2],[sink,6],[seat,0]]:[[sink,4],[sv,2],[seat,8],[rc,2],[start,0]];
@@ -274,23 +275,33 @@ Sim.prototype.reset=function(s){this.kids=buildKids(s,this.planned);this.t=0;thi
   this.kids.forEach(k=>{k.cur=zoneAt(k.pos);k.home=k.pos.slice();k.cf=footAt(k.pos);k.hz=k.cf>=0?TABLES[k.cf].zone:null;k.trail=[k.pos.slice()];});this.renderStats();};
 Sim.prototype.step=function(dt){
   this.t+=dt;const V=0.8;
+  // local avoidance: slow behind someone going the same way, step to the right around anyone else
+  const act=this.kids.filter(k=>!k.done&&this.t>=k.t0&&k.wp.length);
+  for(const k of act){k.sf=1;k.lat=[0,0];if(!avoidOn||k.wait>0)continue;
+    const w=k.wp[0].p,dx=w[0]-k.pos[0],dy=w[1]-k.pos[1],L=Math.hypot(dx,dy)||1,v=[dx/L,dy/L];const goal=(k.wp.find(q=>q.pause)||k.wp[k.wp.length-1]).p;
+    for(const o of act){if(o===k||o.pos[1]>7.25&&this.t<o.t0)continue;const ox=o.pos[0]-k.pos[0],oy=o.pos[1]-k.pos[1],d=Math.hypot(ox,oy);
+      if(d>0.55||d<1e-6)continue;const ahead=(ox*v[0]+oy*v[1])/d;if(ahead<0.5)continue;
+      if(o.wait>0&&d2(o.pos,goal)<0.6)continue;
+      const key=Math.min(k.i,o.i)+'-'+Math.max(k.i,o.i);let yielded=false;
+      if(o.wait>0||(o.v&&o.v[0]*v[0]+o.v[1]*v[1]>0)){if(d<0.5){k.sf=Math.min(k.sf,Math.max(0.15,(d-0.28)/0.22));}}
+      else{k.sf=Math.min(k.sf,0.55);const side=[k.pos[0]-v[1]*0.3,k.pos[1]+v[0]*0.3],sz=zoneAt(side);if(Math.abs(k.pos[1]-7)>0.45&&(!sz||k.allowed.has(sz))&&footAt(side)<0){k.lat[0]+=-v[1]*0.35;k.lat[1]+=v[0]*0.35;}yielded=true;}
+      if(yielded&&!zoneAt(k.pos)&&!this.near.has(key)){this.near.add(key);this.enc++;}}
+  }
+  for(const key of [...this.near]){const [a,b]=key.split('-').map(Number);if(d2(this.kids[a].pos,this.kids[b].pos)>0.9)this.near.delete(key);}
   for(const k of this.kids){if(k.done||this.t<k.t0)continue;
     if(!k.wp.length){k.done=true;continue;}
     if(k.wait>0){k.wait-=dt;continue;}
-    let rem=V*dt;
+    if(k.lat&&(k.lat[0]||k.lat[1])){k.pos[0]+=k.lat[0]*dt;k.pos[1]+=k.lat[1]*dt;}
+    let rem=V*dt*(k.sf||1);
     while(rem>0&&k.wp.length){const w=k.wp[0];const dx=w.p[0]-k.pos[0],dy=w.p[1]-k.pos[1],L=Math.hypot(dx,dy);
       if(L<=rem){k.pos=w.p.slice();rem-=L;k.wp.shift();if(w.pause){k.wait=w.pause;k.stop=w.p;break;}}
       else{k.pos[0]+=dx/L*rem;k.pos[1]+=dy/L*rem;rem=0;}
       if(L>0)k.v=[dx/L,dy/L];}
-    k.dist=(k.dist||0)+V*dt-rem;
+    k.dist=(k.dist||0)+V*dt*(k.sf||1)-rem;
     const last=k.trail[k.trail.length-1];if(d2(last,k.pos)>0.08&&k.trail.length<900)k.trail.push(k.pos.slice());
     if(k.py!==undefined){if(k.py<7&&k.pos[1]>=7&&k.pos[0]<5)k.wrong=(k.wrong||0)+1;if(k.py>7&&k.pos[1]<=7&&k.pos[0]>5)k.wrong=(k.wrong||0)+1;}k.py=k.pos[1];
     const f=footAt(k.pos);if(f!==k.cf){if(f>=0){const t=TABLES[f];const nx=(k.wp.find(w=>w.pause)||k.wp[k.wp.length-1]);const ok=t.zone===k.hz||TABLES.some(t2=>t2.zone===t.zone&&((nx&&inF(t2,nx.p))||inF(t2,k.stop||k.home)));if(!ok)k.bump=(k.bump||0)+1;}k.cf=f;}
     const z=zoneAt(k.pos);if(z!==k.cur){if(z&&!k.allowed.has(z)){k.cross++;if(z==='blk')k.blk++;}k.cur=z;}}
-  const mv=this.kids.filter(k=>!k.done&&this.t>=k.t0&&k.wp.length&&k.wait<=0);
-  for(let a=0;a<mv.length;a++)for(let b=a+1;b<mv.length;b++){const key=mv[a].i+'-'+mv[b].i,d=d2(mv[a].pos,mv[b].pos);
-    const va=mv[a].v,vb=mv[b].v,head=va&&vb&&(va[0]*vb[0]+va[1]*vb[1])<-0.3;
-    if(d<0.35&&head&&!zoneAt(mv[a].pos)&&!zoneAt(mv[b].pos)&&!this.near.has(key)){this.near.add(key);this.enc++;}else if(d>0.7)this.near.delete(key);}
   if(this.finish===null&&this.kids.every(k=>k.done||(!k.wp.length&&k.wait<=0)))this.finish=this.t;
 };
 Sim.prototype.renderStats=function(){
@@ -299,7 +310,7 @@ Sim.prototype.renderStats=function(){
   const wr=this.kids.reduce((s,k)=>s+(k.wrong||0),0),bp=this.kids.reduce((s,k)=>s+(k.bump||0),0);
   const tm=this.finish!==null?Math.round(this.finish)+' 秒':'—';
   const html=`<div class="stat${cross?' warn':''}"><b>${cross}</b><span>穿越其他區（次）</span></div>
-  <div class="stat${blk?' warn':''}"><b>${blk}</b><span>踩過積木區（次）</span></div>
+  <div class="stat"><b>${this.enc}</b><span>閃避讓路（次）</span></div>
   <div class="stat${bp?' warn':''}"><b>${bp}</b><span>擠過桌椅（次）</span></div>
   <div class="stat${wr?' warn':''}"><b>${wr}</b><span>走錯門（次）</span></div>
   <div class="stat"><b>${avg}</b><span>平均每人走（公尺）</span></div>
@@ -364,11 +375,11 @@ Sim.prototype.draw=function(showTrail){
   c.fillStyle=C['--muted'];c.font=`${fs*0.8}px ${C['--body']}`;
   c.font=`${fs*0.7}px ${C['--body']}`;c.fillText('窗',X(-0.14),Y(1.55));
   // sign-in board
-  c.fillStyle=C['--accent'];c.fillRect(X(3.7),Y(6.82),0.9*s,0.16*s);c.fillStyle=C['--fg'];c.font=`700 ${fs*0.66}px ${C['--body']}`;c.fillStyle=C['--muted'];c.fillText('選區板',X(4.15),Y(6.7));
+  c.fillStyle=C['--accent'];c.fillRect(X(2.93),Y(5.2),0.13*s,0.8*s);c.fillStyle=C['--fg'];c.font=`700 ${fs*0.66}px ${C['--body']}`;c.fillStyle=C['--muted'];c.fillText('選區板',X(2.55),Y(6.08));
   // planned corridor
   if(this.planned){c.strokeStyle=C['--route'];c.globalAlpha=0.55;c.lineWidth=Math.max(1.5,s*0.04);c.setLineDash([s*0.14,s*0.1]);
     const ring=['L','HT','R','BR','B','BL','L'];c.beginPath();ring.forEach((id,i)=>{const p=N[id];i?c.lineTo(X(p[0]),Y(p[1])):c.moveTo(X(p[0]),Y(p[1]));});c.stroke();
-    [['L','TL'],['R','TR'],['B','E']].forEach(([a,b])=>{c.beginPath();c.moveTo(X(N[a][0]),Y(N[a][1]));c.lineTo(X(N[b][0]),Y(N[b][1]));c.stroke();});
+    [['L','TL'],['R','TR'],['BL','E']].forEach(([a,b])=>{c.beginPath();c.moveTo(X(N[a][0]),Y(N[a][1]));c.lineTo(X(N[b][0]),Y(N[b][1]));c.stroke();});
     c.setLineDash([]);c.globalAlpha=1;}
   // trails
   if(showTrail)for(const k of this.kids){if(k.trail.length<2)continue;c.strokeStyle=C[Z[k.color].tk];c.globalAlpha=0.35;c.lineWidth=Math.max(1,s*0.035);c.lineJoin='round';
@@ -380,6 +391,7 @@ Sim.prototype.draw=function(showTrail){
     if(k.wait>0){c.strokeStyle=C['--route'];c.lineWidth=Math.max(1,s*0.03);c.beginPath();c.arc(X(k.pos[0]),Y(k.pos[1]),r*1.7,0,Math.PI*2);c.stroke();}}
 };
 
+let avoidOn=true;
 const sims=[new Sim(cv0,st0,true),new Sim(cv1,st1,false)];
 let scen=0,speed=3,playing=false,last=0;
 const playBtn=document.getElementById('play'),trailCb=document.getElementById('trail'),sdesc=document.getElementById('sdesc');
@@ -396,6 +408,7 @@ document.getElementById('reset').addEventListener('click',()=>{setPlaying(false)
 document.querySelectorAll('#scen button').forEach(b=>b.addEventListener('click',()=>{const was=playing;setPlaying(false);setScen(+b.dataset.s);if(was||!reduce)setPlaying(true);}));
 document.querySelectorAll('#spd button').forEach(b=>b.addEventListener('click',()=>{speed=+b.dataset.v;document.querySelectorAll('#spd button').forEach(x=>x.setAttribute('aria-pressed',String(x===b)));}));
 trailCb.addEventListener('change',drawAll);
+document.getElementById('avoid').addEventListener('change',e=>{avoidOn=e.target.checked;const was=playing;setPlaying(false);setScen(scen);if(was)setPlaying(true);});
 function resize(){sims.forEach(m=>m.size());drawAll();}
 window.addEventListener('resize',resize);
 const mq=matchMedia('(prefers-color-scheme: dark)');const retheme=()=>{readTokens();drawAll();};
