@@ -67,7 +67,7 @@ canvas{width:100%;max-width:100%;display:block;border-radius:8px;aspect-ratio:10
   <header>
     <p style="margin:0 0 8px"><a href="/portfolio/learning-area/" style="color:var(--accent);font-size:14px">← 回到幼兒學習環境設計實作</a></p>
     <h1>學習區動線模擬</h1>
-    <p class="lead">20 個圓點代表大中混齡班的幼兒。左邊照動線規劃走：前門進、往前到選區板插卡，再沿環狀走道進區，離開走後門；右邊是沒有規劃、直線亂走的情況。</p>
+    <p class="lead">20 個圓點代表大中混齡班的幼兒。左邊照動線規劃走：前門進、往前到選區板插卡，再沿環狀走道進區，離開走後門；右邊是沒有規劃、各走各的最短路：會穿越別區、從別人的椅子間擠過、走離自己最近的門，但會繞過桌子。</p>
   </header>
 
   <div class="bar">
@@ -94,6 +94,7 @@ canvas{width:100%;max-width:100%;display:block;border-radius:8px;aspect-ratio:10
     </div>
     <label class="chk"><input type="checkbox" id="trail" checked> 顯示軌跡</label>
     <label class="chk"><input type="checkbox" id="avoid" checked> 互相閃避</label>
+    <label class="chk"><input type="checkbox" id="wheel"> 輪椅幼兒＋走道寬度檢查</label>
   </div>
   <p class="desc" id="sdesc"></p>
 
@@ -119,8 +120,10 @@ canvas{width:100%;max-width:100%;display:block;border-radius:8px;aspect-ratio:10
     <span><i class="dash"></i>環狀主走道</span>
     <span><i style="background:var(--go)"></i>前門綠腳印：進來</span>
     <span><i style="background:var(--bad)"></i>後門紅腳印：出去</span>
+    <span id="lgw" hidden><i style="width:15px;height:15px;background:var(--fg)"></i>大圓點＝輪椅幼兒　<i style="background:transparent;border:2px solid var(--bad)"></i>走道不足 90 公分</span>
   </div>
-  <p class="note">教室以 10 × 7 公尺示意（B403 實際尺寸待量測），配置依簡報「規劃模擬教室」平面圖：後排美勞、組合建構、語文；前排數學、中間低區、積木，前後門在同一面牆，門外是鞋櫃：前門在數學區與中間低區之間（進來），後門在中間低區與積木區之間（出去）；門口地上貼腳印、門上掛「進來」「出去」圖卡。幼兒步行約每秒 0.8 公尺，在選區板停 2 秒插姓名卡。幼兒會互相閃避：前面有人同方向走就放慢跟著走，迎面或交錯時放慢並往右側讓開；「閃避讓路」是兩位幼兒迎面或交錯、需要讓路的次數（排隊跟著走、在學習區內走動不算）。「穿越其他區」不計中間低區，因為它本來就是動線樞紐。桌椅依人數上限配置（每張桌子 4 張椅子）：美勞區 2 張併桌、數學、組合建構、語文（視聽桌）各 1 張、中間低區 2 張；積木區是地毯，不放桌子。學習時間幼兒坐在椅子上；規劃後的路線會繞開桌椅，「擠過桌椅」是從別人的桌椅之間穿過的次數。午餐、點心：洗手台在門外走廊、兩門之間；配膳台與回收區在教室內靠前牆，規劃後一律後門出、前門進，形成單向循環。「走錯門」是從前門出去或從後門進來的次數。</p>
+  <p class="note">教室以 10 × 7 公尺示意（B403 實際尺寸待量測），配置依簡報「規劃模擬教室」平面圖：後排美勞、組合建構、語文；前排數學、中間低區、積木，前後門在同一面牆，門外是鞋櫃：前門在數學區與中間低區之間（進來），後門在中間低區與積木區之間（出去）；門口地上貼腳印、門上掛「進來」「出去」圖卡。幼兒步行約每秒 0.8 公尺，在選區板停 2 秒插姓名卡。幼兒會互相閃避：前面有人同方向走就放慢跟著走，迎面或交錯時放慢並往右側讓開；「閃避讓路」是兩位幼兒迎面或交錯、需要讓路的次數（排隊跟著走、在學習區內走動不算）。「穿越其他區」不計中間低區，因為它本來就是動線樞紐。桌椅依人數上限配置（每張桌子 4 張椅子）：美勞區併桌 6 張椅子，靠教具櫃那一側不放椅子，留 95 公分取用教具；數學、組合建構、語文（視聽桌）各 1 張、中間低區 2 張；數學區桌子靠上方，下方留直徑 150 公分的輪椅迴轉空間；選區板貼近數學區邊、靠牆放，旁邊走道淨寬 100 公分以上；積木區是地毯，不放桌子。學習時間幼兒坐在椅子上；規劃後的路線會繞開桌椅，「擠過桌椅」是從別人的桌椅之間穿過的次數。午餐、點心：洗手台在門外走廊、兩門之間；配膳台與回收區在教室內靠前牆，規劃後一律後門出、前門進，形成單向循環。「走錯門」是從前門出去或從後門進來的次數。</p>
+  <p class="note">輪椅幼兒（勾選後出現）：以大圓點表示，輪椅寬約 70 公分，速度約每秒 0.6 公尺，路線與桌椅至少保留 40 公分。依無障礙設計常用標準，室內通路淨寬至少 90 公分、迴轉需直徑 150 公分空間、出入口淨寬至少 80 公分。「最窄通道」是輪椅路線上垂直方向量到的淨寬（不計起點與目的地旁 0.5 公尺內，也不計門口）；紅圈標出淨寬不足 90 公分的地方。「輪椅可到」是從前門進來，能以 90 公分淨寬到達、且區內有 150 公分迴轉空間的學習區數。示意圖的門寬僅為示意，B403 前後門淨寬請實際量測是否達 80 公分。</p>
 </div>
 
 <script>
@@ -138,8 +141,8 @@ const HUB=[3.6,3.6,2.8,2.3];
 function tbl(zone,x,y,w,h,ch){return {zone,r:[x,y,w,h],ch};}
 function four(x,y,w,h){return [[x+w*0.25,y-0.25],[x+w*0.75,y-0.25],[x+w*0.25,y+h+0.25],[x+w*0.75,y+h+0.25]];}
 const TABLES=[
-  tbl('art',1.35,0.85,1.2,1.1,[[1.65,0.6],[2.25,0.6],[1.65,2.2],[2.25,2.2],[1.1,1.15],[1.1,1.65],[2.8,1.15],[2.8,1.65]]),
-  tbl('math',1.45,4.55,1.2,0.6,four(1.45,4.55,1.2,0.6)),
+  tbl('art',1.6,0.85,1.2,0.8,[[1.9,0.6],[2.5,0.6],[1.9,1.9],[2.5,1.9],[3.05,1.05],[3.05,1.45]]), // no chairs on the shelf side: 95 cm to reach the shelf
+  tbl('math',1.45,4.25,1.2,0.6,four(1.45,4.25,1.2,0.6)), // moved up: 150 cm turning circle below
   tbl('con',4.55,1.25,1.2,0.6,four(4.55,1.25,1.2,0.6)),
   tbl('lang',7.6,1.0,1.2,0.6,four(7.6,1.0,1.2,0.6)),
   tbl('hub',3.85,4.03,1.1,0.52,four(3.85,4.03,1.1,0.52)),
@@ -149,11 +152,13 @@ const inF=(t,p,m=0)=>p&&p[0]>=t.f[0]-m&&p[0]<=t.f[2]+m&&p[1]>=t.f[1]-m&&p[1]<=t.
 const footAt=p=>TABLES.findIndex(t=>inF(t,p));
 const chairsOf=z=>TABLES.filter(t=>t.zone===z).flatMap(t=>t.ch);
 // obstacle-aware walking for the planned side
+let PM=0,EX=0.4,TO=false; // TO: table tops only (unplanned kids squeeze between chairs but cannot walk through a table)
+const hitT=(t,p,m)=>TO?(p[0]>=t.r[0]-0.15&&p[0]<=t.r[0]+t.r[2]+0.15&&p[1]>=t.r[1]-0.15&&p[1]<=t.r[1]+t.r[3]+0.15):inF(t,p,m); // planner margin around tables; endpoint exclusion radius (wider for a wheelchair)
 function segClear(a,b){const L=d2(a,b),n=Math.ceil(L/0.05);for(let i=1;i<n;i++){const p=[a[0]+(b[0]-a[0])*i/n,a[1]+(b[1]-a[1])*i/n];
-  if(d2(p,a)<0.4||d2(p,b)<0.4)continue;if(TABLES.some(t=>inF(t,p,0.08)))return false;}return true;}
+  if(d2(p,a)<EX||d2(p,b)<EX)continue;if(TABLES.some(t=>hitT(t,p,Math.max(0.08,PM))))return false;}return true;}
 function clearPath(a,b){if(segClear(a,b))return [b];
   const G=0.1,cols=101,rows=80,key=(i,j)=>j*cols+i,toC=p=>[Math.max(0,Math.min(cols-1,Math.round(p[0]/G))),Math.max(0,Math.min(rows-1,Math.round(p[1]/G)))];
-  const blocked=(i,j)=>{const p=[i*G,j*G];if(d2(p,a)<0.4||d2(p,b)<0.4)return false;return TABLES.some(t=>inF(t,p,0.12));};
+  const blocked=(i,j)=>{const p=[i*G,j*G];if(d2(p,a)<EX||d2(p,b)<EX)return false;return TABLES.some(t=>hitT(t,p,Math.max(0.12,PM)));};
   const [si,sj]=toC(a),[gi,gj]=toC(b);const open=new Map(),g=new Map(),came=new Map(),closed=new Set();
   g.set(key(si,sj),0);open.set(key(si,sj),Math.hypot(gi-si,gj-sj));
   while(open.size){let cur=null,cf=Infinity;for(const [k2,v] of open)if(v<cf){cf=v;cur=k2;}open.delete(cur);
@@ -161,7 +166,7 @@ function clearPath(a,b){if(segClear(a,b))return [b];
     for(let di=-1;di<=1;di++)for(let dj=-1;dj<=1;dj++){if(!di&&!dj)continue;const ni=ci+di,nj=cj+dj;if(ni<0||nj<0||ni>=cols||nj>=rows)continue;
       const nk=key(ni,nj);if(closed.has(nk)||blocked(ni,nj))continue;const ng=g.get(cur)+Math.hypot(di,dj);
       if(ng<(g.has(nk)?g.get(nk):Infinity)){g.set(nk,ng);came.set(nk,cur);open.set(nk,ng+Math.hypot(gi-ni,gj-nj));}}}
-  if(!came.has(key(gi,gj)))return [b];
+  if(!came.has(key(gi,gj))){if(PM>0){const m=PM,e=EX;PM=0;EX=0.4;const r=clearPath(a,b);PM=m;EX=e;return r;}return [b];}
   const cells=[];let c=key(gi,gj);while(c!==undefined&&c!==key(si,sj)){cells.unshift([(c%cols)*G,((c-c%cols)/cols)*G]);c=came.get(c);}
   cells[cells.length-1]=b;const out=[];let from=a,i=0;
   while(i<cells.length){let j=cells.length-1;while(j>i&&!segClear(from,cells[j]))j--;out.push(cells[j]);from=cells[j];i=j+1;}
@@ -202,8 +207,8 @@ const MOVES=[[0,'blk'],[0,'math'],[0,'con'],[0,'art'],[0,'lang'],[0,'art']];
 const MOVEDEST=[];
 (function(){const src=['lang','math','math','blk','con','art'],dst=['blk','con','art','art','lang','math'];const pickd=new Set();
   const occ={};for(const z in plan)occ[z]=new Set(ASSIGN.filter(a=>a.zone===z).map(a=>a.spot));
-  src.forEach((s,k)=>{const idx=ASSIGN.findIndex((a,i)=>a.zone===s&&!pickd.has(i));pickd.add(idx);MOVES[k]=[idx,dst[k]];
-    occ[s].delete(ASSIGN[idx].spot);const free=zoneSpots[dst[k]].find(p=>!occ[dst[k]].has(p));occ[dst[k]].add(free);MOVEDEST[k]=free;});})();
+  src.forEach((s,k)=>{const idx=ASSIGN.findIndex((a,i)=>a.zone===s&&!pickd.has(i));pickd.add(idx);MOVES[k]=[idx,dst[k]];occ[s].delete(ASSIGN[idx].spot);});
+  dst.forEach((d,k)=>{const free=zoneSpots[d].find(p=>!occ[d].has(p));occ[d].add(free);MOVEDEST[k]=free;});})();
 
 const SCEN=[
  {d:'幼兒每隔約 1.5 秒進門，在門外鞋櫃換好鞋，從前門進來，往前走到走道旁的選區板插姓名卡，再走到自己選的學習區。'},
@@ -217,7 +222,7 @@ const SCEN=[
 // route building
 function anchorOf(loc){return loc.zone==='hub'?(loc.p[0]<4.5?'ML':loc.p[0]>5.5?'MR':loc.p[1]<4.75?'HT':'B'):loc.zone?Z[loc.zone].door:loc.node;}
 function legPts(from,to,planned){
-  if(!planned)return [to.p];
+  if(!planned){TO=true;const r=clearPath(from.p,to.p);TO=false;return r;}
   if(from.zone&&to.zone&&from.zone===to.zone)return clearPath(from.p,to.p);
   const a=anchorOf(from),b=anchorOf(to);const ids=sp(a,b);
   const pts=ids.map(id=>N[id].slice());
@@ -239,13 +244,14 @@ function route(a,b,planned){const ia=!a.out,ib=!b.out;
     if(ia&&!ib)return [...legPts(a,{node:'BX',p:N.BX},true),b.p];
     if(!ia&&ib)return [N.OE,N.E,...legPts({node:'E',p:N.E},b,true)];
     return [b.p];}
-  if(ia!==ib){const ref=ia?b.p:a.p;const door=d2(ref,FRONT)<d2(ref,BACK)?FRONT:BACK;return [door,b.p];}
-  return [b.p];}
+  TO=true;let r;if(ia!==ib){const ref=ia?b.p:a.p;const door=d2(ref,FRONT)<d2(ref,BACK)?FRONT:BACK;r=[...clearPath(a.p,door),...clearPath(door,b.p)];}
+  else r=clearPath(a.p,b.p);TO=false;return r;}
 function buildKids(s,planned){
   const kids=[];
   const LOC_S={node:'S',p:N.S},LOC_E={node:'E',p:[3.25,7.6]};
-  ASSIGN.forEach((a,i)=>{
-    const k={i,color:a.zone,pos:null,wp:[],t0:0,allowed:new Set([a.zone]),trail:[],cur:null,cross:0,blk:0,done:false,wait:0};
+  ASSIGN.forEach((a0,i)=>{const a=assignOf(i);
+    const wc=wheelOn&&i===WC;if(wc){PM=0.4;EX=0.7;}
+    const k={i,wc,color:a.zone,pos:null,wp:[],t0:0,allowed:new Set([a.zone]),trail:[],cur:null,cross:0,blk:0,done:false,wait:0};
     if(s===0){k.pos=LOC_E.p.slice();k.t0=i*1.5;
       k.wp=[...legPts(LOC_E,LOC_S,planned).map((p,j,arr)=>({p,pause:j===arr.length-1?2:0})),
             ...legPts(LOC_S,{zone:a.zone,p:a.spot},planned).map(p=>({p,pause:0}))];}
@@ -256,7 +262,7 @@ function buildKids(s,planned){
               ...legPts(LOC_S,{zone:nz,p:ns},planned).map(p=>({p,pause:0}))];}}
     else if(s===3){k.pos=HUBMAP[i].slice();k.t0=i*0.7;k.allowed=new Set(['hub']);k.out=true;
       k.wp=(planned?[...clearPath(HUBMAP[i],[6.45,6.15]),N.BD,N.BX]:legPts({zone:'hub',p:HUBMAP[i]},{node:'BX',p:N.BX},false)).map(p=>({p,pause:0}));}
-    else if(s===4||s===5){const st=SEATMAP[i];k.pos=a.spot.slice();k.t0=i*(s===4?0.9:0.6);k.allowed=new Set([a.zone,st.zone,'hub']);
+    else if(s===4||s===5){const st=seatOf(i);k.pos=a.spot.slice();k.t0=i*(s===4?0.9:0.6);k.allowed=new Set([a.zone,st.zone,'hub']);
       const start={zone:a.zone,p:a.spot},sink={out:true,p:SINKS[i%SINKS.length]},sv={node:'SV',p:N.SV},rc={node:'RC',p:N.RC},seat={zone:st.zone,p:st.p};
       const steps=s===4?[[sink,4],[sv,2.5],[seat,18],[rc,2],[sink,6],[seat,0]]:[[sink,4],[sv,2],[seat,8],[rc,2],[start,0]];
       let cur=start;k.wp=[];
@@ -265,14 +271,50 @@ function buildKids(s,planned){
       const shelf={zone:a.zone,p:Z[a.zone].shelf};const hs={zone:'hub',p:HUBMAP[i]};
       const inZone=planned?[shelf.p]:[shelf.p];
       k.wp=[{p:inZone[0],pause:1.5},...legPts(shelf,hs,planned).map(p=>({p,pause:0}))];}
-    kids.push(k);});
+    PM=0;EX=0.4;kids.push(k);});
   return kids;}
 
 function zoneAt(p){for(const z in Z){const [x,y,w,h]=Z[z].r;if(p[0]>=x&&p[0]<=x+w&&p[1]>=y&&p[1]<=y+h)return z;}return null;}
 
+// ---- wheelchair: physical obstacles, aisle width, reachability ----
+const OBS=[...TABLES.map(t=>t.f),
+  ...Object.keys(Z).map(z=>{const sh=Z[z].shelf;return z==='con'?[sh[0]-0.9,sh[1]-0.25,sh[0]+0.9,sh[1]+0.05]:[sh[0]-(sh[0]<5?0.25:0.05),sh[1]-0.8,sh[0]-(sh[0]<5?0.25:0.05)+0.3,sh[1]+0.8];}),
+  [2.7,5.2,2.83,6.0],[4.75,6.82,5.5,6.98],[5.8,6.82,6.3,6.98]];
+const solid=p=>p[0]<0||p[0]>W||p[1]<0||p[1]>H||OBS.some(o=>p[0]>=o[0]&&p[0]<=o[2]&&p[1]>=o[1]&&p[1]<=o[3]);
+function clearance(p){let d=Math.min(p[0],W-p[0],p[1],H-p[1]);for(const o of OBS){const dx=Math.max(o[0]-p[0],0,p[0]-o[2]),dy=Math.max(o[1]-p[1],0,p[1]-o[3]);d=Math.min(d,Math.hypot(dx,dy));}return d;}
+function aisleWidth(p,v){if(solid(p))return 0;const n=[-v[1],v[0]];let w=0;
+  for(const sg of [1,-1]){let t=0;while(t<2){const q=[p[0]+n[0]*sg*(t+0.02),p[1]+n[1]*sg*(t+0.02)];if(solid(q))break;t+=0.02;}w+=t;}return w;}
+const WC_REACH=(()=>{ // flood fill for a 90 cm wide chair from the front door; a zone counts if it has a 150 cm turning circle
+  const G=0.1,cols=101,rows=71,ok=new Uint8Array(cols*rows),seen=new Uint8Array(cols*rows);
+  for(let j=0;j<rows;j++)for(let i=0;i<cols;i++)ok[j*cols+i]=clearance([i*G,j*G])>=0.45?1:0;
+  const st=[Math.round(3.25/G)+Math.round(6.4/G)*cols];seen[st[0]]=1;const got=new Set();
+  while(st.length){const c=st.pop(),i=c%cols,j=(c-i)/cols,p=[i*G,j*G];const z=zoneAt(p);if(z&&clearance(p)>=0.75)got.add(z);
+    for(const [di,dj] of [[1,0],[-1,0],[0,1],[0,-1]]){const ni=i+di,nj=j+dj;if(ni<0||nj<0||ni>=cols||nj>=rows)continue;const nk=nj*cols+ni;if(!seen[nk]&&ok[nk]){seen[nk]=1;st.push(nk);}}}
+  return got;})();
+const WC=ASSIGN.findIndex((a,i)=>a.zone==='art'&&!MOVES.some(m=>m[0]===i)); // an art kid who stays put during area time
+let wheelOn=false;
+// accessible seat: the chair nearest the area's entrance is taken away and the wheelchair parks there; whoever sat there swaps
+const nearest=(list,ref)=>list.reduce((b,q)=>d2(q,ref)<d2(b,ref)?q:b);
+const ACC_A=(()=>{const z=ASSIGN[WC].zone,acc=nearest(zoneSpots[z],N[Z[z].door]);return {j:ASSIGN.findIndex(a=>a.spot===acc),acc};})();
+const ACC_S=(()=>{const st=SEATMAP[WC],ref=st.zone==='hub'?N.SV:N[Z[st.zone].door],acc=nearest(SEATS.filter(x=>x.zone===st.zone).map(x=>x.p),ref);
+  return {j:SEATMAP.findIndex(x=>x.p===acc)};})();
+function assignOf(i){if(!wheelOn)return ASSIGN[i];if(i===WC)return {zone:ASSIGN[i].zone,spot:ACC_A.acc};if(i===ACC_A.j)return {zone:ASSIGN[i].zone,spot:ASSIGN[WC].spot};return ASSIGN[i];}
+function seatOf(i){if(!wheelOn||ACC_S.j<0)return SEATMAP[i];if(i===WC)return SEATMAP[ACC_S.j];if(i===ACC_S.j)return SEATMAP[WC];return SEATMAP[i];}
+function auditAisle(k){ // walk the chair's whole route and record spots narrower than 90 cm
+  const pts=[k.pos.slice(),...k.wp.map(w=>w.p)],stops=[k.pos,...k.wp.filter(w=>w.pause).map(w=>w.p),pts[pts.length-1]];
+  let min=Infinity,spots=[],run=null;
+  for(let i=1;i<pts.length;i++){const a=pts[i-1],b=pts[i],L=d2(a,b);if(L<1e-6)continue;const v=[(b[0]-a[0])/L,(b[1]-a[1])/L];
+    for(let t=0;t<L;t+=0.05){const p=[a[0]+v[0]*t,a[1]+v[1]*t];
+      if(p[1]>6.8||stops.some(q=>d2(p,q)<0.5)){run=null;continue;}
+      const w=aisleWidth(p,v);min=Math.min(min,w);
+      if(w<0.9){if(run&&d2(run.p,p)<0.6){if(w<run.w){run.w=w;run.p=p;}}else{run={p,w};spots.push(run);}}else run=null;}}
+  const merged=[];spots.forEach(s=>{const m=merged.find(q=>d2(q.p,s.p)<0.5);if(m){if(s.w<m.w){m.w=s.w;m.p=s.p;}}else merged.push(s);});
+  return {min:min===Infinity?null:min,spots:merged};}
+
 function Sim(cv,stEl,planned){this.cv=cv;this.ctx=cv.getContext('2d');this.st=stEl;this.planned=planned;}
 Sim.prototype.reset=function(s){this.kids=buildKids(s,this.planned);this.t=0;this.near=new Set();this.enc=0;this.finish=null;
-  this.kids.forEach(k=>{k.cur=zoneAt(k.pos);k.home=k.pos.slice();k.cf=footAt(k.pos);k.hz=k.cf>=0?TABLES[k.cf].zone:null;k.trail=[k.pos.slice()];});this.renderStats();};
+  this.kids.forEach(k=>{k.cur=zoneAt(k.pos);k.home=k.pos.slice();k.cf=footAt(k.pos);k.hz=k.cf>=0?TABLES[k.cf].zone:null;k.trail=[k.pos.slice()];});
+  const w=this.kids.find(k=>k.wc);this.aud=w?auditAisle(w):null;this.renderStats();};
 Sim.prototype.step=function(dt){
   this.t+=dt;const V=0.8;
   // local avoidance: slow behind someone going the same way, step to the right around anyone else
@@ -280,10 +322,10 @@ Sim.prototype.step=function(dt){
   for(const k of act){k.sf=1;k.lat=[0,0];if(!avoidOn||k.wait>0)continue;
     const w=k.wp[0].p,dx=w[0]-k.pos[0],dy=w[1]-k.pos[1],L=Math.hypot(dx,dy)||1,v=[dx/L,dy/L];const goal=(k.wp.find(q=>q.pause)||k.wp[k.wp.length-1]).p;
     for(const o of act){if(o===k||o.pos[1]>7.25&&this.t<o.t0)continue;const ox=o.pos[0]-k.pos[0],oy=o.pos[1]-k.pos[1],d=Math.hypot(ox,oy);
-      if(d>0.55||d<1e-6)continue;const ahead=(ox*v[0]+oy*v[1])/d;if(ahead<0.5)continue;
+      const big=(k.wc||o.wc)?0.3:0;if(d>0.55+big||d<1e-6)continue;const ahead=(ox*v[0]+oy*v[1])/d;if(ahead<0.5)continue;
       if(o.wait>0&&d2(o.pos,goal)<0.6)continue;
       const key=Math.min(k.i,o.i)+'-'+Math.max(k.i,o.i);let yielded=false;
-      if(o.wait>0||(o.v&&o.v[0]*v[0]+o.v[1]*v[1]>0)){if(d<0.5){k.sf=Math.min(k.sf,Math.max(0.15,(d-0.28)/0.22));}}
+      if(o.wait>0||(o.v&&o.v[0]*v[0]+o.v[1]*v[1]>0)){if(d<0.5+big){k.sf=Math.min(k.sf,Math.max(0.15,(d-0.28-big)/0.22));}}
       else{k.sf=Math.min(k.sf,0.55);const side=[k.pos[0]-v[1]*0.3,k.pos[1]+v[0]*0.3],sz=zoneAt(side);if(Math.abs(k.pos[1]-7)>0.45&&(!sz||k.allowed.has(sz))&&footAt(side)<0){k.lat[0]+=-v[1]*0.35;k.lat[1]+=v[0]*0.35;}yielded=true;}
       if(yielded&&!zoneAt(k.pos)&&!this.near.has(key)){this.near.add(key);this.enc++;}}
   }
@@ -292,12 +334,12 @@ Sim.prototype.step=function(dt){
     if(!k.wp.length){k.done=true;continue;}
     if(k.wait>0){k.wait-=dt;continue;}
     if(k.lat&&(k.lat[0]||k.lat[1])){k.pos[0]+=k.lat[0]*dt;k.pos[1]+=k.lat[1]*dt;}
-    let rem=V*dt*(k.sf||1);
+    const vk=V*(k.wc?0.75:1);let rem=vk*dt*(k.sf||1);
     while(rem>0&&k.wp.length){const w=k.wp[0];const dx=w.p[0]-k.pos[0],dy=w.p[1]-k.pos[1],L=Math.hypot(dx,dy);
       if(L<=rem){k.pos=w.p.slice();rem-=L;k.wp.shift();if(w.pause){k.wait=w.pause;k.stop=w.p;break;}}
       else{k.pos[0]+=dx/L*rem;k.pos[1]+=dy/L*rem;rem=0;}
       if(L>0)k.v=[dx/L,dy/L];}
-    k.dist=(k.dist||0)+V*dt*(k.sf||1)-rem;
+    k.dist=(k.dist||0)+vk*dt*(k.sf||1)-rem;
     const last=k.trail[k.trail.length-1];if(d2(last,k.pos)>0.08&&k.trail.length<900)k.trail.push(k.pos.slice());
     if(k.py!==undefined){if(k.py<7&&k.pos[1]>=7&&k.pos[0]<5)k.wrong=(k.wrong||0)+1;if(k.py>7&&k.pos[1]<=7&&k.pos[0]>5)k.wrong=(k.wrong||0)+1;}k.py=k.pos[1];
     const f=footAt(k.pos);if(f!==k.cf){if(f>=0){const t=TABLES[f];const nx=(k.wp.find(w=>w.pause)||k.wp[k.wp.length-1]);const ok=t.zone===k.hz||TABLES.some(t2=>t2.zone===t.zone&&((nx&&inF(t2,nx.p))||inF(t2,k.stop||k.home)));if(!ok)k.bump=(k.bump||0)+1;}k.cf=f;}
@@ -314,7 +356,10 @@ Sim.prototype.renderStats=function(){
   <div class="stat${bp?' warn':''}"><b>${bp}</b><span>擠過桌椅（次）</span></div>
   <div class="stat${wr?' warn':''}"><b>${wr}</b><span>走錯門（次）</span></div>
   <div class="stat"><b>${avg}</b><span>平均每人走（公尺）</span></div>
-  <div class="stat"><b>${tm}</b><span>全部到位</span></div>`;
+  <div class="stat"><b>${tm}</b><span>全部到位</span></div>`+(this.aud?(()=>{const a=this.aud,mn=a.min===null?'—':Math.round(a.min*100),n=a.spots.length,r=WC_REACH.size;
+    return `<div class="stat${r<5?' warn':''}"><b>${r} / 5</b><span>輪椅可到的學習區</span></div>
+  <div class="stat${a.min!==null&&a.min<0.9?' warn':''}"><b>${mn}</b><span>輪椅最窄通道（公分）</span></div>
+  <div class="stat${n?' warn':''}"><b>${n}</b><span>不足 90 公分（處）</span></div>`;})():'');
   if(html!==this._h){this.st.innerHTML=html;this._h=html;}};
 
 let C={};function readTokens(){const cs=getComputedStyle(document.documentElement);
@@ -375,7 +420,7 @@ Sim.prototype.draw=function(showTrail){
   c.fillStyle=C['--muted'];c.font=`${fs*0.8}px ${C['--body']}`;
   c.font=`${fs*0.7}px ${C['--body']}`;c.fillText('窗',X(-0.14),Y(1.55));
   // sign-in board
-  c.fillStyle=C['--accent'];c.fillRect(X(2.93),Y(5.2),0.13*s,0.8*s);c.fillStyle=C['--fg'];c.font=`700 ${fs*0.66}px ${C['--body']}`;c.fillStyle=C['--muted'];c.fillText('選區板',X(2.55),Y(6.08));
+  c.fillStyle=C['--accent'];c.fillRect(X(2.7),Y(5.2),0.13*s,0.8*s);c.fillStyle=C['--fg'];c.font=`700 ${fs*0.66}px ${C['--body']}`;c.fillStyle=C['--muted'];c.fillText('選區板',X(2.35),Y(6.08));
   // planned corridor
   if(this.planned){c.strokeStyle=C['--route'];c.globalAlpha=0.55;c.lineWidth=Math.max(1.5,s*0.04);c.setLineDash([s*0.14,s*0.1]);
     const ring=['L','HT','R','BR','B','BL','L'];c.beginPath();ring.forEach((id,i)=>{const p=N[id];i?c.lineTo(X(p[0]),Y(p[1])):c.moveTo(X(p[0]),Y(p[1]));});c.stroke();
@@ -384,10 +429,14 @@ Sim.prototype.draw=function(showTrail){
   // trails
   if(showTrail)for(const k of this.kids){if(k.trail.length<2)continue;c.strokeStyle=C[Z[k.color].tk];c.globalAlpha=0.35;c.lineWidth=Math.max(1,s*0.035);c.lineJoin='round';
     c.beginPath();k.trail.forEach((p,i)=>i?c.lineTo(X(p[0]),Y(p[1])):c.moveTo(X(p[0]),Y(p[1])));c.stroke();c.globalAlpha=1;}
+  // narrow aisle spots for the wheelchair
+  if(this.aud)for(const q of this.aud.spots){c.strokeStyle=C['--bad'];c.lineWidth=Math.max(1.5,s*0.04);c.beginPath();c.arc(X(q.p[0]),Y(q.p[1]),s*0.32,0,Math.PI*2);c.stroke();
+    c.fillStyle=C['--bad'];c.font=`700 ${fs*0.62}px ${C['--body']}`;c.textAlign='center';c.fillText(Math.round(q.w*100)+'cm',X(q.p[0]),Y(q.p[1]-0.45));}
   // kids
-  for(const k of this.kids){if(k.pos[1]>7.25&&(this.t<k.t0||(k.out&&k.done)))continue;const r=Math.max(3,s*0.15);
+  for(const k of this.kids){if(k.pos[1]>7.25&&(this.t<k.t0||(k.out&&k.done)))continue;const r=Math.max(3,s*(k.wc?0.33:0.15));
     c.fillStyle=C[Z[k.color].tk];c.beginPath();c.arc(X(k.pos[0]),Y(k.pos[1]),r,0,Math.PI*2);c.fill();
-    c.strokeStyle=C['--surface'];c.lineWidth=Math.max(1,s*0.03);c.stroke();
+    c.strokeStyle=k.wc?C['--fg']:C['--surface'];c.lineWidth=Math.max(1,s*(k.wc?0.05:0.03));c.stroke();
+    if(k.wc){c.fillStyle='#fff';c.font=`700 ${r*1.15}px ${C['--body']}`;c.textAlign='center';c.textBaseline='middle';c.fillText('輪',X(k.pos[0]),Y(k.pos[1])+r*0.05);}
     if(k.wait>0){c.strokeStyle=C['--route'];c.lineWidth=Math.max(1,s*0.03);c.beginPath();c.arc(X(k.pos[0]),Y(k.pos[1]),r*1.7,0,Math.PI*2);c.stroke();}}
 };
 
@@ -409,6 +458,7 @@ document.querySelectorAll('#scen button').forEach(b=>b.addEventListener('click',
 document.querySelectorAll('#spd button').forEach(b=>b.addEventListener('click',()=>{speed=+b.dataset.v;document.querySelectorAll('#spd button').forEach(x=>x.setAttribute('aria-pressed',String(x===b)));}));
 trailCb.addEventListener('change',drawAll);
 document.getElementById('avoid').addEventListener('change',e=>{avoidOn=e.target.checked;const was=playing;setPlaying(false);setScen(scen);if(was)setPlaying(true);});
+document.getElementById('wheel').addEventListener('change',e=>{wheelOn=e.target.checked;document.getElementById('lgw').hidden=!wheelOn;const was=playing;setPlaying(false);setScen(scen);if(was)setPlaying(true);});
 function resize(){sims.forEach(m=>m.size());drawAll();}
 window.addEventListener('resize',resize);
 const mq=matchMedia('(prefers-color-scheme: dark)');const retheme=()=>{readTokens();drawAll();};
