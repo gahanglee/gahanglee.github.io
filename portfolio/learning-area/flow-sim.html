@@ -153,12 +153,13 @@ const footAt=p=>TABLES.findIndex(t=>inF(t,p));
 const chairsOf=z=>TABLES.filter(t=>t.zone===z).flatMap(t=>t.ch);
 // obstacle-aware walking for the planned side
 let PM=0,EX=0.4,TO=false; // TO: table tops only (unplanned kids squeeze between chairs but cannot walk through a table)
+const onTop=(t,p)=>p[0]>=t.r[0]-0.05&&p[0]<=t.r[0]+t.r[2]+0.05&&p[1]>=t.r[1]-0.05&&p[1]<=t.r[1]+t.r[3]+0.05;
 const hitT=(t,p,m)=>TO?(p[0]>=t.r[0]-0.15&&p[0]<=t.r[0]+t.r[2]+0.15&&p[1]>=t.r[1]-0.15&&p[1]<=t.r[1]+t.r[3]+0.15):inF(t,p,m); // planner margin around tables; endpoint exclusion radius (wider for a wheelchair)
 function segClear(a,b){const L=d2(a,b),n=Math.ceil(L/0.05);for(let i=1;i<n;i++){const p=[a[0]+(b[0]-a[0])*i/n,a[1]+(b[1]-a[1])*i/n];
-  if(d2(p,a)<EX||d2(p,b)<EX)continue;if(TABLES.some(t=>hitT(t,p,Math.max(0.08,PM))))return false;}return true;}
+  if(TABLES.some(t=>onTop(t,p)))return false;if(!TO&&(d2(p,a)<EX||d2(p,b)<EX))continue;if(TABLES.some(t=>hitT(t,p,Math.max(0.08,PM))))return false;}return true;}
 function clearPath(a,b){if(segClear(a,b))return [b];
   const G=0.1,cols=101,rows=80,key=(i,j)=>j*cols+i,toC=p=>[Math.max(0,Math.min(cols-1,Math.round(p[0]/G))),Math.max(0,Math.min(rows-1,Math.round(p[1]/G)))];
-  const blocked=(i,j)=>{const p=[i*G,j*G];if(d2(p,a)<EX||d2(p,b)<EX)return false;return TABLES.some(t=>hitT(t,p,Math.max(0.12,PM)));};
+  const blocked=(i,j)=>{const p=[i*G,j*G];if(TABLES.some(t=>onTop(t,p)))return true;if(!TO&&(d2(p,a)<EX||d2(p,b)<EX))return false;return TABLES.some(t=>hitT(t,p,Math.max(0.12,PM)));};
   const [si,sj]=toC(a),[gi,gj]=toC(b);const open=new Map(),g=new Map(),came=new Map(),closed=new Set();
   g.set(key(si,sj),0);open.set(key(si,sj),Math.hypot(gi-si,gj-sj));
   while(open.size){let cur=null,cf=Infinity;for(const [k2,v] of open)if(v<cf){cf=v;cur=k2;}open.delete(cur);
@@ -227,7 +228,7 @@ function legPts(from,to,planned){
   const a=anchorOf(from),b=anchorOf(to);const ids=sp(a,b);
   const pts=ids.map(id=>N[id].slice());
   // keep-right lane offset on corridor nodes (skip endpoints that are pause points)
-  const off=0.25,out=[];
+  const off=PM>0?0:0.25,out=[]; // the wheelchair keeps to the middle of the corridor
   for(let i=0;i<pts.length;i++){const prev=i>0?pts[i-1]:from.p,next=i<pts.length-1?pts[i+1]:to.p;
     let dx=next[0]-prev[0],dy=next[1]-prev[1];const L=Math.hypot(dx,dy)||1;dx/=L;dy/=L;
     const isPause=['S','E','BD','BX','SV','RC'].includes(ids[i]);
@@ -268,7 +269,7 @@ function buildKids(s,planned){
       let cur=start;k.wp=[];
       for(const [loc,ps] of steps){const pts=route(cur,loc,planned);pts.forEach((p,j)=>k.wp.push({p,pause:j===pts.length-1?ps:0}));cur=loc;}}
     else{k.pos=a.spot.slice();k.t0=i*0.35;k.allowed.add('hub');
-      const shelf={zone:a.zone,p:Z[a.zone].shelf};const hs={zone:'hub',p:HUBMAP[i]};
+      const sh=Z[a.zone].shelf,shelf={zone:a.zone,p:wc?(a.zone==='con'?[sh[0],sh[1]+0.5]:[sh[0]+(sh[0]<5?0.5:-0.5),sh[1]]):sh}; /* a chair stops in front of the shelf */const hs={zone:'hub',p:HUBMAP[i]};
       const inZone=planned?[shelf.p]:[shelf.p];
       k.wp=[{p:inZone[0],pause:1.5},...legPts(shelf,hs,planned).map(p=>({p,pause:0}))];}
     PM=0;EX=0.4;kids.push(k);});
@@ -277,20 +278,6 @@ function buildKids(s,planned){
 function zoneAt(p){for(const z in Z){const [x,y,w,h]=Z[z].r;if(p[0]>=x&&p[0]<=x+w&&p[1]>=y&&p[1]<=y+h)return z;}return null;}
 
 // ---- wheelchair: physical obstacles, aisle width, reachability ----
-const OBS=[...TABLES.map(t=>t.f),
-  ...Object.keys(Z).map(z=>{const sh=Z[z].shelf;return z==='con'?[sh[0]-0.9,sh[1]-0.25,sh[0]+0.9,sh[1]+0.05]:[sh[0]-(sh[0]<5?0.25:0.05),sh[1]-0.8,sh[0]-(sh[0]<5?0.25:0.05)+0.3,sh[1]+0.8];}),
-  [2.7,5.2,2.83,6.0],[4.75,6.82,5.5,6.98],[5.8,6.82,6.3,6.98]];
-const solid=p=>p[0]<0||p[0]>W||p[1]<0||p[1]>H||OBS.some(o=>p[0]>=o[0]&&p[0]<=o[2]&&p[1]>=o[1]&&p[1]<=o[3]);
-function clearance(p){let d=Math.min(p[0],W-p[0],p[1],H-p[1]);for(const o of OBS){const dx=Math.max(o[0]-p[0],0,p[0]-o[2]),dy=Math.max(o[1]-p[1],0,p[1]-o[3]);d=Math.min(d,Math.hypot(dx,dy));}return d;}
-function aisleWidth(p,v){if(solid(p))return 0;const n=[-v[1],v[0]];let w=0;
-  for(const sg of [1,-1]){let t=0;while(t<2){const q=[p[0]+n[0]*sg*(t+0.02),p[1]+n[1]*sg*(t+0.02)];if(solid(q))break;t+=0.02;}w+=t;}return w;}
-const WC_REACH=(()=>{ // flood fill for a 90 cm wide chair from the front door; a zone counts if it has a 150 cm turning circle
-  const G=0.1,cols=101,rows=71,ok=new Uint8Array(cols*rows),seen=new Uint8Array(cols*rows);
-  for(let j=0;j<rows;j++)for(let i=0;i<cols;i++)ok[j*cols+i]=clearance([i*G,j*G])>=0.45?1:0;
-  const st=[Math.round(3.25/G)+Math.round(6.4/G)*cols];seen[st[0]]=1;const got=new Set();
-  while(st.length){const c=st.pop(),i=c%cols,j=(c-i)/cols,p=[i*G,j*G];const z=zoneAt(p);if(z&&clearance(p)>=0.75)got.add(z);
-    for(const [di,dj] of [[1,0],[-1,0],[0,1],[0,-1]]){const ni=i+di,nj=j+dj;if(ni<0||nj<0||ni>=cols||nj>=rows)continue;const nk=nj*cols+ni;if(!seen[nk]&&ok[nk]){seen[nk]=1;st.push(nk);}}}
-  return got;})();
 const WC=ASSIGN.findIndex((a,i)=>a.zone==='art'&&!MOVES.some(m=>m[0]===i)); // an art kid who stays put during area time
 let wheelOn=false;
 // accessible seat: the chair nearest the area's entrance is taken away and the wheelchair parks there; whoever sat there swaps
@@ -300,12 +287,29 @@ const ACC_S=(()=>{const st=SEATMAP[WC],ref=st.zone==='hub'?N.SV:N[Z[st.zone].doo
   return {j:SEATMAP.findIndex(x=>x.p===acc)};})();
 function assignOf(i){if(!wheelOn)return ASSIGN[i];if(i===WC)return {zone:ASSIGN[i].zone,spot:ACC_A.acc};if(i===ACC_A.j)return {zone:ASSIGN[i].zone,spot:ASSIGN[WC].spot};return ASSIGN[i];}
 function seatOf(i){if(!wheelOn||ACC_S.j<0)return SEATMAP[i];if(i===WC)return SEATMAP[ACC_S.j];if(i===ACC_S.j)return SEATMAP[WC];return SEATMAP[i];}
+const ACC_SEAT=ACC_S.j>=0?SEATMAP[ACC_S.j].p:null; // chairs taken away for the wheelchair
+const OBS=[...TABLES.map(t=>[t.r[0],t.r[1],t.r[0]+t.r[2],t.r[1]+t.r[3]]),
+  ...TABLES.flatMap(t=>t.ch.filter(c=>c!==ACC_A.acc&&c!==ACC_SEAT).map(c=>[c[0]-0.15,c[1]-0.15,c[0]+0.15,c[1]+0.15])),
+  ...Object.keys(Z).map(z=>{const sh=Z[z].shelf;return z==='con'?[sh[0]-0.9,sh[1]-0.25,sh[0]+0.9,sh[1]+0.05]:[sh[0]-(sh[0]<5?0.25:0.05),sh[1]-0.8,sh[0]-(sh[0]<5?0.25:0.05)+0.3,sh[1]+0.8];}),
+  [2.7,5.2,2.83,6.0],[4.75,6.82,5.5,6.98],[5.8,6.82,6.3,6.98]];
+const solid=p=>p[0]<0||p[0]>W||p[1]<0||p[1]>H||OBS.some(o=>p[0]>=o[0]&&p[0]<=o[2]&&p[1]>=o[1]&&p[1]<=o[3]);
+function clearance(p){let d=Math.min(p[0],W-p[0],p[1],H-p[1]);for(const o of OBS){const dx=Math.max(o[0]-p[0],0,p[0]-o[2]),dy=Math.max(o[1]-p[1],0,p[1]-o[3]);d=Math.min(d,Math.hypot(dx,dy));}return d;}
+function aisleWidth(p,v){if(solid(p))return 0;const n=[-v[1],v[0]];let w=0;
+  let near=Infinity;for(const sg of [1,-1]){let t=0;while(t<2){const q=[p[0]+n[0]*sg*(t+0.02),p[1]+n[1]*sg*(t+0.02)];if(solid(q))break;t+=0.02;}w+=t;near=Math.min(near,t);}
+  return near<0.35?Math.min(w,near*2):w;} // a 70 cm chair needs 35 cm on each side of its centre line
+const WC_REACH=(()=>{ // flood fill for a 90 cm wide chair from the front door; a zone counts if it has a 150 cm turning circle
+  const G=0.1,cols=101,rows=71,ok=new Uint8Array(cols*rows),seen=new Uint8Array(cols*rows);
+  for(let j=0;j<rows;j++)for(let i=0;i<cols;i++)ok[j*cols+i]=clearance([i*G,j*G])>=0.45?1:0;
+  const st=[Math.round(3.25/G)+Math.round(6.4/G)*cols];seen[st[0]]=1;const got=new Set();
+  while(st.length){const c=st.pop(),i=c%cols,j=(c-i)/cols,p=[i*G,j*G];const z=zoneAt(p);if(z&&clearance(p)>=0.75)got.add(z);
+    for(const [di,dj] of [[1,0],[-1,0],[0,1],[0,-1]]){const ni=i+di,nj=j+dj;if(ni<0||nj<0||ni>=cols||nj>=rows)continue;const nk=nj*cols+ni;if(!seen[nk]&&ok[nk]){seen[nk]=1;st.push(nk);}}}
+  return got;})();
 function auditAisle(k){ // walk the chair's whole route and record spots narrower than 90 cm
   const pts=[k.pos.slice(),...k.wp.map(w=>w.p)],stops=[k.pos,...k.wp.filter(w=>w.pause).map(w=>w.p),pts[pts.length-1]];
   let min=Infinity,spots=[],run=null;
   for(let i=1;i<pts.length;i++){const a=pts[i-1],b=pts[i],L=d2(a,b);if(L<1e-6)continue;const v=[(b[0]-a[0])/L,(b[1]-a[1])/L];
     for(let t=0;t<L;t+=0.05){const p=[a[0]+v[0]*t,a[1]+v[1]*t];
-      if(p[1]>6.8||stops.some(q=>d2(p,q)<0.5)){run=null;continue;}
+      if(p[1]>6.8||(p[1]>6.3&&(Math.abs(p[0]-3.25)<0.6||Math.abs(p[0]-6.7)<0.6))||stops.some(q=>d2(p,q)<0.5)){run=null;continue;} // doorways are schematic: measure B403
       const w=aisleWidth(p,v);min=Math.min(min,w);
       if(w<0.9){if(run&&d2(run.p,p)<0.6){if(w<run.w){run.w=w;run.p=p;}}else{run={p,w};spots.push(run);}}else run=null;}}
   const merged=[];spots.forEach(s=>{const m=merged.find(q=>d2(q.p,s.p)<0.5);if(m){if(s.w<m.w){m.w=s.w;m.p=s.p;}}else merged.push(s);});
