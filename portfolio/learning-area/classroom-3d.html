@@ -246,7 +246,7 @@ for(let i=0;i<14;i++){const c=[0xD9822B,0x3E7CC0,0xC25A8A,0x1E9E5A,0xE0C040][i%5
 // ---------- people: Kenney "Mini Characters" (CC0, kenney.nl) — Q-style children recoloured into the school uniform ----------
 const KDIR='/portfolio/learning-area/assets/kenney-mini/';
 const KIDS=['female-b','female-c','female-d','female-e','female-f','male-a','male-d','male-e','male-f']; // child faces only
-const KS=1.25,TS=1.95; // child ≈ 0.95 m, teacher ≈ 1.5 m
+const KS=1.25,TS=1.95,HEAD=0.72,ARM=0.72; // child ≈ 0.95 m, teacher ≈ 1.5 m; head scaled to 72 %
 const MODELS={};let WHEEL=null,peopleReady=false;
 // clothing vertices are remapped to the light-blue cell (top) and the blue cell (bottom); skin (taken from the hands), hair, face and shoes stay
 function makeUniform(root){
@@ -268,17 +268,19 @@ function character(name,opt){const M0=MODELS[name];const o=THREE.SkeletonUtils.c
   o.scale.setScalar(opt.scale||KS);g.add(o);
   if(opt.wheel&&WHEEL){const w=WHEEL.clone();w.scale.setScalar(opt.scale||KS);g.add(w);}
   const mixer=new THREE.AnimationMixer(o),acts={};M0.clips.forEach(c=>acts[c.name]=mixer.clipAction(c));
-  let head=null;o.traverse(b=>{if(b.isBone&&b.name==='head')head=b;});
-  const u={mixer,acts,head,h0:head?head.quaternion.clone():null,cur:null,ph:Math.random()*6.28,pose:opt.pose,talk:0};g.userData=u;
+  let head=null;const arms=[];o.traverse(b=>{if(b.isBone&&b.name==='head')head=b;if(b.isBone&&/^arm/.test(b.name))arms.push(b);});
+  const u={mixer,acts,head,arms,hs:opt.head||HEAD,h0:head?head.quaternion.clone():null,cur:null,ph:Math.random()*6.28,pose:opt.pose,talk:0};g.userData=u;
   play(u,opt.anim);mixer.update(Math.random()*2);return g;}
 function play(u,name,fade){if(u.cur===name||!u.acts[name])return;const a=u.acts[name];a.reset().play();if(u.cur&&fade)u.acts[u.cur].crossFadeTo(a,fade,false);else if(u.cur)u.acts[u.cur].stop();u.cur=name;}
 // per frame: advance the animation; seated children turn their heads to talk to a friend now and then
 function animate(u,tt,dt,walk){if(!u||!u.mixer)return;
   if(walk!==undefined&&u.pose==='walk')play(u,walk>0.1?'walk':'idle',0.2);
   if(u.pose==='wheel-me')play(u,walk>0.1?'wheelchair-move-forward':'wheelchair-sit',0.2);
-  if(u.head)u.head.quaternion.copy(u.h0); // back to rest before the clip (or our offset) is applied, so offsets never pile up
+  if(u.head){u.head.quaternion.copy(u.h0);u.head.scale.set(1,1,1);} // back to rest before the clip (or our offset) is applied, so offsets never pile up
   u.mixer.update(dt);
-  if(u.head&&(u.pose==='sit'||u.pose==='wheel')){const talk=Math.sin(tt*0.35+u.ph)>0.7;u.talk+=((talk?(Math.sin(u.ph*3)>0?0.6:-0.6):Math.sin(tt*0.6+u.ph)*0.15)-u.talk)*Math.min(1,dt*3);u.head.rotation.y+=u.talk;u.head.rotation.x+=talk?0:0.2;}}
+  if(u.head)u.head.scale.multiplyScalar(u.hs); // smaller head than the original chibi proportion
+  u.arms.forEach(a=>a.scale.setScalar(ARM)); // slimmer arms and smaller hands
+  if(u.head&&(u.pose==='sit'||u.pose==='wheel')){const talk=Math.sin(tt*0.35+u.ph)>0.7;u.talk+=((talk?(Math.sin(u.ph*3)>0?0.6:-0.6):Math.sin(tt*0.6+u.ph)*0.15)-u.talk)*Math.min(1,dt*3);u.head.rotation.y+=u.talk;u.head.rotation.x+=talk?0:0.06;}}
 const kidGroup=new THREE.Group();scene.add(kidGroup);
 const pickKid=()=>KIDS[Math.floor(Math.random()*KIDS.length)];
 function kid(x,z,col,pose,face,wc){let g;
