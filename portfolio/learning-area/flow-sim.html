@@ -50,7 +50,7 @@ label.chk{display:flex;align-items:center;gap:6px;font-size:14px;cursor:pointer}
 .tag.ok{background:var(--accent-soft);color:var(--accent)}
 .tag.no{background:color-mix(in srgb,var(--bad) 14%,transparent);color:var(--bad)}
 canvas{width:100%;max-width:100%;display:block;border-radius:8px;aspect-ratio:10.6/8.45;background:var(--floor)}
-.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(96px,1fr));gap:8px}
+.stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
 .stat{background:var(--bg);border-radius:10px;padding:8px 10px}
 .stat b{display:block;font-size:22px;font-variant-numeric:tabular-nums;line-height:1.2}
 .stat span{font-size:12px;color:var(--muted)}
@@ -119,7 +119,7 @@ canvas{width:100%;max-width:100%;display:block;border-radius:8px;aspect-ratio:10
     <span><i style="background:var(--go)"></i>前門綠腳印：進來</span>
     <span><i style="background:var(--bad)"></i>後門紅腳印：出去</span>
   </div>
-  <p class="note">教室以 10 × 7 公尺示意（B403 實際尺寸待量測），配置依簡報「規劃模擬教室」平面圖：後排美勞、組合建構、語文；前排數學、中間低區、積木，前後門在同一面牆，門外是鞋櫃：前門在數學區與中間低區之間（進來），後門在中間低區與積木區之間（出去）；門口地上貼腳印、門上掛「進來」「出去」圖卡。幼兒步行約每秒 0.8 公尺，在選區板停 2 秒插姓名卡。這是簡化模擬，沒有模擬幼兒互相閃避，只比較路線本身。「穿越其他區」不計中間低區，因為它本來就是動線樞紐。午餐、點心：洗手台在門外走廊、兩門之間；配膳台與回收區在教室內靠前牆，規劃後一律後門出、前門進，形成單向循環。「走錯門」是從前門出去或從後門進來的次數。</p>
+  <p class="note">教室以 10 × 7 公尺示意（B403 實際尺寸待量測），配置依簡報「規劃模擬教室」平面圖：後排美勞、組合建構、語文；前排數學、中間低區、積木，前後門在同一面牆，門外是鞋櫃：前門在數學區與中間低區之間（進來），後門在中間低區與積木區之間（出去）；門口地上貼腳印、門上掛「進來」「出去」圖卡。幼兒步行約每秒 0.8 公尺，在選區板停 2 秒插姓名卡。這是簡化模擬，沒有模擬幼兒互相閃避，只比較路線本身。「穿越其他區」不計中間低區，因為它本來就是動線樞紐。桌椅依人數上限配置（每張桌子 4 張椅子）：美勞區 2 張併桌、數學、組合建構、語文（視聽桌）各 1 張、中間低區 2 張；積木區是地毯，不放桌子。學習時間幼兒坐在椅子上；規劃後的路線會繞開桌椅，「擠過桌椅」是從別人的桌椅之間穿過的次數。午餐、點心：洗手台在門外走廊、兩門之間；配膳台與回收區在教室內靠前牆，規劃後一律後門出、前門進，形成單向循環。「走錯門」是從前門出去或從後門進來的次數。</p>
 </div>
 
 <script>
@@ -133,9 +133,41 @@ const Z={ // zone rects in meters [x,y,w,h]
   blk:{n:'積木區',r:[7.0,3.6,2.7,3.0],door:'dBlk',shelf:[9.4,5.1],cap:6,tk:'--z-blk'}
 };
 const HUB=[3.6,3.6,2.8,2.3];
+// tables (meters) with their chairs; one kid per chair
+function tbl(zone,x,y,w,h,ch){return {zone,r:[x,y,w,h],ch};}
+function four(x,y,w,h){return [[x+w*0.25,y-0.25],[x+w*0.75,y-0.25],[x+w*0.25,y+h+0.25],[x+w*0.75,y+h+0.25]];}
+const TABLES=[
+  tbl('art',1.35,0.85,1.2,1.1,[[1.65,0.6],[2.25,0.6],[1.65,2.2],[2.25,2.2],[1.1,1.15],[1.1,1.65],[2.8,1.15],[2.8,1.65]]),
+  tbl('math',1.45,4.55,1.2,0.6,four(1.45,4.55,1.2,0.6)),
+  tbl('con',4.55,1.25,1.2,0.6,four(4.55,1.25,1.2,0.6)),
+  tbl('lang',7.6,1.0,1.2,0.6,four(7.6,1.0,1.2,0.6)),
+  tbl('hub',3.85,4.03,1.1,0.52,four(3.85,4.03,1.1,0.52)),
+  tbl('hub',5.05,4.03,1.1,0.52,four(5.05,4.03,1.1,0.52))];
+TABLES.forEach(t=>{let x0=t.r[0],y0=t.r[1],x1=t.r[0]+t.r[2],y1=t.r[1]+t.r[3];t.ch.forEach(([cx,cy])=>{x0=Math.min(x0,cx-0.15);y0=Math.min(y0,cy-0.15);x1=Math.max(x1,cx+0.15);y1=Math.max(y1,cy+0.15);});t.f=[x0,y0,x1,y1];});
+const inF=(t,p,m=0)=>p&&p[0]>=t.f[0]-m&&p[0]<=t.f[2]+m&&p[1]>=t.f[1]-m&&p[1]<=t.f[3]+m;
+const footAt=p=>TABLES.findIndex(t=>inF(t,p));
+const chairsOf=z=>TABLES.filter(t=>t.zone===z).flatMap(t=>t.ch);
+// obstacle-aware walking for the planned side
+function segClear(a,b){const L=d2(a,b),n=Math.ceil(L/0.05);for(let i=1;i<n;i++){const p=[a[0]+(b[0]-a[0])*i/n,a[1]+(b[1]-a[1])*i/n];
+  if(d2(p,a)<0.4||d2(p,b)<0.4)continue;if(TABLES.some(t=>inF(t,p,0.08)))return false;}return true;}
+function clearPath(a,b){if(segClear(a,b))return [b];
+  const G=0.1,cols=101,rows=80,key=(i,j)=>j*cols+i,toC=p=>[Math.max(0,Math.min(cols-1,Math.round(p[0]/G))),Math.max(0,Math.min(rows-1,Math.round(p[1]/G)))];
+  const blocked=(i,j)=>{const p=[i*G,j*G];if(d2(p,a)<0.4||d2(p,b)<0.4)return false;return TABLES.some(t=>inF(t,p,0.12));};
+  const [si,sj]=toC(a),[gi,gj]=toC(b);const open=new Map(),g=new Map(),came=new Map(),closed=new Set();
+  g.set(key(si,sj),0);open.set(key(si,sj),Math.hypot(gi-si,gj-sj));
+  while(open.size){let cur=null,cf=Infinity;for(const [k2,v] of open)if(v<cf){cf=v;cur=k2;}open.delete(cur);
+    if(cur===key(gi,gj))break;closed.add(cur);const ci=cur%cols,cj=(cur-ci)/cols;
+    for(let di=-1;di<=1;di++)for(let dj=-1;dj<=1;dj++){if(!di&&!dj)continue;const ni=ci+di,nj=cj+dj;if(ni<0||nj<0||ni>=cols||nj>=rows)continue;
+      const nk=key(ni,nj);if(closed.has(nk)||blocked(ni,nj))continue;const ng=g.get(cur)+Math.hypot(di,dj);
+      if(ng<(g.has(nk)?g.get(nk):Infinity)){g.set(nk,ng);came.set(nk,cur);open.set(nk,ng+Math.hypot(gi-ni,gj-nj));}}}
+  if(!came.has(key(gi,gj)))return [b];
+  const cells=[];let c=key(gi,gj);while(c!==undefined&&c!==key(si,sj)){cells.unshift([(c%cols)*G,((c-c%cols)/cols)*G]);c=came.get(c);}
+  cells[cells.length-1]=b;const out=[];let from=a,i=0;
+  while(i<cells.length){let j=cells.length-1;while(j>i&&!segClear(from,cells[j]))j--;out.push(cells[j]);from=cells[j];i=j+1;}
+  return out;}
 const N={E:[3.25,6.95],BD:[6.7,6.95],S:[4.2,6.55],B:[5.0,6.4],BL:[3.25,6.4],BR:[6.7,6.4],HC:[5.0,4.75],HT:[5.0,3.2],L:[3.25,3.2],R:[6.7,3.2],TL:[1.6,3.2],TR:[8.35,3.2],
   dArt:[1.6,2.75],dMath:[1.6,3.65],dCon:[5.15,2.75],ML:[3.25,4.75],MR:[6.7,4.75],BX:[6.7,7.65],OE:[3.25,7.65],SV:[5.1,6.55],RC:[6.05,6.55],dLang:[8.35,2.75],dBlk:[8.35,3.65]};
-const EDGES=[['E','S'],['BR','BD'],['BD','BX'],['S','B'],['L','ML'],['ML','BL'],['R','MR'],['MR','BR'],['B','BL'],['B','BR'],['B','HC'],['HC','HT'],['L','HT'],['HT','R'],['L','TL'],['R','TR'],['TL','dArt'],['TL','dMath'],['HT','dCon'],['B','SV'],['SV','RC'],['RC','BR'],['TR','dLang'],['TR','dBlk']];
+const EDGES=[['E','S'],['BR','BD'],['BD','BX'],['S','B'],['L','ML'],['ML','BL'],['R','MR'],['MR','BR'],['B','BL'],['B','BR'],['L','HT'],['HT','R'],['L','TL'],['R','TR'],['TL','dArt'],['TL','dMath'],['HT','dCon'],['B','SV'],['SV','RC'],['RC','BR'],['TR','dLang'],['TR','dBlk']];
 const adj={};for(const k in N)adj[k]=[];
 const d2=(a,b)=>Math.hypot(a[0]-b[0],a[1]-b[1]);
 EDGES.forEach(([a,b])=>{const w=d2(N[a],N[b]);adj[a].push([b,w]);adj[b].push([a,w]);});
@@ -149,12 +181,12 @@ function rng(seed){let s=seed>>>0;return()=>{s=(s*1664525+1013904223)>>>0;return
 function spots(zk,n,r,taken){const [x,y,w,h]=Z[zk].r,out=[];let tries=0;
   while(out.length<n&&tries<4000){tries++;const p=[x+0.45+r()*(w-0.9),y+0.45+r()*(h-0.9)];
     if([...out,...taken].every(q=>d2(p,q)>0.6))out.push(p);}return out;}
-const hubSpots=[];for(let j=0;j<4;j++)for(let i=0;i<5;i++)hubSpots.push([HUB[0]+0.45+i*0.475,HUB[1]+0.45+j*0.47]);
+const hubSpots=[...chairsOf('hub')];for(let j=0;j<2;j++)for(let i=0;i<6;i++)hubSpots.push([3.9+i*0.46,5.25+j*0.42]);
 
 // base assignment: 20 kids
 const R=rng(7);const ASSIGN=[];
-const plan={art:5,lang:4,con:3,blk:4,math:4};
-const zoneSpots={};for(const z in plan)zoneSpots[z]=spots(z,plan[z]+3,R,[]);
+const plan={art:5,lang:3,con:3,blk:5,math:4};
+const zoneSpots={};for(const z in plan){const c=chairsOf(z);zoneSpots[z]=c.length?c:spots(z,plan[z]+3,R,[]);}
 let order=[];for(const z in plan)for(let i=0;i<plan[z];i++)order.push(z);
 for(let i=order.length-1;i>0;i--){const j=Math.floor(R()*(i+1));[order[i],order[j]]=[order[j],order[i]];}
 const used={};for(const z in plan)used[z]=0;
@@ -162,15 +194,15 @@ order.forEach((z,i)=>{ASSIGN.push({zone:z,spot:zoneSpots[z][used[z]++]});});
 const HUBMAP=(()=>{const idx=ASSIGN.map((a,i)=>i).sort((p,q)=>Z[ASSIGN[p].zone].shelf[0]-Z[ASSIGN[q].zone].shelf[0]||Z[ASSIGN[p].zone].shelf[1]-Z[ASSIGN[q].zone].shelf[1]);
   const hs=hubSpots.slice().sort((p,q)=>p[0]-q[0]||p[1]-q[1]);const m=[];idx.forEach((k,j)=>m[k]=hs[j]);return m;})();
 const SINKS=[4.15,4.5,4.85,5.2,5.55,5.9].map(x=>[x,7.62]);
-const SEATS=[];[4.0,4.67,5.33,6.0].forEach(x=>[4.2,5.3].forEach(y=>SEATS.push({zone:'hub',p:[x,y]})));
-[[1.2,4.4],[2.1,4.4],[1.2,5.5],[2.1,5.5]].forEach(p=>SEATS.push({zone:'math',p}));
-[[1.3,1.0],[2.2,1.0],[1.3,2.1],[2.2,2.1]].forEach(p=>SEATS.push({zone:'art',p}));
-[[4.6,1.4],[5.7,1.4],[4.6,2.3],[5.7,2.3]].forEach(p=>SEATS.push({zone:'con',p}));
+const SEATS=TABLES.flatMap(t=>t.ch.map(p=>({zone:t.zone,p})));
 const SEATMAP=(()=>{const free=SEATS.slice(),m=[];ASSIGN.forEach((a,i)=>{let bi=0;free.forEach((st,j)=>{if(d2(st.p,a.spot)<d2(free[bi].p,a.spot))bi=j;});m[i]=free.splice(bi,1)[0];});return m;})();
 const MOVES=[[0,'blk'],[0,'math'],[0,'con'],[0,'art'],[0,'lang'],[0,'art']];
 // pick movers: first kid found in each source zone in order
-(function(){const src=['lang','art','math','blk','con','math'];const pickd=new Set();
-  src.forEach((s,k)=>{const idx=ASSIGN.findIndex((a,i)=>a.zone===s&&!pickd.has(i));pickd.add(idx);MOVES[k][0]=idx;});})();
+const MOVEDEST=[];
+(function(){const src=['lang','math','math','blk','con','art'],dst=['blk','con','art','art','lang','math'];const pickd=new Set();
+  const occ={};for(const z in plan)occ[z]=new Set(ASSIGN.filter(a=>a.zone===z).map(a=>a.spot));
+  src.forEach((s,k)=>{const idx=ASSIGN.findIndex((a,i)=>a.zone===s&&!pickd.has(i));pickd.add(idx);MOVES[k]=[idx,dst[k]];
+    occ[s].delete(ASSIGN[idx].spot);const free=zoneSpots[dst[k]].find(p=>!occ[dst[k]].has(p));occ[dst[k]].add(free);MOVEDEST[k]=free;});})();
 
 const SCEN=[
  {d:'幼兒每隔約 1.5 秒進門，在門外鞋櫃換好鞋，從前門進來，先到門旁的選區板插姓名卡，再走到自己選的學習區。'},
@@ -185,6 +217,7 @@ const SCEN=[
 function anchorOf(loc){return loc.zone==='hub'?(loc.p[0]<4.5?'ML':loc.p[0]>5.5?'MR':loc.p[1]<4.75?'HT':'B'):loc.zone?Z[loc.zone].door:loc.node;}
 function legPts(from,to,planned){
   if(!planned)return [to.p];
+  if(from.zone&&to.zone&&from.zone===to.zone)return clearPath(from.p,to.p);
   const a=anchorOf(from),b=anchorOf(to);const ids=sp(a,b);
   const pts=ids.map(id=>N[id].slice());
   // keep-right lane offset on corridor nodes (skip endpoints that are pause points)
@@ -195,7 +228,9 @@ function legPts(from,to,planned){
     out.push(isPause?pts[i]:[pts[i][0]-dy*off,pts[i][1]+dx*off]);}
   // drop the first node if it equals where we stand
   if(out.length&&d2(out[0],from.p)<0.05)out.shift();
-  out.push(to.p);return out;}
+  out.push(to.p);
+  const res=[];let prev=from.p;out.forEach((q,j)=>{if(j===0||j===out.length-1)res.push(...clearPath(prev,q));else res.push(q);prev=q;});
+  return res;}
 const FRONT=[3.25,7.0],BACK=[6.7,7.0];
 function route(a,b,planned){const ia=!a.out,ib=!b.out;
   if(planned){
@@ -214,12 +249,12 @@ function buildKids(s,planned){
       k.wp=[...legPts(LOC_E,LOC_S,planned).map((p,j,arr)=>({p,pause:j===arr.length-1?2:0})),
             ...legPts(LOC_S,{zone:a.zone,p:a.spot},planned).map(p=>({p,pause:0}))];}
     else if(s===1){k.pos=a.spot.slice();const m=MOVES.findIndex(x=>x[0]===i);
-      if(m>=0){const nz=MOVES[m][1];const ns=zoneSpots[nz][used[nz]+ (MOVES.slice(0,m).filter(x=>x[1]===nz).length)];
+      if(m>=0){const nz=MOVES[m][1];const ns=MOVEDEST[m];
         k.color=nz;k.allowed.add(nz);k.t0=0.5+m*2.6;const here={zone:a.zone,p:a.spot};
         k.wp=[...legPts(here,LOC_S,planned).map((p,j,arr)=>({p,pause:j===arr.length-1?2:0})),
               ...legPts(LOC_S,{zone:nz,p:ns},planned).map(p=>({p,pause:0}))];}}
-    else if(s===3){k.pos=hubSpots[i].slice();k.t0=i*0.7;k.allowed=new Set(['hub']);k.out=true;
-      k.wp=legPts({zone:'hub',p:hubSpots[i]},{node:'BX',p:N.BX},planned).map(p=>({p,pause:0}));}
+    else if(s===3){k.pos=HUBMAP[i].slice();k.t0=i*0.7;k.allowed=new Set(['hub']);k.out=true;
+      k.wp=legPts({zone:'hub',p:HUBMAP[i]},{node:'BX',p:N.BX},planned).map(p=>({p,pause:0}));}
     else if(s===4||s===5){const st=SEATMAP[i];k.pos=a.spot.slice();k.t0=i*(s===4?0.9:0.6);k.allowed=new Set([a.zone,st.zone,'hub']);
       const start={zone:a.zone,p:a.spot},sink={out:true,p:SINKS[i%SINKS.length]},sv={node:'SV',p:N.SV},rc={node:'RC',p:N.RC},seat={zone:st.zone,p:st.p};
       const steps=s===4?[[sink,4],[sv,2.5],[seat,18],[rc,2],[sink,6],[seat,0]]:[[sink,4],[sv,2],[seat,8],[rc,2],[start,0]];
@@ -236,7 +271,7 @@ function zoneAt(p){for(const z in Z){const [x,y,w,h]=Z[z].r;if(p[0]>=x&&p[0]<=x+
 
 function Sim(cv,stEl,planned){this.cv=cv;this.ctx=cv.getContext('2d');this.st=stEl;this.planned=planned;}
 Sim.prototype.reset=function(s){this.kids=buildKids(s,this.planned);this.t=0;this.near=new Set();this.enc=0;this.finish=null;
-  this.kids.forEach(k=>{k.cur=zoneAt(k.pos);k.trail=[k.pos.slice()];});this.renderStats();};
+  this.kids.forEach(k=>{k.cur=zoneAt(k.pos);k.home=k.pos.slice();k.cf=footAt(k.pos);k.hz=k.cf>=0?TABLES[k.cf].zone:null;k.trail=[k.pos.slice()];});this.renderStats();};
 Sim.prototype.step=function(dt){
   this.t+=dt;const V=0.8;
   for(const k of this.kids){if(k.done||this.t<k.t0)continue;
@@ -244,12 +279,13 @@ Sim.prototype.step=function(dt){
     if(k.wait>0){k.wait-=dt;continue;}
     let rem=V*dt;
     while(rem>0&&k.wp.length){const w=k.wp[0];const dx=w.p[0]-k.pos[0],dy=w.p[1]-k.pos[1],L=Math.hypot(dx,dy);
-      if(L<=rem){k.pos=w.p.slice();rem-=L;k.wp.shift();if(w.pause){k.wait=w.pause;break;}}
+      if(L<=rem){k.pos=w.p.slice();rem-=L;k.wp.shift();if(w.pause){k.wait=w.pause;k.stop=w.p;break;}}
       else{k.pos[0]+=dx/L*rem;k.pos[1]+=dy/L*rem;rem=0;}
       if(L>0)k.v=[dx/L,dy/L];}
     k.dist=(k.dist||0)+V*dt-rem;
     const last=k.trail[k.trail.length-1];if(d2(last,k.pos)>0.08&&k.trail.length<900)k.trail.push(k.pos.slice());
     if(k.py!==undefined){if(k.py<7&&k.pos[1]>=7&&k.pos[0]<5)k.wrong=(k.wrong||0)+1;if(k.py>7&&k.pos[1]<=7&&k.pos[0]>5)k.wrong=(k.wrong||0)+1;}k.py=k.pos[1];
+    const f=footAt(k.pos);if(f!==k.cf){if(f>=0){const t=TABLES[f];const nx=(k.wp.find(w=>w.pause)||k.wp[k.wp.length-1]);const ok=t.zone===k.hz||TABLES.some(t2=>t2.zone===t.zone&&((nx&&inF(t2,nx.p))||inF(t2,k.stop||k.home)));if(!ok)k.bump=(k.bump||0)+1;}k.cf=f;}
     const z=zoneAt(k.pos);if(z!==k.cur){if(z&&!k.allowed.has(z)){k.cross++;if(z==='blk')k.blk++;}k.cur=z;}}
   const mv=this.kids.filter(k=>!k.done&&this.t>=k.t0&&k.wp.length&&k.wait<=0);
   for(let a=0;a<mv.length;a++)for(let b=a+1;b<mv.length;b++){const key=mv[a].i+'-'+mv[b].i,d=d2(mv[a].pos,mv[b].pos);
@@ -260,10 +296,11 @@ Sim.prototype.step=function(dt){
 Sim.prototype.renderStats=function(){
   const cross=this.kids.reduce((s,k)=>s+k.cross,0),blk=this.kids.reduce((s,k)=>s+k.blk,0);
   const mv=this.kids.filter(k=>k.dist);const avg=mv.length?(mv.reduce((a,k)=>a+k.dist,0)/mv.length).toFixed(1):'0.0';
-  const wr=this.kids.reduce((s,k)=>s+(k.wrong||0),0);
+  const wr=this.kids.reduce((s,k)=>s+(k.wrong||0),0),bp=this.kids.reduce((s,k)=>s+(k.bump||0),0);
   const tm=this.finish!==null?Math.round(this.finish)+' 秒':'—';
   const html=`<div class="stat${cross?' warn':''}"><b>${cross}</b><span>穿越其他區（次）</span></div>
   <div class="stat${blk?' warn':''}"><b>${blk}</b><span>踩過積木區（次）</span></div>
+  <div class="stat${bp?' warn':''}"><b>${bp}</b><span>擠過桌椅（次）</span></div>
   <div class="stat${wr?' warn':''}"><b>${wr}</b><span>走錯門（次）</span></div>
   <div class="stat"><b>${avg}</b><span>平均每人走（公尺）</span></div>
   <div class="stat"><b>${tm}</b><span>全部到位</span></div>`;
@@ -286,10 +323,12 @@ Sim.prototype.draw=function(showTrail){
     const sh=Z[z].shelf,horiz=(z==='con');c.fillStyle=C['--wall'];
     if(horiz)c.fillRect(X(sh[0]-0.9),Y(sh[1]-0.25),1.8*s,0.3*s);else c.fillRect(X(sh[0]-(sh[0]<5?0.25:0.05)),Y(sh[1]-0.8),0.3*s,1.6*s);
     c.fillStyle=C['--fg'];c.font=`700 ${fs}px ${C['--body']}`;c.textAlign='center';c.textBaseline='middle';
-    c.fillText(Z[z].n,X(x+w/2),Y(y+h/2));}
+    const lp={art:[2.25,2.58],math:[1.6,5.95],con:[5.75,2.58],lang:[8.35,2.4],blk:[8.35,5.1]}[z];c.font=`700 ${fs*0.85}px ${C['--body']}`;c.fillText(Z[z].n,X(lp[0]),Y(lp[1]));}
   // hub
   c.fillStyle=C['--hub'];c.beginPath();c.roundRect(X(HUB[0]),Y(HUB[1]),HUB[2]*s,HUB[3]*s,s*0.12);c.fill();
-  c.fillStyle=C['--muted'];c.font=`700 ${fs}px ${C['--body']}`;c.fillText('中間低區',X(HUB[0]+HUB[2]/2),Y(HUB[1]+HUB[3]/2));
+  c.fillStyle=C['--muted'];c.font=`700 ${fs}px ${C['--body']}`;c.fillText('中間低區',X(HUB[0]+HUB[2]/2),Y(5.85));
+  for(const t of TABLES){c.fillStyle=C['--muted'];c.globalAlpha=0.35;t.ch.forEach(([cx,cy])=>{c.beginPath();c.roundRect(X(cx-0.14),Y(cy-0.14),0.28*s,0.28*s,s*0.05);c.fill();});
+    c.globalAlpha=1;c.fillStyle=C['--surface'];c.strokeStyle=C['--wall'];c.lineWidth=Math.max(1,s*0.025);c.beginPath();c.roundRect(X(t.r[0]),Y(t.r[1]),t.r[2]*s,t.r[3]*s,s*0.06);c.fill();c.stroke();}
   // walls
   c.strokeStyle=C['--wall'];c.lineWidth=Math.max(2,s*0.08);c.lineCap='butt';
   c.beginPath();c.moveTo(X(2.95),Y(7));c.lineTo(X(0),Y(7));c.lineTo(X(0),Y(0));c.lineTo(X(10),Y(0));c.lineTo(X(10),Y(7));c.lineTo(X(7.0),Y(7));
@@ -329,7 +368,7 @@ Sim.prototype.draw=function(showTrail){
   // planned corridor
   if(this.planned){c.strokeStyle=C['--route'];c.globalAlpha=0.55;c.lineWidth=Math.max(1.5,s*0.04);c.setLineDash([s*0.14,s*0.1]);
     const ring=['L','HT','R','BR','B','BL','L'];c.beginPath();ring.forEach((id,i)=>{const p=N[id];i?c.lineTo(X(p[0]),Y(p[1])):c.moveTo(X(p[0]),Y(p[1]));});c.stroke();
-    [['L','TL'],['R','TR'],['B','E'],['B','HC'],['HC','HT']].forEach(([a,b])=>{c.beginPath();c.moveTo(X(N[a][0]),Y(N[a][1]));c.lineTo(X(N[b][0]),Y(N[b][1]));c.stroke();});
+    [['L','TL'],['R','TR'],['B','E']].forEach(([a,b])=>{c.beginPath();c.moveTo(X(N[a][0]),Y(N[a][1]));c.lineTo(X(N[b][0]),Y(N[b][1]));c.stroke();});
     c.setLineDash([]);c.globalAlpha=1;}
   // trails
   if(showTrail)for(const k of this.kids){if(k.trail.length<2)continue;c.strokeStyle=C[Z[k.color].tk];c.globalAlpha=0.35;c.lineWidth=Math.max(1,s*0.035);c.lineJoin='round';
