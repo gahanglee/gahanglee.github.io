@@ -89,7 +89,7 @@ label.chk{display:flex;align-items:center;gap:8px;font-size:15px;cursor:pointer}
       <p>你是大中混齡班 20 位幼兒之一。其他 19 位已經先選好學習區（每次隨機），每區有人數上限，額滿要選別區。</p>
       <label class="chk"><input type="checkbox" id="wc"> 我坐輪椅（輪椅寬約 70 公分，走得比較慢）</label>
       <p class="keys">電腦：方向鍵或 W A S D 移動、轉向，拖曳畫面看四周，E 鍵或按鈕互動。手機：左下方向鍵、拖曳畫面轉向。</p>
-      <div class="row"><button type="button" class="btn primary" id="go">開始</button></div>
+      <div class="row"><button type="button" class="btn primary" id="go" disabled>載入角色中…</button></div>
     </div></div>
 
     <div class="panel" id="pBoard"><div class="card">
@@ -119,10 +119,12 @@ label.chk{display:flex;align-items:center;gap:8px;font-size:15px;cursor:pointer}
     </div></div>
   </div>
 
-  <p class="note">教室以 10 × 7 公尺示意，配置與動線模擬相同（B403 實際尺寸待量測）。前後門在同一面牆：前門貼綠色腳印、掛「進來」圖卡，後門貼紅色腳印、掛「出去」圖卡；橘色虛線是環狀主走道。示意圖的門寬放寬為 90 公分，實際門寬需量測（無障礙規範 205.2.3：門框間距至少 90 公分）。</p>
+  <p class="note">教室以 10 × 7 公尺示意，配置與動線模擬相同。人物模型取自 Kenney「Mini Characters」（CC0 授權，kenney.nl），並改成淺藍色園服（B403 實際尺寸待量測）。前後門在同一面牆：前門貼綠色腳印、掛「進來」圖卡，後門貼紅色腳印、掛「出去」圖卡；橘色虛線是環狀主走道。示意圖的門寬放寬為 90 公分，實際門寬需量測（無障礙規範 205.2.3：門框間距至少 90 公分）。</p>
 </div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/GLTFLoader.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/utils/SkeletonUtils.js"></script>
 <script>
 (function(){
 'use strict';
@@ -241,130 +243,72 @@ const STATIC=OBS.slice(); // furniture only (people are added later)
 solidBox(4.75,6.82,5.5,6.98,0.7,mats.wood);solidBox(5.8,6.82,6.3,6.98,0.6,mats.wood);label('配膳台',5.12,1.0,6.9,'#5B7083',0.6);
 // block-area carpet bits and some blocks for life
 for(let i=0;i<14;i++){const c=[0xD9822B,0x3E7CC0,0xC25A8A,0x1E9E5A,0xE0C040][i%5];box(7.6+(i%5)*0.25,4.6+Math.floor(i/5)*0.35,7.75+(i%5)*0.25,4.7+Math.floor(i/5)*0.35,0,0.06+0.05*(i%3),M(c));}
-// ---------- people: soft toon-shaded Q-style children in the school uniform, a teacher, a wheelchair ----------
-const UNI={shirt:0x9ED8E6,collar:0xFFFFFF,bottom:0x2E4A7A,sock:0xFFFFFF,shoe:0x4A3F3A}; // light-blue uniform like the field photos
-const SKIN=[0xF8DCC6,0xF1CBAE,0xE8BE9C,0xF5D3B9],HAIR=[0x2B1D16,0x3B2A20,0x1E1A18,0x5A3B26];
-const grad=(()=>{const d=new Uint8Array([90,170,255]);const t=new THREE.DataTexture(d,3,1,THREE.LuminanceFormat);t.minFilter=t.magFilter=THREE.NearestFilter;t.needsUpdate=true;return t;})();
-const mm={};const MC=c=>mm[c]||(mm[c]=new THREE.MeshToonMaterial({color:c,gradientMap:grad}));
-const OUT=new THREE.MeshBasicMaterial({color:0x2A2522,side:THREE.BackSide});
-function outline(m,s){const o=new THREE.Mesh(m.geometry,OUT);o.scale.setScalar(s||1.06);m.add(o);return m;}
-function cyl(rt,rb,h,c,seg){return new THREE.Mesh(new THREE.CylinderGeometry(rt,rb,h,seg||16),MC(c));}
-function sph(r,c,ws,hs,ts,tl){return new THREE.Mesh(new THREE.SphereGeometry(r,ws||20,hs||16,0,Math.PI*2,ts||0,tl||Math.PI),MC(c));}
-function at(m,x,y,z){m.position.set(x,y,z);return m;}
-// a rounded limb segment hanging down from its pivot (capsule = cylinder + two spheres)
-function seg(len,r1,r2,c){const g=new THREE.Group();const b=cyl(r1,r2,len,c,14);b.position.y=-len/2;g.add(b);g.add(sph(r1,c,14,10));const e=sph(r2,c,14,10);e.position.y=-len;g.add(e);return g;}
-function joint(parent,x,y,z){const p=new THREE.Group();p.position.set(x,y,z);parent.add(p);return p;}
-function head(parent,y,o){const R=o.adult?0.115:0.14,skin=o.skin,hair=o.hairC;const h=joint(parent,0,y,0);
-  const sk=outline(sph(R,skin,24,18),1.045);sk.scale.set(1,0.96,0.97);sk.position.y=R*0.95;h.add(sk);
-  const c=R*0.95; // centre height of the face
-  [-1,1].forEach(sd=>{h.add(at(sph(R*0.2,skin,10,8),sd*R*0.98,c,0));});
-  const eyes=[-1,1].map(sd=>{const e=sph(R*0.115,0x2A2320,12,10);e.scale.set(1,1.25,0.6);e.position.set(sd*R*0.36,c+R*0.08,R*0.9);h.add(e);
-    const hl=sph(R*0.04,0xFFFFFF,8,6);hl.position.set(sd*R*0.36+R*0.035,c+R*0.13,R*0.98);h.add(hl);return e;});
-  [-1,1].forEach(sd=>{const ck=new THREE.Mesh(new THREE.CircleGeometry(R*0.15,16),new THREE.MeshBasicMaterial({color:0xF4A3A0,transparent:true,opacity:0.55}));ck.position.set(sd*R*0.6,c-R*0.18,R*0.82);ck.rotation.y=sd*0.62;h.add(ck);});
-  h.add(at(sph(R*0.07,0xE9B39A,8,6),0,c-R*0.06,R*0.98));
-  const mouth=new THREE.Mesh(new THREE.TorusGeometry(R*0.16,R*0.035,6,14,Math.PI),MC(0xB5544F));mouth.position.set(0,c-R*0.3,R*0.93);mouth.rotation.z=Math.PI;h.add(mouth);
-  // hair: soft cap, fringe tufts, then the style
-  const cap=sph(R*1.07,hair,22,14,0,Math.PI*0.54);cap.rotation.x=-0.45;cap.position.y=c;h.add(outline(cap,1.03));
-  for(let i=-2;i<=2;i++){const t=sph(R*0.3,hair,10,8);t.scale.set(1,0.75,0.8);t.position.set(i*R*0.3,c+R*0.62-Math.abs(i)*R*0.06,R*0.76-Math.abs(i)*R*0.12);h.add(t);}
-  const st=o.hair;
-  if(st==='bob'){const b=sph(R*1.12,hair,22,14,0,Math.PI*0.66);b.rotation.x=-1.25;b.position.y=c;h.add(b);[-1,1].forEach(sd=>{const s=sph(R*0.42,hair,12,10);s.scale.set(0.6,1.2,0.9);s.position.set(sd*R*0.95,c-R*0.15,R*0.05);h.add(s);});}
-  if(st==='pony'){const p=sph(R*0.42,hair);p.scale.set(0.9,1.25,0.9);p.position.set(0,c+R*0.15,-R*1.25);h.add(p);h.add(at(new THREE.Mesh(new THREE.TorusGeometry(R*0.2,R*0.07,8,14),MC(0xE85D7A)),0,c+R*0.42,-R*1.0));}
-  if(st==='twin'){[-1,1].forEach(sd=>{const p=sph(R*0.36,hair);p.scale.set(0.9,1.3,0.9);p.position.set(sd*R*1.12,c-R*0.1,-R*0.2);h.add(p);h.add(at(sph(R*0.13,0xF4C64F,10,8),sd*R*0.98,c+R*0.28,-R*0.15));});}
-  if(st==='bun'){h.add(at(sph(R*0.48,hair),0,c+R*0.85,-R*0.55));const b=sph(R*1.1,hair,22,14,0,Math.PI*0.6);b.rotation.x=-1.1;b.position.y=c;h.add(b);}
-  return {h,eyes};}
-function person(o){ // pose: 'stand' | 'sit' (chair) | 'floor' (carpet) | 'chair' (wheelchair) | 'walk'
-  const A=!!o.adult,g=new THREE.Group();
-  const L=A?{th:0.38,sh:0.36,tor:0.5,sw:0.15,arm:0.28,fore:0.26,r:0.055}:{th:0.14,sh:0.13,tor:0.27,sw:0.115,arm:0.12,fore:0.11,r:0.038};
-  const stand=L.th+L.sh+0.05;
-  const pelvis=joint(g,0,stand,0);
-  // legs (thigh -> knee -> shin -> shoe)
-  const legC=A?0x3D4A5C:UNI.sock,thighC=A?0x3D4A5C:(o.skirt?UNI.sock:UNI.bottom);
-  const legs=[-1,1].map(sd=>{const hp=joint(pelvis,sd*(A?0.085:0.055),0,0);hp.add(seg(L.th,L.r*1.1,L.r,thighC));
-    const kn=joint(hp,0,-L.th,0);kn.add(seg(L.sh,L.r,L.r*0.9,legC));
-    const shoe=sph(L.r*1.35,A?0x2F2A28:UNI.shoe,14,10);shoe.scale.set(1,0.65,1.6);shoe.position.set(0,-L.sh-L.r*0.6,L.r*0.7);kn.add(shoe);return {hp,kn};});
-  // body
-  const torso=joint(pelvis,0,0,0);
-  if(A){const hipm=sph(0.17,0x3D4A5C,18,12);hipm.scale.set(1,0.6,0.8);torso.add(hipm);
-    const ch=outline(sph(0.18,0xF4E6D2,20,16),1.04);ch.scale.set(1,1.55,0.78);ch.position.y=0.3;torso.add(ch);
-    const ap=new THREE.Mesh(new THREE.CylinderGeometry(0.15,0.19,0.5,20,1,true,-0.85,1.7),new THREE.MeshToonMaterial({color:0xE07A3F,gradientMap:grad,side:THREE.DoubleSide}));ap.position.y=0.22;ap.scale.z=0.82;torso.add(ap);}
-  else{if(o.skirt){const sk=cyl(0.1,0.155,0.13,UNI.bottom,20);sk.position.y=0.02;torso.add(outline(sk,1.04));}
-    else{const sh=sph(0.11,UNI.bottom,18,12);sh.scale.set(1.05,0.6,0.85);sh.position.y=0.02;torso.add(sh);}
-    const body=outline(sph(0.115,UNI.shirt,20,16),1.05);body.scale.set(1,1.35,0.85);body.position.y=0.15;torso.add(body);
-    const col=new THREE.Mesh(new THREE.TorusGeometry(0.06,0.02,8,18),MC(UNI.collar));col.rotation.x=Math.PI/2;col.position.y=0.28;torso.add(col);
-    if(o.badge!==undefined){const bd=new THREE.Mesh(new THREE.BoxGeometry(0.055,0.04,0.012),MC(o.badge));bd.position.set(0.05,0.18,0.095);torso.add(bd);}}
-  // arms (shoulder -> elbow -> hand)
-  const shY=A?0.52:0.25,armC=A?0xF4E6D2:UNI.shirt;
-  const arms=[-1,1].map(sd=>{const s=joint(torso,sd*L.sw,shY,0);s.add(seg(L.arm,L.r*0.95,L.r*0.85,armC));
-    const el=joint(s,0,-L.arm,0);el.add(seg(L.fore,L.r*0.8,L.r*0.75,o.skin));const hd=sph(L.r*1.05,o.skin,12,10);hd.position.y=-L.fore-L.r*0.5;el.add(hd);return {s,el,sd};});
-  const hd=head(torso,A?0.78:0.31,o);
-  // pose
-  const P=o.pose;
-  if(P==='sit'||P==='chair'){pelvis.position.y=P==='chair'?0.5:0.33;legs.forEach(l=>{l.hp.rotation.x=-Math.PI/2;l.kn.rotation.x=Math.PI/2;});
-    arms.forEach(a=>{a.s.rotation.x=-0.55;a.el.rotation.x=-1.1;a.s.rotation.z=a.sd*0.08;});}
-  else if(P==='floor'){pelvis.position.y=0.07;legs.forEach((l,i)=>{l.hp.rotation.order='YXZ';l.hp.rotation.set(-Math.PI/2+0.15,(i?-1:1)*0.75,0);l.kn.rotation.x=2.4;});
-    torso.rotation.x=0.22;arms.forEach(a=>{a.s.rotation.x=-0.75;a.el.rotation.x=-0.7;});}
-  else arms.forEach(a=>{a.s.rotation.z=a.sd*0.12;a.el.rotation.x=-0.15;});
-  g.userData={pelvis,torso,legs,arms,hd:hd.h,eyes:hd.eyes,ph:Math.random()*6.28,pose:P,base:pelvis.position.y,blink:2+Math.random()*3};
-  return g;}
-function animate(u,tt,dt,walkSpeed){if(!u||!u.arms)return;const ph=u.ph,P=u.pose;
-  // blinking
-  u.blink-=dt;const bl=u.blink<0.12?0.12:1;if(u.blink<0)u.blink=2.5+Math.random()*3;u.eyes.forEach(e=>e.scale.y=1.25*bl);
-  // breathing
-  u.torso.scale.y=1+Math.sin(tt*2.4+ph)*0.012;
-  if(P==='walk'){const w=walkSpeed||0,s=Math.sin(tt*7+ph)*0.55*w;u.legs[0].hp.rotation.x=s;u.legs[1].hp.rotation.x=-s;
-    u.legs[0].kn.rotation.x=Math.max(0,-s)*1.1;u.legs[1].kn.rotation.x=Math.max(0,s)*1.1;
-    u.arms[0].s.rotation.x=-s*0.8;u.arms[1].s.rotation.x=s*0.8;u.pelvis.position.y=u.base+Math.abs(Math.cos(tt*7+ph))*0.015*w;
-    u.hd.rotation.y=Math.sin(tt*0.7+ph)*0.15;return;}
-  if(P==='sit'||P==='chair'||P==='floor'){ // hands busy on the table / carpet, head looks at work or at a friend
-    const b=P==='floor'?-0.7:-1.1;u.arms[0].el.rotation.x=b+Math.sin(tt*2.6+ph)*0.28;u.arms[1].el.rotation.x=b+Math.sin(tt*2.1+ph+1.9)*0.28;
-    u.arms[0].s.rotation.y=Math.sin(tt*1.3+ph)*0.15;u.arms[1].s.rotation.y=Math.sin(tt*1.1+ph+1)*0.15;
-    const talk=Math.sin(tt*0.35+ph)>0.75;u.hd.rotation.y+=((talk?Math.sin(ph*3)>0?0.7:-0.7:Math.sin(tt*0.5+ph)*0.15)-u.hd.rotation.y)*Math.min(1,dt*3);
-    u.hd.rotation.x=(talk?0:0.28)+Math.sin(tt*1.7+ph)*0.04;u.torso.rotation.z=Math.sin(tt*0.8+ph)*0.04;return;}
-  u.hd.rotation.y=Math.sin(tt*0.5+ph)*0.35;u.torso.rotation.z=Math.sin(tt*0.9+ph)*0.03;}
-function wheelchair(){const g=new THREE.Group(),frame=0x5C6670,seat=0x2F5D8A;
-  g.add(at(new THREE.Mesh(new THREE.BoxGeometry(0.4,0.05,0.38),MC(seat)),0,0.46,0));
-  g.add(at(new THREE.Mesh(new THREE.BoxGeometry(0.4,0.36,0.04),MC(seat)),0,0.68,-0.2));
-  [-1,1].forEach(sd=>{const w=new THREE.Mesh(new THREE.TorusGeometry(0.27,0.022,8,28),MC(0x2A2A2A));w.rotation.y=Math.PI/2;w.position.set(sd*0.25,0.29,-0.06);g.add(w);
-    const rim=new THREE.Mesh(new THREE.TorusGeometry(0.24,0.008,6,28),MC(0xBFC6CC));rim.rotation.y=Math.PI/2;rim.position.set(sd*0.27,0.29,-0.06);g.add(rim);
-    for(let i=0;i<6;i++){const sp=cyl(0.005,0.005,0.5,0xBFC6CC,4);sp.rotation.x=i*Math.PI/6;sp.position.set(sd*0.25,0.29,-0.06);g.add(sp);}
-    const cs=new THREE.Mesh(new THREE.TorusGeometry(0.06,0.015,6,14),MC(0x2A2A2A));cs.rotation.y=Math.PI/2;cs.position.set(sd*0.17,0.06,0.2);g.add(cs);
-    const post=cyl(0.012,0.012,0.4,frame,6);post.position.set(sd*0.17,0.26,0.2);g.add(post);
-    const hb=cyl(0.014,0.014,0.5,frame,6);hb.position.set(sd*0.2,0.72,-0.23);g.add(hb);
-    const grip=cyl(0.022,0.022,0.1,0x2A2A2A,8);grip.rotation.x=Math.PI/2;grip.position.set(sd*0.2,0.97,-0.28);g.add(grip);
-    const ar=new THREE.Mesh(new THREE.BoxGeometry(0.04,0.03,0.3),MC(frame));ar.position.set(sd*0.21,0.64,-0.03);g.add(ar);});
-  g.add(at(new THREE.Mesh(new THREE.BoxGeometry(0.3,0.02,0.12),MC(frame)),0,0.1,0.3));
-  return g;}
-function kidOpts(badge,pose){const hs=['short','bob','pony','twin','short'];const h=hs[Math.floor(Math.random()*hs.length)];
-  return {pose,hair:h,hairC:HAIR[Math.floor(Math.random()*HAIR.length)],skin:SKIN[Math.floor(Math.random()*SKIN.length)],skirt:h!=='short'&&Math.random()<0.7,badge};}
+// ---------- people: Kenney "Mini Characters" (CC0, kenney.nl) — Q-style children recoloured into the school uniform ----------
+const KDIR='/portfolio/learning-area/assets/kenney-mini/';
+const KIDS=['female-b','female-c','female-d','female-e','female-f','male-a','male-d','male-e','male-f']; // child faces only
+const KS=1.25,TS=1.95; // child ≈ 0.95 m, teacher ≈ 1.5 m
+const MODELS={};let WHEEL=null,peopleReady=false;
+// clothing vertices are remapped to the light-blue cell (top) and the blue cell (bottom); skin (taken from the hands), hair, face and shoes stay
+function makeUniform(root){
+  const cellOf=(u,v)=>Math.min(7,Math.floor(u*8))+','+Math.min(3,Math.floor(v*4));let body=null;
+  root.traverse(m=>{if(m.isSkinnedMesh&&!/head/.test(m.name))body=m;});if(!body)return;
+  const g=body.geometry=body.geometry.clone(),uv=g.attributes.uv,si=g.attributes.skinIndex,pos=g.attributes.position,bones=body.skeleton.bones;
+  let minY=1e9,maxY=-1e9,maxX=0;for(let i=0;i<pos.count;i++){minY=Math.min(minY,pos.getY(i));maxY=Math.max(maxY,pos.getY(i));if(/arm/.test(bones[si.getX(i)].name))maxX=Math.max(maxX,Math.abs(pos.getX(i)));}
+  const skin=new Set();for(let i=0;i<uv.count;i++)if(/arm/.test(bones[si.getX(i)].name)&&Math.abs(pos.getX(i))>maxX*0.86)skin.add(cellOf(uv.getX(i),uv.getY(i)));
+  const foot=minY+(maxY-minY)*0.1,remap=(i,cx,cy)=>{const u=uv.getX(i)*8,v=uv.getY(i)*4;uv.setXY(i,(cx+(u-Math.floor(u)))/8,(cy+(v-Math.floor(v)))/4);};
+  for(let i=0;i<uv.count;i++){const b=bones[si.getX(i)].name,c=cellOf(uv.getX(i),uv.getY(i));if(skin.has(c))continue;
+    if(b==='torso'||/arm/.test(b))remap(i,1,1);else if(/leg/.test(b)&&pos.getY(i)>foot)remap(i,0,1);}
+  uv.needsUpdate=true;}
+function loadPeople(done){const L=new THREE.GLTFLoader();let left=KIDS.length+1;const fin=()=>{if(--left===0){peopleReady=true;done();}};
+  KIDS.forEach(n=>L.load(KDIR+'character-'+n+'.glb',g=>{const plain=g.scene;const uni=THREE.SkeletonUtils.clone(plain);makeUniform(uni);
+    [plain,uni].forEach(o=>o.traverse(m=>{if(m.isMesh){m.frustumCulled=false;if(m.material.map){m.material.map.encoding=THREE.LinearEncoding;m.material.needsUpdate=true;}}}));MODELS[n]={uni,plain,clips:g.animations};fin();},undefined,fin));
+  L.load(KDIR+'wheelchair.glb',g=>{WHEEL=g.scene;fin();},undefined,fin);}
+// one character instance with its own animation mixer
+function character(name,opt){const M0=MODELS[name];const o=THREE.SkeletonUtils.clone(opt.plain?M0.plain:M0.uni);const g=new THREE.Group();
+  o.scale.setScalar(opt.scale||KS);g.add(o);
+  if(opt.wheel&&WHEEL){const w=WHEEL.clone();w.scale.setScalar(opt.scale||KS);g.add(w);}
+  const mixer=new THREE.AnimationMixer(o),acts={};M0.clips.forEach(c=>acts[c.name]=mixer.clipAction(c));
+  let head=null;o.traverse(b=>{if(b.isBone&&b.name==='head')head=b;});
+  const u={mixer,acts,head,h0:head?head.quaternion.clone():null,cur:null,ph:Math.random()*6.28,pose:opt.pose,talk:0};g.userData=u;
+  play(u,opt.anim);mixer.update(Math.random()*2);return g;}
+function play(u,name,fade){if(u.cur===name||!u.acts[name])return;const a=u.acts[name];a.reset().play();if(u.cur&&fade)u.acts[u.cur].crossFadeTo(a,fade,false);else if(u.cur)u.acts[u.cur].stop();u.cur=name;}
+// per frame: advance the animation; seated children turn their heads to talk to a friend now and then
+function animate(u,tt,dt,walk){if(!u||!u.mixer)return;
+  if(walk!==undefined&&u.pose==='walk')play(u,walk>0.1?'walk':'idle',0.2);
+  if(u.pose==='wheel-me')play(u,walk>0.1?'wheelchair-move-forward':'wheelchair-sit',0.2);
+  if(u.head)u.head.quaternion.copy(u.h0); // back to rest before the clip (or our offset) is applied, so offsets never pile up
+  u.mixer.update(dt);
+  if(u.head&&(u.pose==='sit'||u.pose==='wheel')){const talk=Math.sin(tt*0.35+u.ph)>0.7;u.talk+=((talk?(Math.sin(u.ph*3)>0?0.6:-0.6):Math.sin(tt*0.6+u.ph)*0.15)-u.talk)*Math.min(1,dt*3);u.head.rotation.y+=u.talk;u.head.rotation.x+=talk?0:0.2;}}
 const kidGroup=new THREE.Group();scene.add(kidGroup);
+const pickKid=()=>KIDS[Math.floor(Math.random()*KIDS.length)];
 function kid(x,z,col,pose,face,wc){let g;
-  if(wc){g=new THREE.Group();g.add(wheelchair());const p=person(kidOpts(col,'chair'));g.add(p);g.userData=p.userData;}
-  else g=person(kidOpts(col,pose));
-  g.position.set(x,0,z);if(face)g.rotation.y=Math.atan2(face[0]-x,face[1]-z);kidGroup.add(g);return g;}
+  if(wc)g=character(pickKid(),{wheel:true,anim:'wheelchair-sit',pose:'wheel'});
+  else if(pose==='sit')g=character(pickKid(),{anim:'sit',pose:'sit'});
+  else g=character(pickKid(),{anim:Math.random()<0.5?'pick-up':'crouch',pose:'floor'}); // building on the block-area carpet
+  g.position.set(x,pose==='sit'&&!wc?SIT_Y:0,z);if(face)g.rotation.y=Math.atan2(face[0]-x,face[1]-z);kidGroup.add(g);return g;}
+const SIT_Y=0.3; // the "sit" clip sits on the ground: lift the child onto the 30 cm seat
 // walkers: two children walking the ring corridor (they stop and wait when someone is in front of them)
 const WALK=[[3.25,3.2],[5,3.2],[6.7,3.2],[6.7,6.2],[5,6.2],[3.25,6.2]];
 const walkers=[];
-function addWalkers(){walkers.forEach(w=>{scene.remove(w.g);OBS[w.oi]=null;});walkers.length=0;
-  [0,3].forEach((start,i)=>{const g=person(kidOpts(0xFFFFFF,'walk'));scene.add(g);OBS.push(null);walkers.push({g,seg:start,t:Math.random(),oi:OBS.length-1,dir:i?1:-1});});}
+function addWalkers(){walkers.forEach(w=>{scene.remove(w.g);OBS[w.oi]=null;});walkers.length=0;if(!peopleReady)return;
+  [0,3].forEach((start,i)=>{const g=character(pickKid(),{anim:'walk',pose:'walk'});scene.add(g);OBS.push(null);walkers.push({g,seg:start,t:Math.random(),oi:OBS.length-1,dir:i?1:-1});});}
 function walkStep(w,dt,tt){const n=WALK.length,a=WALK[w.seg],b=WALK[(w.seg+(w.dir>0?1:n-1))%n],L=Math.hypot(b[0]-a[0],b[1]-a[1]);
   const x=a[0]+(b[0]-a[0])*w.t,z=a[1]+(b[1]-a[1])*w.t,ux=(b[0]-a[0])/L,uz=(b[1]-a[1])/L;
-  let blockedAhead=S.x!==undefined&&Math.hypot(S.x-(x+ux*0.5),S.y-(z+uz*0.5))<0.55;
-  const sp=blockedAhead?0:0.75;w.t+=sp*dt/L;if(w.t>=1){w.t=0;w.seg=(w.seg+(w.dir>0?1:n-1))%n;}
-  w.g.position.set(x,0,z);w.g.rotation.y=Math.atan2(ux,uz);OBS[w.oi]=[x-0.14,z-0.14,x+0.14,z+0.14];
-  animate(w.g.userData,tt,dt,blockedAhead?0:1);}
+  const stop=S.x!==undefined&&Math.hypot(S.x-(x+ux*0.5),S.y-(z+uz*0.5))<0.55;
+  w.t+=(stop?0:0.7)*dt/L;if(w.t>=1){w.t=0;w.seg=(w.seg+(w.dir>0?1:n-1))%n;}
+  w.g.position.set(x,0,z);w.g.rotation.y=Math.atan2(ux,uz);OBS[w.oi]=[x-0.14,z-0.14,x+0.14,z+0.14];animate(w.g.userData,tt,dt,stop?0:1);}
 // the teacher walks slowly along the gathering area, looking over every learning area
-const teacher=person({adult:true,pose:'walk',hair:'bun',hairC:0x2B1D16,skin:0xF0CDB0});scene.add(teacher);OBS.push(null);const TOI=OBS.length-1;
-const tLabel=label('老師',0,2.0,0,'#E07A3F',0.6);scene.remove(tLabel);teacher.add(tLabel);
+const teacher=new THREE.Group();scene.add(teacher);OBS.push(null);const TOI=OBS.length-1;
+const tLabel=label('老師',0,2.05,0,'#E07A3F',0.6);scene.remove(tLabel);teacher.add(tLabel);
 let tT=0;
-function teacherStep(dt,tt){tT+=dt*0.12;const s=(Math.sin(tT)+1)/2,x=3.95+s*2.1,z=5.45,v=Math.cos(tT);
-  const pause=Math.abs(v)<0.25;teacher.position.set(x,0,z);
-  teacher.rotation.y=pause?Math.PI+Math.sin(tt*0.4)*1.2:(v>0?Math.PI/2:-Math.PI/2);
-  OBS[TOI]=[x-0.2,z-0.2,x+0.2,z+0.2];animate(teacher.userData,tt,dt,pause?0:0.7);
-  if(pause){teacher.userData.legs.forEach(l=>{l.hp.rotation.x*=0.9;l.kn.rotation.x*=0.9;});}}
+function teacherStep(dt,tt){if(!teacher.userData.mixer)return;tT+=dt*0.12;const s=(Math.sin(tT)+1)/2,x=3.95+s*2.1,z=5.45,v=Math.cos(tT),pause=Math.abs(v)<0.25;
+  teacher.position.set(x,0,z);teacher.rotation.y=pause?Math.PI+Math.sin(tt*0.4)*1.0:(v>0?Math.PI/2:-Math.PI/2);
+  OBS[TOI]=[x-0.2,z-0.2,x+0.2,z+0.2];animate(teacher.userData,tt,dt,pause?0:1);}
 // player avatar (visible in top view)
-const me=new THREE.Group();const meKid=person({pose:'walk',hair:'short',hairC:0x2B1D16,skin:0xF6D7BF,badge:0xE07A3F});
-const meWc=new THREE.Group();meWc.add(wheelchair());const meSit=person({pose:'chair',hair:'short',hairC:0x2B1D16,skin:0xF6D7BF,badge:0xE07A3F});meWc.add(meSit);
-me.add(meKid,meWc);const meTag=label('你',0,1.5,0,'#E07A3F',0.5);scene.remove(meTag);me.add(meTag);scene.add(me);
+const me=new THREE.Group();let meKid=new THREE.Group(),meWc=new THREE.Group(),meSit=meWc;me.add(meKid,meWc);
+const meTag=label('你',0,1.45,0,'#E07A3F',0.5);scene.remove(meTag);me.add(meTag);scene.add(me);
+function buildPeople(){const t=character('female-d',{plain:true,scale:TS,anim:'walk',pose:'walk'});teacher.add(t);teacher.userData=t.userData;
+  me.remove(meKid,meWc);meKid=character('male-d',{anim:'idle',pose:'walk'});meWc=character('male-d',{wheel:true,anim:'wheelchair-sit',pose:'wheel-me'});meSit=meWc;me.add(meKid,meWc);meWc.visible=false;}
 
 // ---------- game state ----------
 const ZK=Object.keys(Z);
@@ -528,7 +472,7 @@ function frame(ts){requestAnimationFrame(frame);
   const tt=ts/1000;
   kidGroup.children.forEach(k=>animate(k.userData,tt,dt));
   walkers.forEach(w=>walkStep(w,dt,tt));teacherStep(dt,tt);
-  animate(meKid.userData,tt,dt,(keys.f||keys.b)&&!document.querySelector('.panel.on')?1:0);animate(meSit.userData,tt,dt);
+  const mv=(keys.f||keys.b)&&!document.querySelector('.panel.on')?1:0;animate(meKid.userData,tt,dt,mv);animate(meWc.userData,tt,dt,mv);
   if(S.x!==undefined){me.position.set(S.x,0,S.y);me.rotation.y=yaw+Math.PI;me.visible=top;
     if(top){cam.position.set(5,10.5,10.2);cam.lookAt(5,0,3.9);}
     else{cam.position.set(S.x,S.eye,S.y);const d=new THREE.Vector3(-Math.sin(yaw)*Math.cos(pitch),Math.sin(pitch),-Math.cos(yaw)*Math.cos(pitch));cam.lookAt(cam.position.clone().add(d));}}
@@ -536,6 +480,7 @@ function frame(ts){requestAnimationFrame(frame);
   if(toastT&&ts>toastT){document.getElementById('toast').style.display='none';toastT=0;}
   renderer.render(scene,cam);drawMini();}
 resize();S={};requestAnimationFrame(frame);
+loadPeople(()=>{buildPeople();const b=document.getElementById('go');b.disabled=false;b.textContent='開始';});
 if(document.fonts&&document.fonts.ready)document.fonts.ready.then(()=>{});
 })();
 </script>
