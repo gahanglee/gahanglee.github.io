@@ -141,7 +141,7 @@ label.chk{display:flex;align-items:center;gap:8px;font-size:15px;cursor:pointer}
         <label class="chk"><input type="checkbox" id="wc"> 我坐輪椅</label>
       </div>
       <p class="note">電腦：方向鍵或 W A S D 走路與轉彎（往下鍵是轉身往回走），拖曳畫面看四周，E 鍵或按鈕互動。手機：左下方向鍵，拖曳畫面轉視角。</p>
-      <div class="row"><button type="button" class="btn primary" id="go">開始</button></div>
+      <div class="row"><button type="button" class="btn primary" id="go" disabled>角色載入中…</button></div>
     </div></div>
 
     <div class="panel" id="pBoard"><div class="card">
@@ -173,10 +173,12 @@ label.chk{display:flex;align-items:center;gap:8px;font-size:15px;cursor:pointer}
     </div></div>
   </div>
 
-  <p class="note">教室以 10 × 7 公尺示意，配置與動線模擬相同（B403 實際尺寸待量測）。前後門在同一面牆：前門貼綠色腳印、掛「進來」圖卡，後門貼紅色腳印、掛「出去」圖卡；橘色虛線是環狀主走道。示意圖的門寬為 90 公分，實際門寬需量測（無障礙規範 205.2.3）。人物為原創 Q 版造型（約 3 頭身，幼兒身高約 95 公分，穿淺藍色園服）。</p>
+  <p class="note">教室以 10 × 7 公尺示意，配置與動線模擬相同（B403 實際尺寸待量測）。前後門在同一面牆：前門貼綠色腳印、掛「進來」圖卡，後門貼紅色腳印、掛「出去」圖卡；橘色虛線是環狀主走道。示意圖的門寬為 90 公分，實際門寬需量測（無障礙規範 205.2.3）。人物為原創 Q 版造型（約 3 頭身，幼兒身高約 95 公分，穿淺藍色園服）。選「女生」時的角色與幾位女同學是「沐」（作者：晃，以 VRoid Studio 製作）；選「男生」時的角色與幾位男同學是 VRoid 官方範例角色「AvatarSample_Z」、老師是「AvatarSample_A」（作者皆為 pixiv VRoid Project）。三者的 VRM 授權皆為個人非營利使用、須標示作者，制服已改為淺藍色園服。同學身高 95–110 公分、老師 160 公分。</p>
 </div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/GLTFLoader.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/utils/SkeletonUtils.js"></script>
 <script>
 (function(){
 'use strict';
@@ -571,8 +573,9 @@ function person(o){ // o: {adult, girl, hair, hairC, skin, eye, pose, badge}
     add(j.torso,new THREE.Mesh(new THREE.BoxGeometry(0.045,0.032,0.01),mat(o.badge||'#E07A3F')),0.04,Tn*0.6,R*0.95);}
   const shY=Tn*0.88,sleeve=o.adult?mat('#FBF3E4'):mat(UNI.shirt);
   ['L','R'].forEach((s,i)=>{const sd=i?-1:1,sh=j['sh'+s]=pivot(j.torso,sd*d.shW,shY,0);sh.rotation.z=sd*0.14;
-    add(sh,new THREE.Mesh(capG(d.arm,d.armR*1.1,d.armR),sleeve));
-    const el=j['el'+s]=pivot(sh,0,-d.arm,0);add(el,new THREE.Mesh(capG(d.fore,d.armR*0.95,d.armR*0.85),skin));
+    add(sh,new THREE.Mesh(capG(d.arm,d.armR*1.1,d.armR),sleeve));add(sh,new THREE.Mesh(sphG(d.armR*1.15,14,10),sleeve)); // round shoulder joint
+    // elbow: a ball joint fills the gap when the arm bends; adults wear long sleeves down to the wrist
+    const el=j['el'+s]=pivot(sh,0,-d.arm,0);add(el,new THREE.Mesh(sphG(d.armR*1.0,14,10),o.adult?sleeve:skin));add(el,new THREE.Mesh(capG(d.fore,d.armR*0.97,d.armR*0.85),o.adult?sleeve:skin));
     const hd=add(el,new THREE.Mesh(sphG(d.armR*1.15,12,10),skin),0,-d.fore-d.armR*0.5,0);hd.scale.set(1,1.15,0.85);});
   // head: face painted on the sphere (front = +z), hair on top
   const HR=d.headR;j.head=pivot(j.torso,0,Tn+HR*0.08,0);const hc=HR*0.88;
@@ -593,7 +596,8 @@ function person(o){ // o: {adult, girl, hair, hairC, skin, eye, pose, badge}
   const c={g,j,d,pose:o.pose||'walk',ph:Math.random()*6.28,w:0,cyc:0,talk:0};g.userData.c=c;setPose(c,c.pose);return c;}
 function setPose(c,P){c.pose=P;const j=c.j,d=c.d;['hipL','hipR'].forEach(k=>{j[k].rotation.order='YXZ';j[k].rotation.set(0,0,0);});
   j.torso.rotation.set(0,0,0);
-  if(P==='sit'||P==='wheel'){j.pelvis.position.y=(P==='wheel'?0.44:0.315)+d.legR;j.hipL.rotation.x=j.hipR.rotation.x=-Math.PI/2+0.06;j.kneeL.rotation.x=j.kneeR.rotation.x=Math.PI/2-0.06;}
+  if(P==='sit'||P==='wheel'){j.pelvis.position.y=((P==='wheel'?0.44:0.315)+d.legR*(c.sc||1))/(c.sc||1); // seat height stays the same whatever the child's height
+    j.hipL.rotation.x=j.hipR.rotation.x=-Math.PI/2+0.06;j.kneeL.rotation.x=j.kneeR.rotation.x=Math.PI/2-0.06;}
   else if(P==='floor'){j.pelvis.position.y=d.legR*1.2;j.hipL.rotation.set(-Math.PI/2+0.12,0.7,0);j.hipR.rotation.set(-Math.PI/2+0.12,-0.7,0);j.kneeL.rotation.x=j.kneeR.rotation.x=2.35;j.torso.rotation.x=0.18;}
   else{j.pelvis.position.y=d.hip;j.kneeL.rotation.x=j.kneeR.rotation.x=0.05;}}
 // NPC behaviour: every classmate cycles through small actions so the room feels alive
@@ -643,18 +647,65 @@ function wheelchair(){const g=new THREE.Group(),fr=mat('#6B7785',0.5),seat=mat('
 const rnd=a=>a[Math.floor(Math.random()*a.length)];
 function kidOpts(girl,badge){return {girl,hair:girl?rnd(['bob','pony','twin','bob','pony']):'short',hairC:rnd(HAIRC),skin:rnd(SKIN),eye:rnd(EYEC),badge};}
 function seated(c,inChair){if(!inChair)return c.g;const g=new THREE.Group(),wc=wheelchair();g.add(wc.g,c.g);c.wheels=wc.wheels;c.wcg=wc.g;setPose(c,'wheel');return g;}
+// ---------- 「沐」: the class's own VRoid character (VRM 1.0), driven by the same joints as the Q-style children ----------
+// model by 晃 (VRoid Studio); licence in the file: personal non-profit use, redistribution allowed, credit required
+const VRMM={girl:{file:'assets/mu.vrm',h:1.251,ok:false},boy:{file:'assets/boy.vrm',h:1.269,ok:false},teacher:{file:'assets/teacher.vrm',h:1.598,ok:false}};const VRMS=[];
+function loadOne(m){return new Promise(res=>{if(!THREE.GLTFLoader||!THREE.SkeletonUtils){res(false);return;}
+  new THREE.GLTFLoader().load(m.file,g=>{try{const js=g.parser.json,ext=js.extensions.VRMC_vrm,hb=ext.humanoid.humanBones;m.names={};
+      for(const k in hb)m.names[k]=js.nodes[hb[k].node].name;const ex=ext.expressions.preset;
+      m.blink=ex.blink.morphTargetBinds[0].index;m.happy=ex.happy.morphTargetBinds[0].index;
+      g.scene.traverse(q=>{if(q.isMesh){q.castShadow=true;q.frustumCulled=false;}});m.proto=g.scene;m.ok=true;res(true);}catch(e){console.warn('VRM',e);res(false);}},
+    undefined,e=>{console.warn('VRM load failed',m.file,e);res(false);});});}
+const loadVRM=()=>Promise.all([loadOne(VRMM.girl).then(ok=>{if(ok)adopt(swKid,{h:kidH(),noGlasses:true,tint:HAIRTINT[2]});}),loadOne(VRMM.boy).then(ok=>{if(ok)adopt(runner,{boy:true,h:kidH(),tint:HAIRTINT_B[2]});}),loadOne(VRMM.teacher).then(ok=>{if(ok)adoptTeacher();})]);
+// the teacher becomes the VRoid adult character (160 cm); her name label stays on the same group
+function adopt(c,o){const tv=vrmPerson(o);VRMS.splice(VRMS.indexOf(tv),1);
+  [...c.g.children].forEach(ch=>{if(!ch.isSprite)c.g.remove(ch);else ch.position.y=1.95;});c.g.scale.setScalar(1);c.g.add(tv.g);
+  c.j=tv.j;c.vrm=tv.vrm;c.sc=1;setPose(c,c.pose);FIXEDV.push(c);}
+const FIXEDV=[];
+function adoptTeacher(){adopt(teacher,{model:'teacher',h:1.60});}
+const kidH=()=>0.95+Math.random()*0.15; // classmates 95-110 cm
+let BASE_H={};function sizeTo(c,h){const k=c.d===DIM.adult?'a':'c';if(!BASE_H[k]){const p=c.pose;setPose(c,'walk');c.g.updateMatrixWorld(true);BASE_H[k]=new THREE.Box3().setFromObject(c.g).getSize(new THREE.Vector3()).y;setPose(c,p);}c.sc=h/BASE_H[k];c.g.scale.setScalar(c.sc);setPose(c,c.pose);return c;}
+const HAIRTINT=[null,'#5A4636','#3A2E2A','#8A6A4E'],HAIRTINT_B=[null,'#7A5A44','#B08A66','#4A3A30'];
+function vrmPerson(o){const M=VRMM[o.model||(o.boy?'boy':'girl')],root=THREE.SkeletonUtils.clone(M.proto),g=new THREE.Group(),S=(o.h||1.0)/M.h;root.scale.setScalar(S);g.add(root);
+  const bone=n=>root.getObjectByName(M.names[n]);
+  const B={hips:bone('hips'),spine:bone('spine'),chest:bone('chest'),head:bone('head'),uL:bone('leftUpperLeg'),uR:bone('rightUpperLeg'),lL:bone('leftLowerLeg'),lR:bone('rightLowerLeg'),
+    aL:bone('leftUpperArm'),aR:bone('rightUpperArm'),fL:bone('leftLowerArm'),fR:bone('rightLowerArm')};
+  const rest={};for(const k in B)rest[k]=B[k].quaternion.clone();const shoeMats=[];
+  root.traverse(m=>{if(!m.isMesh)return;const arr=Array.isArray(m.material),mats=arr?m.material:[m.material];
+    const nm=mats.map(mt=>{const n=mt.name||'';if(/Shoes/.test(n)){const c=mt.clone();shoeMats.push(c);return c;}if(o.tint&&/HAIR/.test(n)){const c=mt.clone();c.color=lin(o.tint);return c;}if(o.noGlasses&&/Glasses/.test(n)){const c=mt.clone();c.visible=false;return c;}return mt;});
+    m.material=arr?nm:nm[0];m.castShadow=true;m.frustumCulled=false;});
+  const faces=[];root.traverse(m=>{if(m.isMesh&&m.morphTargetInfluences&&m.morphTargetInfluences.length>M.blink)faces.push(m);});
+  const j={};['pelvis','hipL','hipR','kneeL','kneeR','torso','shL','shR','elL','elR','head'].forEach(k=>j[k]=new THREE.Object3D());
+  j.shL.rotation.z=0.14;j.shR.rotation.z=-0.14;
+  // shoe changes recolour this character's own shoe material (it stays skinned), like the Q-style figures' shoes
+  j.shoes=[{set material(m){shoeMats.forEach(sm=>{sm.map=null;sm.color.copy(m.color);sm.needsUpdate=true;});}}];
+  const c={g,j,d:DIM.child,pose:o.pose||'walk',ph:Math.random()*6.28,w:0,cyc:0,talk:0,vrm:{B,rest,faces,blinkT:1+Math.random()*3,S,M,hipsY:B.hips.position.y},bagParent:B.chest};
+  g.userData.c=c;setPose(c,c.pose);VRMS.push(c);return c;}
+// copy the joint rotations onto the VRM bones; arms are swung in an "arm hanging down" frame
+const _q=new THREE.Quaternion(),_e=new THREE.Euler(),_ax=new THREE.Vector3(0,0,1);
+const ARM_L=new THREE.Quaternion().setFromAxisAngle(_ax,-1.32),ARM_R=new THREE.Quaternion().setFromAxisAngle(_ax,1.32),ARM_Li=ARM_L.clone().invert(),ARM_Ri=ARM_R.clone().invert();
+const qOf=o=>_q.setFromEuler(_e.set(o.rotation.x,o.rotation.y,o.rotation.z,o.rotation.order));
+function vrmSync(c,dt){const v=c.vrm,B=v.B,R=v.rest,j=c.j,S=v.S,M=v.M;
+  const set=(k,o)=>B[k].quaternion.copy(qOf(o)).multiply(R[k]);
+  set('uL',j.hipL);set('uR',j.hipR);set('lL',j.kneeL);set('lR',j.kneeR);set('spine',j.torso);set('head',j.head);
+  B.aL.quaternion.copy(qOf(j.shL)).multiply(ARM_L).multiply(R.aL);B.aR.quaternion.copy(qOf(j.shR)).multiply(ARM_R).multiply(R.aR);
+  B.fL.quaternion.copy(ARM_Li).multiply(qOf(j.elL)).multiply(ARM_L).multiply(R.fL);B.fR.quaternion.copy(ARM_Ri).multiply(qOf(j.elR)).multiply(ARM_R).multiply(R.fR);
+  const P=c.pose,h=P==='sit'?0.33:P==='wheel'?0.47:P==='floor'?0.1:v.hipsY*S+(j.pelvis.position.y-c.d.hip);B.hips.position.y=h/S;
+  v.blinkT-=dt;let bl=0;if(v.blinkT<0){bl=1;if(v.blinkT<-0.12)v.blinkT=2+Math.random()*3;}
+  v.faces.forEach(m=>{m.morphTargetInfluences[M.blink]=bl;m.morphTargetInfluences[M.happy]=bl?0:0.3;});}
 const kidGroup=new THREE.Group();scene.add(kidGroup);const kids=[];
-function kid(x,z,col,pose,face,inChair){const c=person(Object.assign(kidOpts(Math.random()<0.5,col),{pose}));const g=seated(c,inChair);
+function kid(x,z,col,pose,face,inChair){const girl=Math.random()<0.5,h=kidH(),M=VRMM[girl?'girl':'boy'],nV=VRMS.filter(q=>q.vrm.M===M).length,useV=M.ok;
+  const c=useV?vrmPerson({pose,boy:!girl,h,tint:(girl?HAIRTINT:HAIRTINT_B)[nV%4],noGlasses:true}):sizeTo(person(Object.assign(kidOpts(girl,col),{pose})),h);const g=seated(c,inChair);
   g.position.set(x,0,z);if(face)g.rotation.y=Math.atan2(face[0]-x,face[1]-z);kidGroup.add(g);kids.push(c);return c;}
 const WALK=[[3.25,3.2],[5,3.2],[6.7,3.2],[6.7,6.2],[5,6.2],[3.25,6.2]],walkers=[];
 function addWalkers(){walkers.forEach(w=>scene.remove(w.c.g));walkers.length=0;
-  [0,3].forEach((start,i)=>{const c=person(kidOpts(i===0,'#FFFFFF'));scene.add(c.g);OBS.push(null);walkers.push({c,seg:start,t:Math.random(),oi:OBS.length-1,dir:i?1:-1});});}
+  [0,3].forEach((start,i)=>{const M=VRMM[i===0?'girl':'boy'],c=M.ok?vrmPerson({boy:i!==0,h:kidH(),tint:(i===0?HAIRTINT:HAIRTINT_B)[1+i],noGlasses:true}):sizeTo(person(kidOpts(i===0,'#FFFFFF')),kidH());scene.add(c.g);OBS.push(null);walkers.push({c,seg:start,t:Math.random(),oi:OBS.length-1,dir:i?1:-1});});}
 function walkStep(w,dt,tt){const n=WALK.length,a=WALK[w.seg],b=WALK[(w.seg+(w.dir>0?1:n-1))%n],L=Math.hypot(b[0]-a[0],b[1]-a[1]);
   const x=a[0]+(b[0]-a[0])*w.t,z=a[1]+(b[1]-a[1])*w.t,ux=(b[0]-a[0])/L,uz=(b[1]-a[1])/L;
   const stop=S.x!==undefined&&Math.hypot(S.x-(x+ux*0.5),S.y-(z+uz*0.5))<0.6;
   w.t+=(stop?0:0.7)*dt/L;if(w.t>=1){w.t=0;w.seg=(w.seg+(w.dir>0?1:n-1))%n;}
   w.c.g.position.set(x,0,z);w.c.wave=stop;w.c.g.rotation.y=stop?Math.atan2(S.x-x,S.y-z):Math.atan2(ux,uz);OBS[w.oi]=[x-0.14,z-0.14,x+0.14,z+0.14];animate(w.c,tt,dt,!stop);}
-const teacher=person({adult:true,hair:'bun',hairC:'#2A1E19',skin:'#F4D0B5',eye:'#3B2A1E'});scene.add(teacher.g);OBS.push(null);const TOI=OBS.length-1;
+const teacher=sizeTo(person({adult:true,hair:'bun',hairC:'#2A1E19',skin:'#F4D0B5',eye:'#3B2A1E'}),1.60);scene.add(teacher.g); /* teacher 160 cm */OBS.push(null);const TOI=OBS.length-1;
 {const tl=label('老師',0,1.98,0,'#E07A3F',0.6);scene.remove(tl);teacher.g.add(tl);}
 // the teacher walks at a normal pace between stops on the low area's edge, pausing to talk with the class at each one
 const TSTOPS=[[3.95,5.45,Math.PI],[5.0,5.45,Math.PI*0.75],[6.05,5.45,Math.PI]];teacher.stepRate=4.2;
@@ -670,17 +721,18 @@ function teacherStep(dt,tt){let mv=false;teacher.wave=(S.waveUntil||0)>tt;
       if(d-st<0.01){TW.i=n;TW.wait=3+Math.random()*3;TW.face=tg[2];}}}
   teacher.g.position.set(TW.x,0,TW.z);OBS[TOI]=[TW.x-0.2,TW.z-0.2,TW.x+0.2,TW.z+0.2];teacher.gesture=!mv;animate(teacher,tt,dt,mv);}
 // outdoor NPCs: a classmate swinging and one running laps on the lawn
-const swKid=person(Object.assign(kidOpts(true,'#FFFFFF'),{pose:'sit'}));SWG[0].g.add(swKid.g);swKid.g.position.set(0,-SWG[0].L+0.02-0.315,0);
-const runner=person(kidOpts(false,'#FFFFFF'));runner.stepRate=14;runner.amp=0.85;scene.add(runner.g);let runA=0;
+const swKid=sizeTo(person(Object.assign(kidOpts(true,'#FFFFFF'),{pose:'sit'})),kidH());SWG[0].g.add(swKid.g);swKid.g.position.set(0,-SWG[0].L+0.02-0.315,0);
+const runner=sizeTo(person(kidOpts(false,'#FFFFFF')),kidH());runner.stepRate=14;runner.amp=0.85;scene.add(runner.g);let runA=0;
 function outdoorStep(dt,tt){const th=0.45*Math.sin(tt*2.2);SWG[0].g.rotation.x=-th;animate(swKid,tt,dt,false);
-  const j=swKid.j;j.shL.rotation.set(-2.6,0,0.25);j.shR.rotation.set(-2.6,0,-0.25);j.elL.rotation.x=j.elR.rotation.x=-0.25;j.torso.rotation.x=-th*0.3;
+  const j=swKid.j;if(swKid.vrm)swKid.g.position.y=-SWG[0].L+0.02-0.315;j.shL.rotation.set(-2.6,0,0.25);j.shR.rotation.set(-2.6,0,-0.25);j.elL.rotation.x=j.elR.rotation.x=-0.25;j.torso.rotation.x=-th*0.3;
   runA+=dt*1.5/0.75;const x=3.6+0.75*Math.cos(runA),z=13.4+0.75*Math.sin(runA);runner.g.position.set(x,0,z);runner.g.rotation.y=Math.atan2(-Math.sin(runA),Math.cos(runA));animate(runner,tt,dt,true);}
 const me=new THREE.Group();scene.add(me);let meC=null;
 {const tag=label('你',0,1.32,0,'#E07A3F',0.5);scene.remove(tag);me.add(tag);me.userData.tag=tag;}
 function buildMe(girl,wc){[...me.children].forEach(ch=>{if(ch!==me.userData.tag)me.remove(ch);});
-  meC=person({girl,hair:girl?'twin':'short',hairC:'#2A1E19',skin:'#F9DCC8',eye:'#5A3A22',badge:'#E07A3F'});me.add(seated(meC,wc));
+  const PM=VRMM[girl?'girl':'boy'];meC=PM.ok?vrmPerson({boy:!girl,h:1.0,noGlasses:true}):sizeTo(person({girl,hair:girl?'twin':'short',hairC:'#2A1E19',skin:'#F9DCC8',eye:'#5A3A22',badge:'#E07A3F'}),1.0);me.add(seated(meC,wc));
   meC.j.shoes.forEach(m=>m.material=mat('#3E7CC0',0.6)); // outdoor shoes
-  const bp=new THREE.Mesh(new THREE.BoxGeometry(0.17,0.2,0.08),mat('#E07A3F'));bp.position.set(0,meC.d.torso*0.5,-meC.d.bodyR-0.03);bp.castShadow=true;meC.j.torso.add(bp);meC.bag=bp;}
+  const bp=new THREE.Mesh(new THREE.BoxGeometry(0.17,0.2,0.08),mat('#E07A3F'));bp.position.set(0,meC.d.torso*0.5,-meC.d.bodyR-0.03);bp.castShadow=true;
+  if(meC.bagParent){bp.scale.setScalar(1/meC.vrm.S);bp.position.set(0,0.02,-0.15);meC.bagParent.add(bp);}else meC.j.torso.add(bp);meC.bag=bp;}
 const placed=new THREE.Group();scene.add(placed);
 function shoesOff(){meC.j.shoes.forEach(m=>m.material=mat('#FFFFFF',0.6));
   shoePair(SHOESLOT.front[0],0.025,SHOESLOT.front[1],'#3E7CC0',placed);}
@@ -695,7 +747,7 @@ const isIn=(z,x,y)=>{const [a,b,w,h]=Z[z].r;return x>=a&&x<=a+w&&y>=b&&y<=b+h;};
 const zoneAt=(x,y)=>ZK.find(z=>isIn(z,x,y))||null;
 const inHub=(x,y)=>x>=HUB[0]&&x<=HUB[0]+HUB[2]&&y>=HUB[1]&&y<=HUB[1]+HUB[3];
 function shuffle(a){for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}
-function reset(){STALLDOORS.forEach((d,i)=>{if(i<3)d.rotation.y=Math.PI*0.45;else d.visible=false;});SWG.forEach(w=>{if(w!==SWG[0])w.g.rotation.x=0;});MERRY.g.rotation.y=0;BALL.position.set(...BALLREST);PANELS.forEach(m=>m.emissiveIntensity=0);while(placed.children.length)placed.remove(placed.children[0]);
+function reset(){VRMS.length=0;STALLDOORS.forEach((d,i)=>{if(i<3)d.rotation.y=Math.PI*0.45;else d.visible=false;});SWG.forEach(w=>{if(w!==SWG[0])w.g.rotation.x=0;});MERRY.g.rotation.y=0;BALL.position.set(...BALLREST);PANELS.forEach(m=>m.emissiveIntensity=0);while(placed.children.length)placed.remove(placed.children[0]);
   const wc=document.getElementById('wc').checked,girl=document.querySelector('input[name=who]:checked').value==='girl';
   S={wc,r:wc?0.36:0.17,speed:wc?0.95:1.3,x:3.25,y:7.95,stage:0,zone:null,wrong:0,cross:0,stuck:0,t0:performance.now(),lastZone:null,lastZ:7.95,done:0,taken:0,items:{},out:{},ride:null,my:0,peed:false,washed:false,girl,si:0,packed:{},itemMesh:{},tray:false,indoorShoes:false,outside:false,atShoes:false,slot:0,clock:'7:40'};
   LINE.on=false;LINE.moving=false;LINE.d=0;LINE.members=[];while(LINE.marks.children.length)LINE.marks.remove(LINE.marks.children[0]);napMats.visible=false;CIRCLE.on=false;teacher.g.visible=true;
@@ -729,7 +781,7 @@ const STEPS=[
   {id:'items',b:1,task:'放好個人物品：{i}',hint:'書包放前門左邊的書包櫃（橘色名牌那格）、水壺放水壺架、餐具放配膳台上的餐具籃'},
   {id:'circle',b:1,task:'晨圈團討：到<b>中間的圓圈地毯</b>坐下',hint:'走到圓形地毯上按「坐下來參加晨圈」'},
   {id:'wash1',b:2,task:WASH,hint:WASHH},
-  {id:'snack1',b:2,task:'到<b>自己的座位</b>吃點心',hint:'中間低區桌上有橘色名牌的位子（用餐固定座位）'},
+  {id:'snack1',b:2,task:'到<b>自己的座位</b>吃點心',hint:'數學區靠前門那張桌子，有橘色名牌的位子（用餐固定座位）'},
   {id:'outShoes',b:3,task:'從紅色腳印的<b>後門</b>出去，到<b>後門外鞋櫃</b>換外出鞋',hint:'靠近鞋櫃後按「換外出鞋」'},
   {id:'play',b:3,task:'在<b>戶外遊戲場</b>玩：{o}',hint:'沿橘色橡膠步道走到設施旁按按鈕；玩 3 項以上就可以回教室'},
   {id:'backIn',b:3,task:'到<b>前門鞋櫃</b>換室內鞋，從前門回教室',hint:'靠近前門鞋櫃按「換室內鞋」'},
@@ -745,7 +797,7 @@ const STEPS=[
   {id:'teeth',b:6,task:'到<b>廁所洗手台</b>刷牙（健康潔牙）'},
   {id:'nap',b:7,task:'午睡時間：到<b>中間低區的睡墊</b>躺下',hint:'睡墊在中間低區靠前門那一側'},
   {id:'wash2',b:8,task:WASH,hint:WASHH},
-  {id:'snack2',b:8,task:'到<b>自己的座位</b>吃點心',hint:'中間低區桌上有橘色名牌的位子'},
+  {id:'snack2',b:8,task:'到<b>自己的座位</b>吃點心',hint:'數學區靠前門那張桌子，有橘色名牌的位子'},
   {id:'review',b:9,task:'到<b>中間低區</b>課程回顧：說說今天學到什麼'},
   {id:'pack',b:10,task:'收拾整理：拿回{p}',hint:'書包櫃、水壺架、餐具籃都在前門附近'},
   {id:'line',b:10,task:'走到<b>排隊腳印</b>上你的位置（橘色腳印）',hint:'同學沿著走道排成一列，老師站在後門'},
@@ -1134,17 +1186,19 @@ function frame(ts){requestAnimationFrame(frame);
   kids.forEach(c=>{if(!LINE.on||!LINE.members.some(m=>m.c===c))animate(c,tt,dt,false);});walkers.forEach(w=>walkStep(w,dt,tt));teacherStep(dt,tt);
   if(S.x!==undefined&&meC){me.position.set(S.x,S.my||0,S.y);me.rotation.y=hdg;animate(meC,tt,dt,moving);if(S.ride&&S.ride.anim)S.ride.anim(meC,tt);}
   me.visible=S.x!==undefined;
+  VRMS.forEach(c=>vrmSync(c,dt));FIXEDV.forEach(c=>vrmSync(c,dt));
   placeCam(dt);
   if(toastT&&ts>toastT){document.getElementById('toast').style.display='none';toastT=0;}
   renderer.render(scene,cam);drawMini();}
 resize();S={};requestAnimationFrame(frame);
+{const go=document.getElementById('go'),done=()=>{go.disabled=false;go.textContent='開始';};loadVRM().then(done);setTimeout(done,20000);}
 function reachSections(z,r){const skip=[TOI,...walkers.map(w=>w.oi)],save=skip.map(i=>OBS[i]);skip.forEach(i=>OBS[i]=null);
   const st=0.05,NX=Math.round(W/st),NY=Math.round(9.3/st),seen=new Uint8Array((NX+1)*(NY+1)),q=[],ok=[0,0,0,0],oz=S.zone,ox=S.x,oy=S.y;S.zone=z;
   const sx=Math.round(3.25/st),sy=Math.round(7.95/st);seen[sy*(NX+1)+sx]=1;q.push([sx,sy]);
   while(q.length){const [i,j]=q.pop(),x=i*st,y=j*st;if(nearShelfAt(x,y)&&isIn(z,x,y)||nearShelfAt(x,y))ok[secAt(z,x,y)]=1;
     for(const [di,dj] of [[1,0],[-1,0],[0,1],[0,-1]]){const a=i+di,b=j+dj;if(a<0||b<0||a>NX||b>NY||seen[b*(NX+1)+a])continue;seen[b*(NX+1)+a]=1;if(!blocked(a*st,b*st,r))q.push([a,b]);}}
   skip.forEach((i,k)=>OBS[i]=save[k]);S.zone=oz;return ok.slice(1);}
-if(DEV)window.__g={teacherPos:()=>[teacher.g.position.x,teacher.g.position.z],go:id=>{go(id);},cur:()=>cur(),slot:()=>{const q=linePos(-S.slot*SPACING);return q;},outs:()=>OUTS.map(o=>[o.k,o.spot]),ride:()=>S.ride&&[S.ride.k,S.ride.i,S.ride.pts.length,!!S.ride.hold],reachBox:(b,r)=>{const st=0.05,NX=300,NY=186,seen=new Uint8Array(301*187),q=[[65,159]];seen[159*301+65]=1;let ok=false;const sv=[TOI,...walkers.map(w=>w.oi)].map(i=>[i,OBS[i]]);sv.forEach(([i])=>OBS[i]=null);while(q.length){const [i,j]=q.pop(),x=i*st,y=j*st;if(Math.hypot(Math.max(b[0]-x,0,x-b[2]),Math.max(b[1]-y,0,y-b[3]))<r+0.6){ok=true;break;}for(const [di,dj] of [[1,0],[-1,0],[0,1],[0,-1]]){const a=i+di,c=j+dj;if(a<0||c<0||a>NX||c>NY||seen[c*301+a])continue;seen[c*301+a]=1;if(!blocked(a*st,c*st,r))q.push([a,c]);}}sv.forEach(([i,o])=>OBS[i]=o);return ok;},boxes:()=>({BAGC,RACK,SERV,SHOEC}),tw:()=>[TW.x,TW.z,TW.wait,teacher.w],acts:()=>({kids:kids.map(c=>c.act),walk:walkers.map(w=>[w.c.wave,+w.c.j.shR.rotation.x.toFixed(2)]),teacher:teacher.gesture}),wk:()=>walkers.map(w=>{const g=w.c.g.position;return [g.x,g.z,Math.sin(w.c.g.rotation.y),Math.cos(w.c.g.rotation.y)];}),dbg:()=>({kids:kids.map(c=>[c.pose,+c.g.parent.position.x.toFixed(2)||+c.g.position.x.toFixed(2),+(c.g.parent===kidGroup?c.g.position.z:c.g.parent.position.z).toFixed(2)]),walkers:walkers.length}),reach:reachSections,S:()=>S,MG:()=>MG,tp:(x,y,h)=>{S.x=x;S.y=y;S.lastZ=y;if(h!==undefined)hdg=h;camReady=false;},cam:(o,p)=>{camOff=o;camPitch=p||0;camReady=false;}};
+if(DEV)window.__g={shoeColor:()=>{let c=null;me.traverse(m=>{if(m.isMesh&&m.material&&/Shoes/.test(m.material.name||'')&&!c)c='#'+m.material.color.clone().convertLinearToSRGB().getHexString()+(m.material.map?' (texture)':' (solid)');});return c;},vrmCount:()=>VRMS.map(c=>c.vrm.M===VRMM.boy?'B':'G').join(''),heights:()=>{const m=o=>{o.updateMatrixWorld(true);const s=new THREE.Box3().setFromObject(o).getSize(new THREE.Vector3());return +s.y.toFixed(2);};return {teacher:m(teacher.g),me:m(me),walkers:walkers.map(w=>m(w.c.g))};},teacherPos:()=>[teacher.g.position.x,teacher.g.position.z],go:id=>{go(id);},cur:()=>cur(),slot:()=>{const q=linePos(-S.slot*SPACING);return q;},outs:()=>OUTS.map(o=>[o.k,o.spot]),ride:()=>S.ride&&[S.ride.k,S.ride.i,S.ride.pts.length,!!S.ride.hold],reachBox:(b,r)=>{const st=0.05,NX=300,NY=186,seen=new Uint8Array(301*187),q=[[65,159]];seen[159*301+65]=1;let ok=false;const sv=[TOI,...walkers.map(w=>w.oi)].map(i=>[i,OBS[i]]);sv.forEach(([i])=>OBS[i]=null);while(q.length){const [i,j]=q.pop(),x=i*st,y=j*st;if(Math.hypot(Math.max(b[0]-x,0,x-b[2]),Math.max(b[1]-y,0,y-b[3]))<r+0.6){ok=true;break;}for(const [di,dj] of [[1,0],[-1,0],[0,1],[0,-1]]){const a=i+di,c=j+dj;if(a<0||c<0||a>NX||c>NY||seen[c*301+a])continue;seen[c*301+a]=1;if(!blocked(a*st,c*st,r))q.push([a,c]);}}sv.forEach(([i,o])=>OBS[i]=o);return ok;},boxes:()=>({BAGC,RACK,SERV,SHOEC}),tw:()=>[TW.x,TW.z,TW.wait,teacher.w],acts:()=>({kids:kids.map(c=>c.act),walk:walkers.map(w=>[w.c.wave,+w.c.j.shR.rotation.x.toFixed(2)]),teacher:teacher.gesture}),wk:()=>walkers.map(w=>{const g=w.c.g.position;return [g.x,g.z,Math.sin(w.c.g.rotation.y),Math.cos(w.c.g.rotation.y)];}),dbg:()=>({kids:kids.map(c=>[c.pose,+c.g.parent.position.x.toFixed(2)||+c.g.position.x.toFixed(2),+(c.g.parent===kidGroup?c.g.position.z:c.g.parent.position.z).toFixed(2)]),walkers:walkers.length}),reach:reachSections,S:()=>S,MG:()=>MG,tp:(x,y,h)=>{S.x=x;S.y=y;S.lastZ=y;if(h!==undefined)hdg=h;camReady=false;},cam:(o,p)=>{camOff=o;camPitch=p||0;camReady=false;}};
 })();
 </script>
 </body>
