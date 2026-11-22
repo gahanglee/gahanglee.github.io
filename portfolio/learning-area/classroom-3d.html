@@ -309,7 +309,7 @@ for(const t of TABLES){const [x,y,w,h]=t.r,tc=[x+w/2,y+h/2];
 // sign-in board (low divider ≤ 75 cm), serving table, plants
 box(BOARD[0],BOARD[1],BOARD[2],BOARD[3],0,0.75,mat('#007C89'));OBS.push(BOARD.slice());
 ZK.forEach((k,i)=>box(BOARD[2],5.27+i*0.15,BOARD[2]+0.012,5.39+i*0.15,0.35,0.62,mat(Z[k].col),true));label('選區板',2.76,1.05,5.6,'#007C89',0.7);
-box(4.75,6.82,5.5,6.98,0,0.7,mat(WOODC));OBS.push([4.75,6.82,5.5,6.98]);box(5.8,6.82,6.3,6.98,0,0.6,mat(WOODC));OBS.push([5.8,6.82,6.3,6.98]);label('配膳台',5.12,1.0,6.9,'#5B7083',0.6);
+box(4.75,6.82,5.5,6.98,0,0.7,mat(WOODC));OBS.push([4.75,6.82,5.5,6.98]);box(5.55,6.82,6.05,6.98,0,0.6,mat(WOODC));OBS.push([5.55,6.82,6.05,6.98]);label('配膳台',5.12,1.0,6.9,'#5B7083',0.6);
 function plant(x,z){const p=new THREE.Mesh(new THREE.CylinderGeometry(0.11,0.085,0.2,14),mat('#D9A27A'));p.position.set(x,0.1,z);p.castShadow=true;scene.add(p);
   for(let i=0;i<7;i++){const l=new THREE.Mesh(new THREE.SphereGeometry(0.11,10,8),mat(i%2?'#5FA868':'#4C9459'));l.scale.set(0.55,1.25,0.3);const a=i*0.9;l.position.set(x+Math.cos(a)*0.07,0.34+(i%3)*0.07,z+Math.sin(a)*0.07);l.rotation.set(Math.sin(a)*0.5,a,Math.cos(a)*0.5);l.castShadow=true;scene.add(l);}
   OBS.push([x-0.12,z-0.12,x+0.12,z+0.12]);}
