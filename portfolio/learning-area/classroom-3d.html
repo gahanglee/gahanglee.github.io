@@ -99,7 +99,7 @@ label.chk{display:flex;align-items:center;gap:8px;font-size:15px;cursor:pointer}
   <header>
     <p style="margin:0 0 6px"><a href="/portfolio/learning-area/" style="font-size:14px">← 回到幼兒學習環境設計實作</a>　<a href="/portfolio/learning-area/flow-sim.html" style="font-size:14px">動線模擬（俯視）</a></p>
     <h1>學習區 3D 教室：當一天的幼兒</h1>
-    <p class="lead">跟著你的角色走進模擬教室：前門進來、到選區板插卡、到學習區拿教具玩一個小遊戲（自己選難中易）、物歸原位、到中間低區集合，再從後門出去。可以選擇坐輪椅，體驗走道夠不夠寬。</p>
+    <p class="lead">跟著你的角色過一天：先在門外鞋櫃放鞋子，從前門進來，把書包、水壺、餐具放好，到選區板插卡，到學習區從簡單到挑戰拿教具玩小遊戲、物歸原位，到中間低區集合，再從後門出去。可以選擇坐輪椅，體驗走道夠不夠寬。</p>
   </header>
 
   <div class="stage" id="stage">
@@ -333,6 +333,30 @@ plant(9.72,0.28);plant(3.4,0.3);plant(9.72,6.72);
 for(const k of ZK){const lp={art:[2.0,2.55],math:[1.6,5.95],con:[5.15,2.6],lang:[8.35,2.4],blk:[8.35,3.85]}[k];label(Z[k].n,lp[0],1.6,lp[1],Z[k].col,1);}
 label('中間低區',5,1.3,5.75,'#5B7083',0.9);
 for(let i=0;i<14;i++){const b=box(7.6+(i%5)*0.25,4.6+Math.floor(i/5)*0.35,7.75+(i%5)*0.25,4.7+Math.floor(i/5)*0.35,0,0.06+0.05*(i%3),mat(PAL[i%6]));b.rotation.y=(i*37%10)*0.08;}
+// arrival: backpack cubbies left of the front door, water-bottle rack and cutlery basket by the serving table
+const BAGC=[0.3,6.65,2.1,7.0],RACK=[3.8,6.75,4.6,7.0],SERV=[4.75,6.82,5.5,6.98],SHOEC=[0.6,7.15,2.7,7.47];
+const BAGSLOT=[];
+{const W1=BAGC[2]-BAGC[0],D1=BAGC[3]-BAGC[1],wood=mat(WOODC),cx=(BAGC[0]+BAGC[2])/2;
+ box(BAGC[0],BAGC[3]-0.02,BAGC[2],BAGC[3],0,0.9,mat('#EADBC4'));
+ [0,0.45,0.88].forEach(y=>box(BAGC[0],BAGC[1],BAGC[2],BAGC[3],y,y+0.025,wood));
+ for(let i=0;i<=10;i++){const x=BAGC[0]+W1*i/10;box(x-0.0125,BAGC[1],x+0.0125,BAGC[3],0,0.9,wood);}
+ const mine=Math.floor(Math.random()*20);
+ for(let i=0;i<20;i++){const c=i%10,r=Math.floor(i/10),x=BAGC[0]+W1*(c+0.5)/10,y0=r?0.475:0.025;
+   const tag=box(x-0.05,BAGC[1]-0.004,x+0.05,BAGC[1]+0.002,y0+0.37,y0+0.41,mat(i===mine?'#E07A3F':'#FFFFFF'),true);
+   BAGSLOT.push({x,y0,mine:i===mine});
+   if(i!==mine){const b=box(x-0.07,BAGC[1]+0.06,x+0.07,BAGC[3]-0.04,y0,y0+0.26,mat(PAL[i%6]));}}
+ OBS.push(BAGC.slice());label('書包櫃',cx,1.15,BAGC[1]+0.1,'#5B7083',0.7);
+ // water-bottle rack: two tiers, one slot per child
+ box(RACK[0],RACK[1],RACK[2],RACK[3],0,0.03,wood);[0.35,0.72].forEach(y=>box(RACK[0],RACK[1],RACK[2],RACK[3],y,y+0.025,wood));
+ [RACK[0],RACK[2]-0.025].forEach(x=>box(x,RACK[1],x+0.025,RACK[3],0,0.75,wood));
+ for(let i=0;i<19;i++){const t=i%10,r=Math.floor(i/10),bt=new THREE.Mesh(new THREE.CylinderGeometry(0.03,0.03,0.2,12),mat(PAL[(i+2)%6]));
+   bt.position.set(RACK[0]+0.06+t*0.075,(r?0.375:0.03)+0.1,(RACK[1]+RACK[3])/2);bt.castShadow=true;scene.add(bt);}
+ OBS.push(RACK.slice());label('水壺架',(RACK[0]+RACK[2])/2,1.05,RACK[1],'#5B7083',0.6);
+ // cutlery basket on the serving table
+ const bk=new THREE.Mesh(new THREE.CylinderGeometry(0.17,0.14,0.12,18,1,true),new THREE.MeshStandardMaterial({color:lin('#C9A26B'),roughness:0.9,side:THREE.DoubleSide}));
+ bk.position.set(4.95,0.76,6.9);bk.castShadow=true;scene.add(bk);
+ for(let i=0;i<8;i++){const b=new THREE.Mesh(new THREE.BoxGeometry(0.06,0.03,0.14),mat(PAL[i%6]));b.position.set(4.87+(i%4)*0.055,0.77+Math.floor(i/4)*0.03,6.9);scene.add(b);}
+ label('餐具籃',4.95,1.15,6.85,'#5B7083',0.6);}
 const STATIC=OBS.slice(); // furniture only (people are added later)
 
 // ---------- people: original Q-style children (about 3 heads tall) ----------
@@ -370,7 +394,7 @@ function person(o){ // o: {adult, girl, hair, hairC, skin, eye, pose, badge}
     add(hp,new THREE.Mesh(capG(d.th,d.legR*1.12,d.legR),legTop));
     const kn=j['knee'+s]=pivot(hp,0,-d.th,0);add(kn,new THREE.Mesh(capG(d.sh*0.5,d.legR,d.legR*0.92),o.adult?legTop:skin));
     add(kn,new THREE.Mesh(capG(d.sh*0.5,d.legR*0.95,d.legR*0.9),sock),0,-d.sh*0.5,0);
-    const shoe=add(kn,new THREE.Mesh(sphG(d.legR*1.45,16,12),mat(o.adult?'#3A332F':(o.girl?'#F4B6C2':'#F2F2F2'),0.6)),0,-d.sh-d.legR*0.35,d.legR*0.75);shoe.scale.set(1,0.7,1.65);});
+    const shoe=add(kn,new THREE.Mesh(sphG(d.legR*1.45,16,12),mat(o.adult?'#3A332F':(o.girl?'#F4B6C2':'#F2F2F2'),0.6)),0,-d.sh-d.legR*0.35,d.legR*0.75);shoe.scale.set(1,0.7,1.65);(j.shoes=j.shoes||[]).push(shoe);});
   j.torso=pivot(j.pelvis,0,0,0);const R=d.bodyR,Tn=d.torso;
   if(o.adult){add(j.torso,new THREE.Mesh(latheG('at',[[0,-0.1],[R*0.98,-0.08],[R*1.02,0.05],[R*0.9,Tn*0.45],[R*1.0,Tn*0.78],[R*0.75,Tn*0.95],[R*0.34,Tn],[0,Tn]]),mat('#FBF3E4')));
     const ap=new THREE.Mesh(new THREE.CylinderGeometry(R*1.02,R*1.16,Tn*0.95,20,1,true,-0.9,1.8),new THREE.MeshStandardMaterial({color:lin('#F0A45E'),roughness:0.9,side:THREE.DoubleSide}));add(j.torso,ap,0,Tn*0.3,0);}
@@ -480,7 +504,15 @@ function teacherStep(dt,tt){let mv=false;
 const me=new THREE.Group();scene.add(me);let meC=null;
 {const tag=label('你',0,1.32,0,'#E07A3F',0.5);scene.remove(tag);me.add(tag);me.userData.tag=tag;}
 function buildMe(girl,wc){[...me.children].forEach(ch=>{if(ch!==me.userData.tag)me.remove(ch);});
-  meC=person({girl,hair:girl?'twin':'short',hairC:'#2A1E19',skin:'#F9DCC8',eye:'#5A3A22',badge:'#E07A3F'});me.add(seated(meC,wc));}
+  meC=person({girl,hair:girl?'twin':'short',hairC:'#2A1E19',skin:'#F9DCC8',eye:'#5A3A22',badge:'#E07A3F'});me.add(seated(meC,wc));
+  meC.j.shoes.forEach(m=>m.material=mat('#3E7CC0',0.6)); // outdoor shoes
+  const bp=new THREE.Mesh(new THREE.BoxGeometry(0.17,0.2,0.08),mat('#E07A3F'));bp.position.set(0,meC.d.torso*0.5,-meC.d.bodyR-0.03);bp.castShadow=true;meC.j.torso.add(bp);meC.bag=bp;}
+const placed=new THREE.Group();scene.add(placed);
+function shoesOff(){meC.j.shoes.forEach(m=>m.material=mat('#FFFFFF',0.6));
+  [-1,1].forEach(sd=>{const sh=new THREE.Mesh(sphG(0.045,12,10),mat('#3E7CC0',0.6));sh.scale.set(1,0.6,1.8);sh.position.set(1.65+sd*0.05,0.07,SHOEC[3]-0.06);placed.add(sh);});}
+function placeItem(k){if(k==='bag'){if(meC.bag)meC.bag.visible=false;const sl=BAGSLOT.find(b=>b.mine);const b=new THREE.Mesh(new THREE.BoxGeometry(0.14,0.26,0.25),mat('#E07A3F'));b.position.set(sl.x,sl.y0+0.13,(BAGC[1]+BAGC[3])/2+0.01);b.castShadow=true;placed.add(b);}
+  if(k==='bottle'){const b=new THREE.Mesh(new THREE.CylinderGeometry(0.03,0.03,0.2,12),mat('#E07A3F'));b.position.set(RACK[0]+0.06+9*0.075,0.475,(RACK[1]+RACK[3])/2);placed.add(b);}
+  if(k==='cut'){const b=new THREE.Mesh(new THREE.BoxGeometry(0.06,0.03,0.14),mat('#E07A3F'));b.position.set(5.0,0.83,6.9);placed.add(b);}}
 
 // ---------- game state ----------
 let S={},keys={},hdg=Math.PI,camOff=0,camPitch=0,top=false,last=0,camReady=false;
@@ -488,9 +520,9 @@ const isIn=(z,x,y)=>{const [a,b,w,h]=Z[z].r;return x>=a&&x<=a+w&&y>=b&&y<=b+h;};
 const zoneAt=(x,y)=>ZK.find(z=>isIn(z,x,y))||null;
 const inHub=(x,y)=>x>=HUB[0]&&x<=HUB[0]+HUB[2]&&y>=HUB[1]&&y<=HUB[1]+HUB[3];
 function shuffle(a){for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}
-function reset(){
+function reset(){while(placed.children.length)placed.remove(placed.children[0]);
   const wc=document.getElementById('wc').checked,girl=document.querySelector('input[name=who]:checked').value==='girl';
-  S={wc,r:wc?0.36:0.17,speed:wc?0.95:1.3,x:3.25,y:7.95,stage:0,zone:null,wrong:0,cross:0,stuck:0,t0:performance.now(),lastZone:null,lastZ:7.95,done:0,taken:0};
+  S={wc,r:wc?0.36:0.17,speed:wc?0.95:1.3,x:3.25,y:7.95,stage:0,zone:null,wrong:0,cross:0,stuck:0,t0:performance.now(),lastZone:null,lastZ:7.95,done:0,taken:0,items:{}};
   hdg=Math.PI;camOff=0;camPitch=0;camReady=false;
   const used={};ZK.forEach(z=>used[z]=0);while(kidGroup.children.length)kidGroup.remove(kidGroup.children[0]);kids.length=0;
   CHAIRS.forEach(c=>{c.g.visible=true;OBS[c.oi]=c.box;});OBS.length=STATIC.length+1; // furniture + the teacher's slot
@@ -506,11 +538,14 @@ function reset(){
       if(!ch)OBS.push([p[0]-0.16,p[1]-0.16,p[0]+0.16,p[1]+0.16]);
       kid(p[0],p[1],Z[z].col,z==='blk'&&!isWc?'floor':'sit',ch?ch.tc:[8.3,5.1],isWc);}}
   buildMe(girl,wc);addWalkers();setTask();}
-const TASKS=['從綠色腳印的<b>前門</b>走進教室','走到藍色的<b>選區板</b>，插上姓名卡','走到你選的<b>{z}</b>（沿橘色虛線走道，不穿過別區）','走到<b>{z}的教具櫃</b>，從<b>{n}</b>的位置拿教具','把教具放回<b>{t}</b>的位置（物歸原位）','到<b>中間低區</b>集合','從紅色腳印的<b>後門</b>出去'];
-const HINTS=['','靠近選區板後按「插卡選區」','','櫃子由左到右分成 簡單（綠）→ 中等（黃）→ 挑戰（紅），要從簡單開始','放回拿的那一格，才能再拿下一級','走到中間淺色的區域',''];
+const TASKS=['走到<b>門外鞋櫃</b>，把鞋子放進去、換上室內鞋','從綠色腳印的<b>前門</b>走進教室','放好個人物品：{i}','走到藍色的<b>選區板</b>，插上姓名卡','走到你選的<b>{z}</b>（沿橘色虛線走道，不穿過別區）','走到<b>{z}的教具櫃</b>，從<b>{n}</b>的位置拿教具','把教具放回<b>{t}</b>的位置（物歸原位）','到<b>中間低區</b>集合','從紅色腳印的<b>後門</b>出去'];
+const HINTS=['靠近鞋櫃後按「放鞋子」；最下層的格子坐輪椅也拿得到','','書包放前門左邊的書包櫃（橘色名牌那格）、水壺放水壺架、餐具放配膳台上的餐具籃','靠近選區板後按「插卡選區」','','櫃子由左到右分成 簡單（綠）→ 中等（黃）→ 挑戰（紅），要從簡單開始','放回拿的那一格，才能再拿下一級','走到中間淺色的區域',''];
+const ITEMS=[['bag','書包','書包櫃',BAGC],['bottle','水壺','水壺架',RACK],['cut','餐具','餐具籃',SERV]];
+const itemsTxt=()=>ITEMS.map(([k,n])=>S.items&&S.items[k]?n+' ✓':'<b>'+n+'</b>').join('、');
+function nearBox(b,x,y){const dx=Math.max(b[0]-x,0,x-b[2]),dy=Math.max(b[1]-y,0,y-b[3]);return Math.hypot(dx,dy)<S.r+0.6;}
 const lvName=l=>LV[l-1][1]+'・'+LV[l-1][0];
-function setTask(){const zn=S.zone?Z[S.zone].n:'',nx=Math.min(3,S.done+1);let h=HINTS[S.stage];if(S.stage===3&&S.done>=1)h='已完成 '+S.done+' / 3 級。可以挑戰下一級，也可以按「不玩了，去集合」';
-  document.getElementById('task').innerHTML=(S.stage+1)+' / 7　'+TASKS[S.stage].replace('{z}',zn).replace('{n}',lvName(nx)).replace('{t}',S.taken?lvName(S.taken):'')+(h?'<small>'+h+'</small>':'');}
+function setTask(){const zn=S.zone?Z[S.zone].n:'',nx=Math.min(3,S.done+1);let h=HINTS[S.stage];if(S.stage===5&&S.done>=1)h='已完成 '+S.done+' / 3 級。可以挑戰下一級，也可以按「不玩了，去集合」';
+  document.getElementById('task').innerHTML=(S.stage+1)+' / 9　'+TASKS[S.stage].replace('{i}',itemsTxt()).replace('{z}',zn).replace('{n}',lvName(nx)).replace('{t}',S.taken?lvName(S.taken):'')+(h?'<small>'+h+'</small>':'');}
 let toastT=0;function toast(msg,ok){const t=document.getElementById('toast');t.textContent=msg;t.className='toast'+(ok?' ok':'');t.style.display='block';toastT=performance.now()+2600;}
 const show=(id,on)=>document.getElementById(id).classList.toggle('on',on);
 const anyPanel=()=>!!document.querySelector('.panel.on');
@@ -532,16 +567,17 @@ function move(dt){
   camOff*=Math.max(0,1-dt*3);camPitch*=Math.max(0,1-dt*3);
   const sp=S.speed*(f>0?1:-0.6)*dt,dx=Math.sin(hdg)*sp,dy=Math.cos(hdg)*sp;
   const nx=S.x+dx,ny=S.y+dy;let moved=false;
+  if(S.stage===0&&ny<7.12&&S.y>=7.12){if(!S.shoeMsg||performance.now()-S.shoeMsg>2500){toast('要先在門外鞋櫃放鞋子、換室內鞋');S.shoeMsg=performance.now();}return;}
   if(!blocked(nx,ny,S.r)){S.x=nx;S.y=ny;moved=true;}
   else if(!blocked(S.x+dx,S.y,S.r)){S.x+=dx;moved=true;}
   else if(!blocked(S.x,S.y+dy,S.r)){S.y+=dy;moved=true;}
   moving=moved;
   if(!moved){if(!stuckFlag&&S.wc&&!blocked(nx,ny,0.17)){S.stuck++;toast('輪椅過不去：這裡不到 70 公分寬');}stuckFlag=true;}else stuckFlag=false;
   if(S.lastZ>7.0&&S.y<=7.0&&S.x>5){S.wrong++;toast('走錯門：後門是出去的，請從前門進來');}
-  if(S.lastZ<7.0&&S.y>=7.0){if(S.x<5){S.wrong++;toast('走錯門：前門只進不出，請從後門出去');}else if(S.stage===6)finish();}
+  if(S.lastZ<7.0&&S.y>=7.0){if(S.x<5){S.wrong++;toast('走錯門：前門只進不出，請從後門出去');}else if(S.stage===8)finish();}
   S.lastZ=S.y;
   const z=zoneAt(S.x,S.y);
-  if(z!==S.lastZone){if(z&&S.stage>=2&&z!==S.zone){S.cross++;toast('你走進了'+Z[z].n+'，會打擾正在玩的同學');}S.lastZone=z;}}
+  if(z!==S.lastZone){if(z&&S.stage>=4&&z!==S.zone){S.cross++;toast('你走進了'+Z[z].n+'，會打擾正在玩的同學');}S.lastZone=z;}}
 // ---------- stage logic ----------
 const act=document.getElementById('act');let actFn=null;
 function setAct(list){const key=list.map(a=>a[0]).join('|');if(act.dataset.k===key)return;act.dataset.k=key;act.innerHTML='';
@@ -549,26 +585,29 @@ function setAct(list){const key=list.map(a=>a[0]).join('|');if(act.dataset.k===k
 function nearShelfAt(x,y){const s=SHELF[S.zone],dx=Math.max(s[0]-x,0,x-s[2]),dy=Math.max(s[1]-y,0,y-s[3]);return Math.hypot(dx,dy)<S.r+0.6;}
 const nearShelf=()=>nearShelfAt(S.x,S.y);
 function logic(){let a=[];
-  if(S.stage===0&&S.y<6.8){S.stage=1;setTask();}
-  if(S.stage===1&&Math.hypot(S.x-3.1,S.y-5.6)<0.9)a=[['插卡選區',openBoard]];
-  if(S.stage===2&&isIn(S.zone,S.x,S.y)){S.stage=3;setTask();toast('到了！',true);}
-  if(S.stage===3){if(nearShelf()){const L=secAt(S.zone,S.x,S.y);a.push(['拿教具（'+lvName(L)+'）',()=>{
+  if(S.stage===0&&nearBox(SHOEC,S.x,S.y))a=[['放鞋子',()=>{shoesOff();S.stage=1;setTask();toast('鞋子放好了，換上室內鞋',true);}]];
+  if(S.stage===2)ITEMS.forEach(([k,n,where,b])=>{if(!S.items[k]&&nearBox(b,S.x,S.y))a.push(['放'+n+'（'+where+'）',()=>{S.items[k]=true;placeItem(k);
+      if(ITEMS.every(it=>S.items[it[0]])){S.stage=3;toast('個人物品都放好了！去選區板',true);}else toast(n+'放好了',true);setTask();}]);});
+  if(S.stage===1&&S.y<6.8){S.stage=2;setTask();}
+  if(S.stage===3&&Math.hypot(S.x-3.1,S.y-5.6)<0.9)a=[['插卡選區',openBoard]];
+  if(S.stage===4&&isIn(S.zone,S.x,S.y)){S.stage=5;setTask();toast('到了！',true);}
+  if(S.stage===5){if(nearShelf()){const L=secAt(S.zone,S.x,S.y);a.push(['拿教具（'+lvName(L)+'）',()=>{
       if(L>S.done+1)toast('要先完成'+lvName(S.done+1)+'的教具，才能拿'+LV[L-1][0]+'的');else openGame(L);}]);}
-    if(S.done>=1)a.push(['不玩了，去集合',()=>{S.stage=5;setTask();}]);}
-  if(S.stage===4&&nearShelf()){const L=secAt(S.zone,S.x,S.y);a=[['放回這格（'+LV[L-1][1]+'）',()=>{
+    if(S.done>=1)a.push(['不玩了，去集合',()=>{S.stage=7;setTask();}]);}
+  if(S.stage===6&&nearShelf()){const L=secAt(S.zone,S.x,S.y);a=[['放回這格（'+LV[L-1][1]+'）',()=>{
       if(L!==S.taken){toast('這裡是'+LV[L-1][1]+'的位置，要放回'+LV[S.taken-1][1]+'的位置');return;}
-      S.taken=0;if(S.done>=3){S.stage=5;toast('三級都完成了！教具放回原位，去集合',true);}else{S.stage=3;toast('放回原位了！可以挑戰'+lvName(S.done+1),true);}setTask();}]];}
-  if(S.stage===5&&inHub(S.x,S.y)){S.stage=6;setTask();toast('集合完成，準備放學',true);}
+      S.taken=0;if(S.done>=3){S.stage=7;toast('三級都完成了！教具放回原位，去集合',true);}else{S.stage=5;toast('放回原位了！可以挑戰'+lvName(S.done+1),true);}setTask();}]];}
+  if(S.stage===7&&inHub(S.x,S.y)){S.stage=8;setTask();toast('集合完成，準備放學',true);}
   actFn=a.length?a[0][1]:null;setAct(a);}
 function openBoard(){const zl=document.getElementById('zlist');zl.innerHTML='';
   ZK.forEach(z=>{const left=Z[z].cap-S.used[z],b=document.createElement('button');b.type='button';b.className='zbtn';b.disabled=left<=0;b.dataset.z=z;
     b.style.borderColor=Z[z].col;b.innerHTML='<b>'+Z[z].n+'</b><span>'+(left>0?'剩 '+left+' 個位置':'額滿了，請選別區或等待')+'</span>';
-    b.addEventListener('click',()=>{S.zone=z;S.used[z]++;S.stage=2;setTask();show('pBoard',false);toast('你選了'+Z[z].n,true);});zl.appendChild(b);});
+    b.addEventListener('click',()=>{S.zone=z;S.used[z]++;S.stage=4;setTask();show('pBoard',false);toast('你選了'+Z[z].n,true);});zl.appendChild(b);});
   show('pBoard',true);}
 function finish(){const sec=Math.round((performance.now()-S.t0)/1000),lv=S.done?'完成到'+lvName(S.done)+'（'+S.done+' / 3 級）':'未完成';
   document.getElementById('eKv').innerHTML='<dt>選的學習區</dt><dd>'+Z[S.zone].n+'</dd><dt>完成的挑戰</dt><dd>'+Z[S.zone].game+'：'+lv+'</dd><dt>用時</dt><dd>'+sec+' 秒</dd><dt>走錯門</dt><dd>'+S.wrong+' 次</dd><dt>穿越其他區</dt><dd>'+S.cross+' 次</dd>'+(S.wc?'<dt>輪椅過不去</dt><dd>'+S.stuck+' 次</dd>':'');
   document.getElementById('eNote').textContent=(S.wrong||S.cross)?'沿著腳印和橘色虛線走，就不會走錯門或穿過別人的學習區。':(S.wc?'輪椅也能從前門進來、到學習區、再從後門出去：走道與迴轉空間夠寬，每個孩子都能自己選區。':'你照著動線走：前門進、後門出，沒有打擾到別人。');
-  S.stage=7;show('pEnd',true);}
+  S.stage=9;show('pEnd',true);}
 document.getElementById('go').addEventListener('click',()=>{reset();show('pStart',false);last=performance.now();});
 document.getElementById('again').addEventListener('click',()=>{show('pEnd',false);show('pStart',true);});
 
@@ -586,7 +625,7 @@ function startGame(lv){S.taken=lv;gB.innerHTML='';const boxEl=el('div','gbox'),m
 function gameDone(){const z=Z[S.zone],lv=S.taken;S.done=Math.max(S.done,lv);gH.textContent='';gB.innerHTML='';const b=el('div','gbox');
   b.append(el('div','big','🎉 '+LV[lv-1][0]+'完成了！'),el('p',null,'你在「我完成了」紀錄表的'+LV[lv-1][1]+'欄貼上名條。'),
     el('p','note',lv<3?'把教具放回'+LV[lv-1][1]+'的位置，就可以去拿'+lvName(lv+1)+'的教具。':'三個等級都完成了！'),el('p','note','培養的核心素養：'+z.core));gB.appendChild(b);
-  gF.innerHTML='';gF.style.flexDirection='';gF.style.alignItems='';gF.appendChild(progress(0));const bt=el('button','btn primary','收拾教具');bt.type='button';bt.id='gDone';bt.addEventListener('click',()=>{show('pGame',false);S.stage=4;setTask();toast('玩得很開心！把教具放回'+LV[S.taken-1][1]+'的位置',true);});gF.appendChild(bt);MG=null;}
+  gF.innerHTML='';gF.style.flexDirection='';gF.style.alignItems='';gF.appendChild(progress(0));const bt=el('button','btn primary','收拾教具');bt.type='button';bt.id='gDone';bt.addEventListener('click',()=>{show('pGame',false);S.stage=6;setTask();toast('玩得很開心！把教具放回'+LV[S.taken-1][1]+'的位置',true);});gF.appendChild(bt);MG=null;}
 function ask(G,rounds,make){let r=0;const next=()=>{if(r===rounds)return G.done();G.box.innerHTML='';G.say('');let lock=false;const q=make(r);G.ans=q.ans;G.box.append(el('p','note','第 '+(r+1)+' / '+rounds+' 題　'+q.text),q.view);
     const o=el('div','opts');shuffle(q.opts.slice()).forEach(v=>{const b=el('button','opt',String(v));b.type='button';b.dataset.v=v;b.addEventListener('click',()=>{if(lock)return;if(v===q.ans){lock=true;b.classList.add('yes');G.say('答對了！',true);r++;setTimeout(next,DEV?0:650);}else{b.classList.add('no');b.disabled=true;G.say(q.retry||'再試一次');}});o.appendChild(b);});G.box.appendChild(o);};next();}
 const GAMES={
@@ -657,6 +696,7 @@ function specRows(){const ok=b=>b?'✓ 符合':'✗ 未達',blkA=Z.blk.r[2]*Z.bl
    ['桌椅尺寸','桌高 52 公分、椅座高 30 公分（4–6 歲幼兒適用）；4 人桌、美勞區 6 人桌'],
    ['主要走道','最窄 '+Math.round(SPEC.ring.w*100)+' 公分（≥ 120，無障礙規範 204.2.2）　'+ok(SPEC.ring.w>=1.2)],
    ['教具櫃前通道','最窄 '+Math.round(minFront*100)+' 公分（≥ 90，輪椅可取用教具）　'+ok(minFront>=0.9)],
+   ['個人物品','書包櫃 90 公分（20 格附照片名牌）、水壺架 75 公分、餐具籃放配膳台；前門進來就到，輪椅可靠近　'+ok(true)],
    ['積木區','不經過主要動線，大地毯平坦（1.3.2.2）　'+ok(true)]];
   document.getElementById('sKv').innerHTML=rows.map(r=>'<dt>'+r[0]+'</dt><dd>'+r[1]+'</dd>').join('');}
 document.getElementById('specBtn').addEventListener('click',()=>{specRows();show('pSpec',true);});
@@ -690,7 +730,7 @@ function placeCam(dt){
 function resize(){const r=stage.getBoundingClientRect();renderer.setSize(r.width,r.height,false);cam.aspect=r.width/r.height;cam.updateProjectionMatrix();}
 addEventListener('resize',resize);
 function frame(ts){requestAnimationFrame(frame);
-  const dt=Math.min(0.05,(ts-last)/1000||0);last=ts;const tt=ts/1000,playing=S.x!==undefined&&S.stage<7&&!anyPanel();
+  const dt=Math.min(0.05,(ts-last)/1000||0);last=ts;const tt=ts/1000,playing=S.x!==undefined&&S.stage<9&&!anyPanel();
   if(playing){move(dt);logic();}else moving=false;
   kids.forEach(c=>animate(c,tt,dt,false));walkers.forEach(w=>walkStep(w,dt,tt));teacherStep(dt,tt);
   if(S.x!==undefined&&meC){me.position.set(S.x,0,S.y);me.rotation.y=hdg;animate(meC,tt,dt,moving);}
@@ -705,7 +745,7 @@ function reachSections(z,r){const skip=[TOI,...walkers.map(w=>w.oi)],save=skip.m
   while(q.length){const [i,j]=q.pop(),x=i*st,y=j*st;if(nearShelfAt(x,y)&&isIn(z,x,y)||nearShelfAt(x,y))ok[secAt(z,x,y)]=1;
     for(const [di,dj] of [[1,0],[-1,0],[0,1],[0,-1]]){const a=i+di,b=j+dj;if(a<0||b<0||a>NX||b>NY||seen[b*(NX+1)+a])continue;seen[b*(NX+1)+a]=1;if(!blocked(a*st,b*st,r))q.push([a,b]);}}
   skip.forEach((i,k)=>OBS[i]=save[k]);S.zone=oz;return ok.slice(1);}
-if(DEV)window.__g={tw:()=>[TW.x,TW.z,TW.wait,teacher.w],acts:()=>({kids:kids.map(c=>c.act),walk:walkers.map(w=>[w.c.wave,+w.c.j.shR.rotation.x.toFixed(2)]),teacher:teacher.gesture}),wk:()=>walkers.map(w=>{const g=w.c.g.position;return [g.x,g.z,Math.sin(w.c.g.rotation.y),Math.cos(w.c.g.rotation.y)];}),dbg:()=>({kids:kids.map(c=>[c.pose,+c.g.parent.position.x.toFixed(2)||+c.g.position.x.toFixed(2),+(c.g.parent===kidGroup?c.g.position.z:c.g.parent.position.z).toFixed(2)]),walkers:walkers.length}),reach:reachSections,S:()=>S,MG:()=>MG,tp:(x,y,h)=>{S.x=x;S.y=y;S.lastZ=y;if(h!==undefined)hdg=h;camReady=false;},cam:(o,p)=>{camOff=o;camPitch=p||0;camReady=false;}};
+if(DEV)window.__g={reachBox:(b,r)=>{const st=0.05,NX=200,NY=186,seen=new Uint8Array(201*187),q=[[65,159]];seen[159*201+65]=1;let ok=false;const sv=[TOI,...walkers.map(w=>w.oi)].map(i=>[i,OBS[i]]);sv.forEach(([i])=>OBS[i]=null);while(q.length){const [i,j]=q.pop(),x=i*st,y=j*st;if(Math.hypot(Math.max(b[0]-x,0,x-b[2]),Math.max(b[1]-y,0,y-b[3]))<r+0.6){ok=true;break;}for(const [di,dj] of [[1,0],[-1,0],[0,1],[0,-1]]){const a=i+di,c=j+dj;if(a<0||c<0||a>NX||c>NY||seen[c*201+a])continue;seen[c*201+a]=1;if(!blocked(a*st,c*st,r))q.push([a,c]);}}sv.forEach(([i,o])=>OBS[i]=o);return ok;},boxes:()=>({BAGC,RACK,SERV,SHOEC}),tw:()=>[TW.x,TW.z,TW.wait,teacher.w],acts:()=>({kids:kids.map(c=>c.act),walk:walkers.map(w=>[w.c.wave,+w.c.j.shR.rotation.x.toFixed(2)]),teacher:teacher.gesture}),wk:()=>walkers.map(w=>{const g=w.c.g.position;return [g.x,g.z,Math.sin(w.c.g.rotation.y),Math.cos(w.c.g.rotation.y)];}),dbg:()=>({kids:kids.map(c=>[c.pose,+c.g.parent.position.x.toFixed(2)||+c.g.position.x.toFixed(2),+(c.g.parent===kidGroup?c.g.position.z:c.g.parent.position.z).toFixed(2)]),walkers:walkers.length}),reach:reachSections,S:()=>S,MG:()=>MG,tp:(x,y,h)=>{S.x=x;S.y=y;S.lastZ=y;if(h!==undefined)hdg=h;camReady=false;},cam:(o,p)=>{camOff=o;camPitch=p||0;camReady=false;}};
 })();
 </script>
 </body>
