@@ -173,7 +173,7 @@ label.chk{display:flex;align-items:center;gap:8px;font-size:15px;cursor:pointer}
     </div></div>
   </div>
 
-  <p class="note">教室以 10 × 7 公尺示意，配置與動線模擬相同（B403 實際尺寸待量測）。前後門在同一面牆：前門貼綠色腳印、掛「進來」圖卡，後門貼紅色腳印、掛「出去」圖卡；橘色虛線是環狀主走道。示意圖的門寬為 90 公分，實際門寬需量測（無障礙規範 205.2.3）。人物為原創 Q 版造型（約 3 頭身，幼兒身高約 95 公分，穿淺藍色園服）。選「女生」時的角色與幾位女同學是「沐」（作者：晃，以 VRoid Studio 製作）；選「男生」時的角色與幾位男同學是 VRoid 官方範例角色「AvatarSample_Z」（作者：pixiv VRoid Project）。兩者的 VRM 授權皆為個人非營利使用、須標示作者，制服已改為淺藍色園服。同學身高 95–110 公分、老師 165 公分。</p>
+  <p class="note">教室以 10 × 7 公尺示意，配置與動線模擬相同（B403 實際尺寸待量測）。前後門在同一面牆：前門貼綠色腳印、掛「進來」圖卡，後門貼紅色腳印、掛「出去」圖卡；橘色虛線是環狀主走道。示意圖的門寬為 90 公分，實際門寬需量測（無障礙規範 205.2.3）。人物為原創 Q 版造型（約 3 頭身，幼兒身高約 95 公分，穿淺藍色園服）。選「女生」時的角色與幾位女同學是「沐」（作者：晃，以 VRoid Studio 製作）；選「男生」時的角色與幾位男同學是 VRoid 官方範例角色「AvatarSample_Z」、老師是「AvatarSample_A」（作者皆為 pixiv VRoid Project）。三者的 VRM 授權皆為個人非營利使用、須標示作者，制服已改為淺藍色園服。同學身高 95–110 公分、老師 160 公分。</p>
 </div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
@@ -649,18 +649,22 @@ function kidOpts(girl,badge){return {girl,hair:girl?rnd(['bob','pony','twin','bo
 function seated(c,inChair){if(!inChair)return c.g;const g=new THREE.Group(),wc=wheelchair();g.add(wc.g,c.g);c.wheels=wc.wheels;c.wcg=wc.g;setPose(c,'wheel');return g;}
 // ---------- 「沐」: the class's own VRoid character (VRM 1.0), driven by the same joints as the Q-style children ----------
 // model by 晃 (VRoid Studio); licence in the file: personal non-profit use, redistribution allowed, credit required
-const VRMM={girl:{file:'assets/mu.vrm',h:1.251,ok:false},boy:{file:'assets/boy.vrm',h:1.269,ok:false}};const VRMS=[];
+const VRMM={girl:{file:'assets/mu.vrm',h:1.251,ok:false},boy:{file:'assets/boy.vrm',h:1.269,ok:false},teacher:{file:'assets/teacher.vrm',h:1.598,ok:false}};const VRMS=[];
 function loadOne(m){return new Promise(res=>{if(!THREE.GLTFLoader||!THREE.SkeletonUtils){res(false);return;}
   new THREE.GLTFLoader().load(m.file,g=>{try{const js=g.parser.json,ext=js.extensions.VRMC_vrm,hb=ext.humanoid.humanBones;m.names={};
       for(const k in hb)m.names[k]=js.nodes[hb[k].node].name;const ex=ext.expressions.preset;
       m.blink=ex.blink.morphTargetBinds[0].index;m.happy=ex.happy.morphTargetBinds[0].index;
       g.scene.traverse(q=>{if(q.isMesh){q.castShadow=true;q.frustumCulled=false;}});m.proto=g.scene;m.ok=true;res(true);}catch(e){console.warn('VRM',e);res(false);}},
     undefined,e=>{console.warn('VRM load failed',m.file,e);res(false);});});}
-const loadVRM=()=>Promise.all([loadOne(VRMM.girl),loadOne(VRMM.boy)]);
+const loadVRM=()=>Promise.all([loadOne(VRMM.girl),loadOne(VRMM.boy),loadOne(VRMM.teacher).then(ok=>{if(ok)adoptTeacher();})]);
+// the teacher becomes the VRoid adult character (160 cm); her name label stays on the same group
+function adoptTeacher(){const tv=vrmPerson({model:'teacher',h:1.60});VRMS.splice(VRMS.indexOf(tv),1);
+  [...teacher.g.children].forEach(ch=>{if(!ch.isSprite)teacher.g.remove(ch);else ch.position.y=1.95;});teacher.g.scale.setScalar(1);teacher.g.add(tv.g);
+  teacher.j=tv.j;teacher.vrm=tv.vrm;teacher.sc=1;setPose(teacher,'walk');}
 const kidH=()=>0.95+Math.random()*0.15; // classmates 95-110 cm
 let BASE_H={};function sizeTo(c,h){const k=c.d===DIM.adult?'a':'c';if(!BASE_H[k]){const p=c.pose;setPose(c,'walk');c.g.updateMatrixWorld(true);BASE_H[k]=new THREE.Box3().setFromObject(c.g).getSize(new THREE.Vector3()).y;setPose(c,p);}c.sc=h/BASE_H[k];c.g.scale.setScalar(c.sc);setPose(c,c.pose);return c;}
 const HAIRTINT=[null,'#5A4636','#3A2E2A','#8A6A4E'],HAIRTINT_B=[null,'#7A5A44','#B08A66','#4A3A30'];
-function vrmPerson(o){const M=VRMM[o.boy?'boy':'girl'],root=THREE.SkeletonUtils.clone(M.proto),g=new THREE.Group(),S=(o.h||1.0)/M.h;root.scale.setScalar(S);g.add(root);
+function vrmPerson(o){const M=VRMM[o.model||(o.boy?'boy':'girl')],root=THREE.SkeletonUtils.clone(M.proto),g=new THREE.Group(),S=(o.h||1.0)/M.h;root.scale.setScalar(S);g.add(root);
   const bone=n=>root.getObjectByName(M.names[n]);
   const B={hips:bone('hips'),spine:bone('spine'),chest:bone('chest'),head:bone('head'),uL:bone('leftUpperLeg'),uR:bone('rightUpperLeg'),lL:bone('leftLowerLeg'),lR:bone('rightLowerLeg'),
     aL:bone('leftUpperArm'),aR:bone('rightUpperArm'),fL:bone('leftLowerArm'),fR:bone('rightLowerArm')};
@@ -697,7 +701,7 @@ function walkStep(w,dt,tt){const n=WALK.length,a=WALK[w.seg],b=WALK[(w.seg+(w.di
   const stop=S.x!==undefined&&Math.hypot(S.x-(x+ux*0.5),S.y-(z+uz*0.5))<0.6;
   w.t+=(stop?0:0.7)*dt/L;if(w.t>=1){w.t=0;w.seg=(w.seg+(w.dir>0?1:n-1))%n;}
   w.c.g.position.set(x,0,z);w.c.wave=stop;w.c.g.rotation.y=stop?Math.atan2(S.x-x,S.y-z):Math.atan2(ux,uz);OBS[w.oi]=[x-0.14,z-0.14,x+0.14,z+0.14];animate(w.c,tt,dt,!stop);}
-const teacher=sizeTo(person({adult:true,hair:'bun',hairC:'#2A1E19',skin:'#F4D0B5',eye:'#3B2A1E'}),1.65);scene.add(teacher.g); /* teacher 165 cm */OBS.push(null);const TOI=OBS.length-1;
+const teacher=sizeTo(person({adult:true,hair:'bun',hairC:'#2A1E19',skin:'#F4D0B5',eye:'#3B2A1E'}),1.60);scene.add(teacher.g); /* teacher 160 cm */OBS.push(null);const TOI=OBS.length-1;
 {const tl=label('老師',0,1.98,0,'#E07A3F',0.6);scene.remove(tl);teacher.g.add(tl);}
 // the teacher walks at a normal pace between stops on the low area's edge, pausing to talk with the class at each one
 const TSTOPS=[[3.95,5.45,Math.PI],[5.0,5.45,Math.PI*0.75],[6.05,5.45,Math.PI]];teacher.stepRate=4.2;
@@ -1178,7 +1182,7 @@ function frame(ts){requestAnimationFrame(frame);
   kids.forEach(c=>{if(!LINE.on||!LINE.members.some(m=>m.c===c))animate(c,tt,dt,false);});walkers.forEach(w=>walkStep(w,dt,tt));teacherStep(dt,tt);
   if(S.x!==undefined&&meC){me.position.set(S.x,S.my||0,S.y);me.rotation.y=hdg;animate(meC,tt,dt,moving);if(S.ride&&S.ride.anim)S.ride.anim(meC,tt);}
   me.visible=S.x!==undefined;
-  VRMS.forEach(c=>vrmSync(c,dt));
+  VRMS.forEach(c=>vrmSync(c,dt));if(teacher.vrm)vrmSync(teacher,dt);
   placeCam(dt);
   if(toastT&&ts>toastT){document.getElementById('toast').style.display='none';toastT=0;}
   renderer.render(scene,cam);drawMini();}
