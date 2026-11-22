@@ -683,7 +683,8 @@ function move(dt){
   const grass=S.wc&&onGrass(S.x,S.y);if(grass&&f&&(!S.grassMsg||performance.now()-S.grassMsg>5000)){toast('草地不好推輪椅，走橘色的橡膠步道比較順');S.grassMsg=performance.now();}
   const sp=S.speed*(grass?0.45:1)*(f>0?1:-0.6)*dt,dx=Math.sin(hdg)*sp,dy=Math.cos(hdg)*sp;
   const nx=S.x+dx,ny=S.y+dy;let moved=false;
-  if(S.stage>=9&&ny<7.12&&S.y>=7.12){if(!S.shoeMsg||performance.now()-S.shoeMsg>2500){toast('放學了，在戶外玩，不用再進教室');S.shoeMsg=performance.now();}return;}
+  if(S.stage>=9&&ny<7.0){ // same line as the exit transition (S.y crossing 7.0)
+    if(!S.shoeMsg||performance.now()-S.shoeMsg>2500){toast('放學了，在戶外玩，不用再進教室');S.shoeMsg=performance.now();}return;}
   if(S.stage===0&&ny<7.12&&S.y>=7.12){if(!S.shoeMsg||performance.now()-S.shoeMsg>2500){toast('要先在門外鞋櫃放鞋子、換室內鞋');S.shoeMsg=performance.now();}return;}
   if(!blocked(nx,ny,S.r)){S.x=nx;S.y=ny;moved=true;}
   else if(!blocked(S.x+dx,S.y,S.r)){S.x+=dx;moved=true;}
