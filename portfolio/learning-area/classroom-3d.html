@@ -425,7 +425,7 @@ function npcAct(c,t,dt){const j=c.j,ph=c.ph,a=Math.min(1,dt*6),P=c.pose;
   ease(j.head.rotation,'x',hx+Math.sin(t*1.6+ph)*0.03,a);ease(j.head.rotation,'y',hy,a);j.head.rotation.z=Math.sin(t*0.9+ph)*0.05;
   ease(j.torso.rotation,'x',tx+Math.sin(t*0.8+ph)*0.03,a);}
 function animate(c,t,dt,mv){const j=c.j,ph=c.ph,P=c.pose;
-  if(P==='walk'){c.w+=((mv?1:0)-c.w)*Math.min(1,dt*8);c.cyc+=dt*9.5*c.w;const s=Math.sin(c.cyc)*0.72*c.w,i=1-c.w,a=Math.min(1,dt*8);
+  if(P==='walk'){c.w+=((mv?1:0)-c.w)*Math.min(1,dt*8);c.cyc+=dt*(c.stepRate||9.5)*c.w;const s=Math.sin(c.cyc)*(c.stepRate?0.35:0.72)*c.w,i=1-c.w,a=Math.min(1,dt*8);
     j.hipL.rotation.x=s;j.hipR.rotation.x=-s;j.kneeL.rotation.x=Math.max(0,-s)*1.25+0.05;j.kneeR.rotation.x=Math.max(0,s)*1.25+0.05;
     // idle on the spot: breathing sway; waving hello (classmates) or explaining with a hand (teacher)
     let rx=s*0.85+Math.sin(t*1.5+ph)*0.07*i,rz=-0.14,re=-0.22-Math.max(0,-s)*0.5,lx=-s*0.85+Math.sin(t*1.5+ph+2)*0.07*i,le=-0.22-Math.max(0,s)*0.5;
@@ -466,9 +466,17 @@ function walkStep(w,dt,tt){const n=WALK.length,a=WALK[w.seg],b=WALK[(w.seg+(w.di
   w.c.g.position.set(x,0,z);w.c.wave=stop;w.c.g.rotation.y=stop?Math.atan2(S.x-x,S.y-z):Math.atan2(ux,uz);OBS[w.oi]=[x-0.14,z-0.14,x+0.14,z+0.14];animate(w.c,tt,dt,!stop);}
 const teacher=person({adult:true,hair:'bun',hairC:'#2A1E19',skin:'#F4D0B5',eye:'#3B2A1E'});scene.add(teacher.g);OBS.push(null);const TOI=OBS.length-1;
 {const tl=label('老師',0,1.98,0,'#E07A3F',0.6);scene.remove(tl);teacher.g.add(tl);}
-let tT=0;
-function teacherStep(dt,tt){tT+=dt*0.12;const s=(Math.sin(tT)+1)/2,x=3.95+s*2.1,z=5.45,v=Math.cos(tT),pause=Math.abs(v)<0.25;
-  teacher.g.position.set(x,0,z);teacher.g.rotation.y=pause?Math.PI+Math.sin(tt*0.4)*1.0:(v>0?Math.PI/2:-Math.PI/2);OBS[TOI]=[x-0.2,z-0.2,x+0.2,z+0.2];teacher.gesture=pause;animate(teacher,tt,dt,!pause);}
+// the teacher walks at a normal pace between stops on the low area's edge, pausing to talk with the class at each one
+const TSTOPS=[[3.95,5.45,Math.PI],[5.0,5.45,Math.PI*0.75],[6.05,5.45,Math.PI]];teacher.stepRate=4.2;
+const TW={i:0,dir:1,x:3.95,z:5.45,wait:2,face:Math.PI};
+function teacherStep(dt,tt){let mv=false;
+  if(TW.wait>0){TW.wait-=dt;teacher.g.rotation.y=TW.face+Math.sin(tt*0.5)*0.6;}
+  else{let n=TW.i+TW.dir;if(n<0||n>=TSTOPS.length){TW.dir=-TW.dir;n=TW.i+TW.dir;}
+    const tg=TSTOPS[n],dx=tg[0]-TW.x,dz=tg[1]-TW.z,d=Math.hypot(dx,dz),blockedBy=S.x!==undefined&&Math.hypot(S.x-(TW.x+dx/d*0.5),S.y-(TW.z+dz/d*0.5))<0.6;
+    teacher.g.rotation.y=Math.atan2(dx,dz);
+    if(!blockedBy){const st=Math.min(d,0.7*dt);TW.x+=dx/d*st;TW.z+=dz/d*st;mv=true;
+      if(d-st<0.01){TW.i=n;TW.wait=3+Math.random()*3;TW.face=tg[2];}}}
+  teacher.g.position.set(TW.x,0,TW.z);OBS[TOI]=[TW.x-0.2,TW.z-0.2,TW.x+0.2,TW.z+0.2];teacher.gesture=!mv;animate(teacher,tt,dt,mv);}
 const me=new THREE.Group();scene.add(me);let meC=null;
 {const tag=label('你',0,1.32,0,'#E07A3F',0.5);scene.remove(tag);me.add(tag);me.userData.tag=tag;}
 function buildMe(girl,wc){[...me.children].forEach(ch=>{if(ch!==me.userData.tag)me.remove(ch);});
@@ -697,7 +705,7 @@ function reachSections(z,r){const skip=[TOI,...walkers.map(w=>w.oi)],save=skip.m
   while(q.length){const [i,j]=q.pop(),x=i*st,y=j*st;if(nearShelfAt(x,y)&&isIn(z,x,y)||nearShelfAt(x,y))ok[secAt(z,x,y)]=1;
     for(const [di,dj] of [[1,0],[-1,0],[0,1],[0,-1]]){const a=i+di,b=j+dj;if(a<0||b<0||a>NX||b>NY||seen[b*(NX+1)+a])continue;seen[b*(NX+1)+a]=1;if(!blocked(a*st,b*st,r))q.push([a,b]);}}
   skip.forEach((i,k)=>OBS[i]=save[k]);S.zone=oz;return ok.slice(1);}
-if(DEV)window.__g={acts:()=>({kids:kids.map(c=>c.act),walk:walkers.map(w=>[w.c.wave,+w.c.j.shR.rotation.x.toFixed(2)]),teacher:teacher.gesture}),wk:()=>walkers.map(w=>{const g=w.c.g.position;return [g.x,g.z,Math.sin(w.c.g.rotation.y),Math.cos(w.c.g.rotation.y)];}),dbg:()=>({kids:kids.map(c=>[c.pose,+c.g.parent.position.x.toFixed(2)||+c.g.position.x.toFixed(2),+(c.g.parent===kidGroup?c.g.position.z:c.g.parent.position.z).toFixed(2)]),walkers:walkers.length}),reach:reachSections,S:()=>S,MG:()=>MG,tp:(x,y,h)=>{S.x=x;S.y=y;S.lastZ=y;if(h!==undefined)hdg=h;camReady=false;},cam:(o,p)=>{camOff=o;camPitch=p||0;camReady=false;}};
+if(DEV)window.__g={tw:()=>[TW.x,TW.z,TW.wait,teacher.w],acts:()=>({kids:kids.map(c=>c.act),walk:walkers.map(w=>[w.c.wave,+w.c.j.shR.rotation.x.toFixed(2)]),teacher:teacher.gesture}),wk:()=>walkers.map(w=>{const g=w.c.g.position;return [g.x,g.z,Math.sin(w.c.g.rotation.y),Math.cos(w.c.g.rotation.y)];}),dbg:()=>({kids:kids.map(c=>[c.pose,+c.g.parent.position.x.toFixed(2)||+c.g.position.x.toFixed(2),+(c.g.parent===kidGroup?c.g.position.z:c.g.parent.position.z).toFixed(2)]),walkers:walkers.length}),reach:reachSections,S:()=>S,MG:()=>MG,tp:(x,y,h)=>{S.x=x;S.y=y;S.lastZ=y;if(h!==undefined)hdg=h;camReady=false;},cam:(o,p)=>{camOff=o;camPitch=p||0;camReady=false;}};
 })();
 </script>
 </body>
