@@ -286,6 +286,22 @@ function cabinet(c){const [x0,z0,x1,z1]=c.b,alongZ=c.f!=='+z',Wl=alongZ?z1-z0:x1
   });});
   g.position.set((x0+x1)/2,0,(z0+z1)/2);g.rotation.y=c.f==='+x'?Math.PI/2:c.f==='-x'?-Math.PI/2:0;scene.add(g);OBS.push([x0,z0,x1,z1]);}
 CABS.forEach(cabinet);
+// each area's cabinets are split left→right (as the child faces them) into easy / medium / hard, marked green / yellow / red
+const LV=[['簡單','綠色','#1E9E5A'],['中等','黃色','#E0B21B'],['挑戰','紅色','#C2453A']];
+const FACE={art:'+x',math:'+x',lang:'-x',blk:'-x',con:'+z'};
+function secT(z,x,y){const s=SHELF[z],f=FACE[z];let t=f==='+z'?(x-s[0])/(s[2]-s[0]):f==='+x'?(s[3]-y)/(s[3]-s[1]):(y-s[1])/(s[3]-s[1]);return Math.max(0,Math.min(0.999,t));}
+function secAt(z,x,y){return Math.floor(secT(z,x,y)*3)+1;}
+ZK.forEach(z=>{const s=SHELF[z],f=FACE[z],h=CABS.find(c=>c.z===z).h;
+  for(let i=0;i<3;i++){const t0=i/3,t1=(i+1)/3,m=mat(LV[i][2],0.6);let r; // r = [x0,z0,x1,z1] of the section's front edge
+    if(f==='+z')r=[s[0]+(s[2]-s[0])*t0+0.02,s[3]-0.03,s[0]+(s[2]-s[0])*t1-0.02,s[3]+0.006];
+    else if(f==='+x')r=[s[2]-0.03,s[3]-(s[3]-s[1])*t1+0.02,s[2]+0.006,s[3]-(s[3]-s[1])*t0-0.02];
+    else r=[s[0]-0.006,s[1]+(s[3]-s[1])*t0+0.02,s[0]+0.03,s[1]+(s[3]-s[1])*t1-0.02];
+    box(r[0],r[1],r[2],r[3],h-0.045,h+0.004,m,true);
+    // matching floor tape in front of the section
+    const tp=f==='+z'?[r[0],s[3]+0.06,r[2],s[3]+0.12]:f==='+x'?[s[2]+0.06,r[1],s[2]+0.12,r[3]]:[s[0]-0.12,r[1],s[0]-0.06,r[3]];
+    flat(tp[0],tp[1],tp[2],tp[3],0.008,new THREE.MeshBasicMaterial({color:lin(LV[i][2])}));
+    const cx=(r[0]+r[2])/2,cz=(r[1]+r[3])/2,off=f==='+z'?[0,0.05]:f==='+x'?[0.05,0]:[-0.05,0];
+    label(LV[i][0],cx+off[0],h+0.2,cz+off[1],LV[i][2],0.42);}});
 const tableTop=mat('#F6F1E7',0.6),legM=mat('#D8BE96'),chairM=mat('#E8C99A'),CHAIRS=[];
 for(const t of TABLES){const [x,y,w,h]=t.r,tc=[x+w/2,y+h/2];
   const top=new THREE.Mesh(new THREE.BoxGeometry(w,0.035,h),tableTop);top.position.set(tc[0],0.5,tc[1]);top.castShadow=top.receiveShadow=true;scene.add(top);
@@ -446,14 +462,14 @@ const inHub=(x,y)=>x>=HUB[0]&&x<=HUB[0]+HUB[2]&&y>=HUB[1]&&y<=HUB[1]+HUB[3];
 function shuffle(a){for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}
 function reset(){
   const wc=document.getElementById('wc').checked,girl=document.querySelector('input[name=who]:checked').value==='girl';
-  S={wc,r:wc?0.36:0.17,speed:wc?0.95:1.3,x:3.25,y:7.95,stage:0,zone:null,wrong:0,cross:0,stuck:0,t0:performance.now(),lastZone:null,lastZ:7.95,level:0};
+  S={wc,r:wc?0.36:0.17,speed:wc?0.95:1.3,x:3.25,y:7.95,stage:0,zone:null,wrong:0,cross:0,stuck:0,t0:performance.now(),lastZone:null,lastZ:7.95,done:0,taken:0};
   hdg=Math.PI;camOff=0;camPitch=0;camReady=false;
   const used={};ZK.forEach(z=>used[z]=0);while(kidGroup.children.length)kidGroup.remove(kidGroup.children[0]);kids.length=0;
   CHAIRS.forEach(c=>{c.g.visible=true;OBS[c.oi]=c.box;});OBS.length=STATIC.length+1; // furniture + the teacher's slot
   for(let i=0;i<19;i++){const open=ZK.filter(z=>used[z]<Z[z].cap);used[rnd(open)]++;}
   S.used=used;
   const seats={};TABLES.forEach(t=>{const z=ZK.find(k=>isIn(k,t.r[0]+0.1,t.r[1]+0.1));if(z)(seats[z]=seats[z]||[]).push(...t.ch);});
-  seats.blk=[[7.5,4.35],[8.25,4.3],[8.85,4.85],[7.55,5.6],[8.4,5.95],[9.0,5.55]];
+  seats.blk=[[7.4,4.3],[8.2,4.25],[7.3,5.05],[8.35,5.6],[7.35,5.75],[7.95,6.15]];
   const wcZone=shuffle(ZK.filter(z=>used[z]>0))[0]; // one classmate (random) uses a wheelchair and gets the seat nearest the entrance
   for(const z of ZK){let list=shuffle(seats[z].slice());
     if(z===wcZone){const d=ENTR[z];list.sort((a,b)=>Math.hypot(a[0]-d[0],a[1]-d[1])-Math.hypot(b[0]-d[0],b[1]-d[1]));list=[list[0],...shuffle(list.slice(1))];}
@@ -462,9 +478,11 @@ function reset(){
       if(!ch)OBS.push([p[0]-0.16,p[1]-0.16,p[0]+0.16,p[1]+0.16]);
       kid(p[0],p[1],Z[z].col,z==='blk'&&!isWc?'floor':'sit',ch?ch.tc:[8.3,5.1],isWc);}}
   buildMe(girl,wc);addWalkers();setTask();}
-const TASKS=['從綠色腳印的<b>前門</b>走進教室','走到藍色的<b>選區板</b>，插上姓名卡','走到你選的<b>{z}</b>（沿橘色虛線走道，不穿過別區）','走到<b>{z}的教具櫃</b>拿教具','收拾時間到！把教具<b>放回櫃子</b>（物歸原位）','到<b>中間低區</b>集合','從紅色腳印的<b>後門</b>出去'];
-const HINTS=['','靠近選區板後按「插卡選區」','','靠近櫃子後按「拿教具」','靠近櫃子後按「物歸原位」','走到中間淺色的區域',''];
-function setTask(){const zn=S.zone?Z[S.zone].n:'';document.getElementById('task').innerHTML=(S.stage+1)+' / 7　'+TASKS[S.stage].replace('{z}',zn)+(HINTS[S.stage]?'<small>'+HINTS[S.stage]+'</small>':'');}
+const TASKS=['從綠色腳印的<b>前門</b>走進教室','走到藍色的<b>選區板</b>，插上姓名卡','走到你選的<b>{z}</b>（沿橘色虛線走道，不穿過別區）','走到<b>{z}的教具櫃</b>，從<b>{n}</b>的位置拿教具','把教具放回<b>{t}</b>的位置（物歸原位）','到<b>中間低區</b>集合','從紅色腳印的<b>後門</b>出去'];
+const HINTS=['','靠近選區板後按「插卡選區」','','櫃子由左到右分成 簡單（綠）→ 中等（黃）→ 挑戰（紅），要從簡單開始','放回拿的那一格，才能再拿下一級','走到中間淺色的區域',''];
+const lvName=l=>LV[l-1][1]+'・'+LV[l-1][0];
+function setTask(){const zn=S.zone?Z[S.zone].n:'',nx=Math.min(3,S.done+1);let h=HINTS[S.stage];if(S.stage===3&&S.done>=1)h='已完成 '+S.done+' / 3 級。可以挑戰下一級，也可以按「不玩了，去集合」';
+  document.getElementById('task').innerHTML=(S.stage+1)+' / 7　'+TASKS[S.stage].replace('{z}',zn).replace('{n}',lvName(nx)).replace('{t}',S.taken?lvName(S.taken):'')+(h?'<small>'+h+'</small>':'');}
 let toastT=0;function toast(msg,ok){const t=document.getElementById('toast');t.textContent=msg;t.className='toast'+(ok?' ok':'');t.style.display='block';toastT=performance.now()+2600;}
 const show=(id,on)=>document.getElementById(id).classList.toggle('on',on);
 const anyPanel=()=>!!document.querySelector('.panel.on');
@@ -500,13 +518,18 @@ function move(dt){
 const act=document.getElementById('act');let actFn=null;
 function setAct(list){const key=list.map(a=>a[0]).join('|');if(act.dataset.k===key)return;act.dataset.k=key;act.innerHTML='';
   list.forEach(([lab,fn])=>{const b=document.createElement('button');b.type='button';b.className='btn acc';b.textContent=lab;b.addEventListener('click',fn);act.appendChild(b);});}
-function nearShelf(){const s=SHELF[S.zone],dx=Math.max(s[0]-S.x,0,S.x-s[2]),dy=Math.max(s[1]-S.y,0,S.y-s[3]);return Math.hypot(dx,dy)<S.r+0.6;}
+function nearShelfAt(x,y){const s=SHELF[S.zone],dx=Math.max(s[0]-x,0,x-s[2]),dy=Math.max(s[1]-y,0,y-s[3]);return Math.hypot(dx,dy)<S.r+0.6;}
+const nearShelf=()=>nearShelfAt(S.x,S.y);
 function logic(){let a=[];
   if(S.stage===0&&S.y<6.8){S.stage=1;setTask();}
   if(S.stage===1&&Math.hypot(S.x-3.1,S.y-5.6)<0.9)a=[['插卡選區',openBoard]];
   if(S.stage===2&&isIn(S.zone,S.x,S.y)){S.stage=3;setTask();toast('到了！',true);}
-  if(S.stage===3&&nearShelf())a=[['拿教具',openGame]];
-  if(S.stage===4&&nearShelf())a=[['物歸原位',()=>{S.stage=5;setTask();toast('教具放回原位了',true);}]];
+  if(S.stage===3){if(nearShelf()){const L=secAt(S.zone,S.x,S.y);a.push(['拿教具（'+lvName(L)+'）',()=>{
+      if(L>S.done+1)toast('要先完成'+lvName(S.done+1)+'的教具，才能拿'+LV[L-1][0]+'的');else openGame(L);}]);}
+    if(S.done>=1)a.push(['不玩了，去集合',()=>{S.stage=5;setTask();}]);}
+  if(S.stage===4&&nearShelf()){const L=secAt(S.zone,S.x,S.y);a=[['放回這格（'+LV[L-1][1]+'）',()=>{
+      if(L!==S.taken){toast('這裡是'+LV[L-1][1]+'的位置，要放回'+LV[S.taken-1][1]+'的位置');return;}
+      S.taken=0;if(S.done>=3){S.stage=5;toast('三級都完成了！教具放回原位，去集合',true);}else{S.stage=3;toast('放回原位了！可以挑戰'+lvName(S.done+1),true);}setTask();}]];}
   if(S.stage===5&&inHub(S.x,S.y)){S.stage=6;setTask();toast('集合完成，準備放學',true);}
   actFn=a.length?a[0][1]:null;setAct(a);}
 function openBoard(){const zl=document.getElementById('zlist');zl.innerHTML='';
@@ -514,27 +537,30 @@ function openBoard(){const zl=document.getElementById('zlist');zl.innerHTML='';
     b.style.borderColor=Z[z].col;b.innerHTML='<b>'+Z[z].n+'</b><span>'+(left>0?'剩 '+left+' 個位置':'額滿了，請選別區或等待')+'</span>';
     b.addEventListener('click',()=>{S.zone=z;S.used[z]++;S.stage=2;setTask();show('pBoard',false);toast('你選了'+Z[z].n,true);});zl.appendChild(b);});
   show('pBoard',true);}
-function finish(){const sec=Math.round((performance.now()-S.t0)/1000),lv=['','綠色・簡單','黃色・中等','紅色・挑戰'][S.level];
-  document.getElementById('eKv').innerHTML='<dt>選的學習區</dt><dd>'+Z[S.zone].n+'</dd><dt>完成的挑戰</dt><dd>'+Z[S.zone].game+'（'+lv+'）</dd><dt>用時</dt><dd>'+sec+' 秒</dd><dt>走錯門</dt><dd>'+S.wrong+' 次</dd><dt>穿越其他區</dt><dd>'+S.cross+' 次</dd>'+(S.wc?'<dt>輪椅過不去</dt><dd>'+S.stuck+' 次</dd>':'');
+function finish(){const sec=Math.round((performance.now()-S.t0)/1000),lv=S.done?'完成到'+lvName(S.done)+'（'+S.done+' / 3 級）':'未完成';
+  document.getElementById('eKv').innerHTML='<dt>選的學習區</dt><dd>'+Z[S.zone].n+'</dd><dt>完成的挑戰</dt><dd>'+Z[S.zone].game+'：'+lv+'</dd><dt>用時</dt><dd>'+sec+' 秒</dd><dt>走錯門</dt><dd>'+S.wrong+' 次</dd><dt>穿越其他區</dt><dd>'+S.cross+' 次</dd>'+(S.wc?'<dt>輪椅過不去</dt><dd>'+S.stuck+' 次</dd>':'');
   document.getElementById('eNote').textContent=(S.wrong||S.cross)?'沿著腳印和橘色虛線走，就不會走錯門或穿過別人的學習區。':(S.wc?'輪椅也能從前門進來、到學習區、再從後門出去：走道與迴轉空間夠寬，每個孩子都能自己選區。':'你照著動線走：前門進、後門出，沒有打擾到別人。');
   S.stage=7;show('pEnd',true);}
 document.getElementById('go').addEventListener('click',()=>{reset();show('pStart',false);last=performance.now();});
 document.getElementById('again').addEventListener('click',()=>{show('pEnd',false);show('pStart',true);});
 
-// ---------- mini-games: one per learning area, three levels (green / yellow / red) chosen by the child ----------
+// ---------- mini-games: one per learning area, three levels (green / yellow / red) taken in order from the cabinet sections ----------
 const gT=document.getElementById('gTitle'),gH=document.getElementById('gHint'),gB=document.getElementById('gBody'),gF=document.getElementById('gFoot');
 const el=(tag,cls,html)=>{const e=document.createElement(tag);if(cls)e.className=cls;if(html!==undefined)e.innerHTML=html;return e;};
 const BEADC=['#E0565B','#3E7CC0','#E0C040','#1E9E5A','#8A5CB8'];let MG=null;
-function openGame(){const z=Z[S.zone];gT.textContent=z.n+'：'+z.game;gH.textContent='區中區與材料：'+z.mat+'。先選你想挑戰的難度（難中易自己選）。';
-  gB.innerHTML='';const lv=el('div','lv');[['l1','綠色','簡單'],['l2','黃色','中等'],['l3','紅色','挑戰']].forEach(([c,a,b],i)=>{const bt=el('button',c,a+'<small>'+b+'</small>');bt.type='button';bt.dataset.lv=i+1;bt.addEventListener('click',()=>startGame(i+1));lv.appendChild(bt);});
-  gB.appendChild(lv);gF.innerHTML='';show('pGame',true);}
-function startGame(lv){S.level=lv;gB.innerHTML='';const boxEl=el('div','gbox'),msg=el('div','msg');gB.append(boxEl,msg);
+function progress(cur){const row=el('div','lv');LV.forEach(([n,c,col],i)=>{const l=i+1,st=l<=S.done?'✓ 完成':l===cur?'進行中':l===S.done+1?'下一級':'🔒 還沒解鎖';
+    const b=el('button','l'+l,c+'・'+n+'<small>'+st+'</small>');b.type='button';b.disabled=true;b.style.opacity=l===cur||l<=S.done?1:0.55;row.appendChild(b);});return row;}
+function openGame(lv){const z=Z[S.zone];gT.textContent=z.n+'：'+z.game+'（'+lvName(lv)+'）';show('pGame',true);startGame(lv);
+  gF.innerHTML='';gF.style.flexDirection='column';gF.style.alignItems='stretch';gF.append(el('p','note','區中區與材料：'+z.mat),progress(lv));}
+function startGame(lv){S.taken=lv;gB.innerHTML='';const boxEl=el('div','gbox'),msg=el('div','msg');gB.append(boxEl,msg);
   const say=(t,good)=>{msg.textContent=t;msg.className='msg '+(good?'good':'bad');};
   MG={zone:S.zone,lv,box:boxEl,say,done:()=>gameDone()};GAMES[S.zone](MG);}
-function gameDone(){const z=Z[S.zone];gH.textContent='';gB.innerHTML='';const b=el('div','gbox');b.append(el('div','big','🎉 完成了！'),el('p',null,'你在「我完成了」紀錄表貼上自己的名條。'),el('p','note','培養的核心素養：'+z.core));gB.appendChild(b);
-  gF.innerHTML='';const bt=el('button','btn primary','收拾教具');bt.type='button';bt.id='gDone';bt.addEventListener('click',()=>{show('pGame',false);S.stage=4;setTask();toast('玩得很開心！收拾時間到',true);});gF.appendChild(bt);MG=null;}
-function ask(G,rounds,make){let r=0;const next=()=>{if(r===rounds)return G.done();G.box.innerHTML='';G.say('');const q=make(r);G.ans=q.ans;G.box.append(el('p','note','第 '+(r+1)+' / '+rounds+' 題　'+q.text),q.view);
-    const o=el('div','opts');shuffle(q.opts.slice()).forEach(v=>{const b=el('button','opt',String(v));b.type='button';b.dataset.v=v;b.addEventListener('click',()=>{if(v===q.ans){b.classList.add('yes');G.say('答對了！',true);r++;setTimeout(next,DEV?0:650);}else{b.classList.add('no');b.disabled=true;G.say(q.retry||'再試一次');}});o.appendChild(b);});G.box.appendChild(o);};next();}
+function gameDone(){const z=Z[S.zone],lv=S.taken;S.done=Math.max(S.done,lv);gH.textContent='';gB.innerHTML='';const b=el('div','gbox');
+  b.append(el('div','big','🎉 '+LV[lv-1][0]+'完成了！'),el('p',null,'你在「我完成了」紀錄表的'+LV[lv-1][1]+'欄貼上名條。'),
+    el('p','note',lv<3?'把教具放回'+LV[lv-1][1]+'的位置，就可以去拿'+lvName(lv+1)+'的教具。':'三個等級都完成了！'),el('p','note','培養的核心素養：'+z.core));gB.appendChild(b);
+  gF.innerHTML='';gF.style.flexDirection='';gF.style.alignItems='';gF.appendChild(progress(0));const bt=el('button','btn primary','收拾教具');bt.type='button';bt.id='gDone';bt.addEventListener('click',()=>{show('pGame',false);S.stage=4;setTask();toast('玩得很開心！把教具放回'+LV[S.taken-1][1]+'的位置',true);});gF.appendChild(bt);MG=null;}
+function ask(G,rounds,make){let r=0;const next=()=>{if(r===rounds)return G.done();G.box.innerHTML='';G.say('');let lock=false;const q=make(r);G.ans=q.ans;G.box.append(el('p','note','第 '+(r+1)+' / '+rounds+' 題　'+q.text),q.view);
+    const o=el('div','opts');shuffle(q.opts.slice()).forEach(v=>{const b=el('button','opt',String(v));b.type='button';b.dataset.v=v;b.addEventListener('click',()=>{if(lock)return;if(v===q.ans){lock=true;b.classList.add('yes');G.say('答對了！',true);r++;setTimeout(next,DEV?0:650);}else{b.classList.add('no');b.disabled=true;G.say(q.retry||'再試一次');}});o.appendChild(b);});G.box.appendChild(o);};next();}
 const GAMES={
   math(G){gH.textContent=['數一數有幾個（5 以內）','數一數有幾個（10 以內）','兩堆合起來是多少？'][G.lv-1];const em=['🍎','🍊','⭐','🐟','🌼'];
     ask(G,3,r=>{let n,html;if(G.lv===3){const a=2+Math.floor(Math.random()*4),b=1+Math.floor(Math.random()*(9-a));n=a+b;html=em[r].repeat(a)+' ＋ '+em[r+1].repeat(b);}
@@ -645,7 +671,13 @@ function frame(ts){requestAnimationFrame(frame);
   if(toastT&&ts>toastT){document.getElementById('toast').style.display='none';toastT=0;}
   renderer.render(scene,cam);drawMini();}
 resize();S={};requestAnimationFrame(frame);
-if(DEV)window.__g={S:()=>S,MG:()=>MG,tp:(x,y,h)=>{S.x=x;S.y=y;S.lastZ=y;if(h!==undefined)hdg=h;camReady=false;},cam:(o,p)=>{camOff=o;camPitch=p||0;camReady=false;}};
+function reachSections(z,r){const skip=[TOI,...walkers.map(w=>w.oi)],save=skip.map(i=>OBS[i]);skip.forEach(i=>OBS[i]=null);
+  const st=0.05,NX=Math.round(W/st),NY=Math.round(9.3/st),seen=new Uint8Array((NX+1)*(NY+1)),q=[],ok=[0,0,0,0],oz=S.zone,ox=S.x,oy=S.y;S.zone=z;
+  const sx=Math.round(3.25/st),sy=Math.round(7.95/st);seen[sy*(NX+1)+sx]=1;q.push([sx,sy]);
+  while(q.length){const [i,j]=q.pop(),x=i*st,y=j*st;if(nearShelfAt(x,y)&&isIn(z,x,y)||nearShelfAt(x,y))ok[secAt(z,x,y)]=1;
+    for(const [di,dj] of [[1,0],[-1,0],[0,1],[0,-1]]){const a=i+di,b=j+dj;if(a<0||b<0||a>NX||b>NY||seen[b*(NX+1)+a])continue;seen[b*(NX+1)+a]=1;if(!blocked(a*st,b*st,r))q.push([a,b]);}}
+  skip.forEach((i,k)=>OBS[i]=save[k]);S.zone=oz;return ok.slice(1);}
+if(DEV)window.__g={reach:reachSections,S:()=>S,MG:()=>MG,tp:(x,y,h)=>{S.x=x;S.y=y;S.lastZ=y;if(h!==undefined)hdg=h;camReady=false;},cam:(o,p)=>{camOff=o;camPitch=p||0;camReady=false;}};
 })();
 </script>
 </body>
