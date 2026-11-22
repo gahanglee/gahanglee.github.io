@@ -656,11 +656,13 @@ function loadOne(m){return new Promise(res=>{if(!THREE.GLTFLoader||!THREE.Skelet
       m.blink=ex.blink.morphTargetBinds[0].index;m.happy=ex.happy.morphTargetBinds[0].index;
       g.scene.traverse(q=>{if(q.isMesh){q.castShadow=true;q.frustumCulled=false;}});m.proto=g.scene;m.ok=true;res(true);}catch(e){console.warn('VRM',e);res(false);}},
     undefined,e=>{console.warn('VRM load failed',m.file,e);res(false);});});}
-const loadVRM=()=>Promise.all([loadOne(VRMM.girl),loadOne(VRMM.boy),loadOne(VRMM.teacher).then(ok=>{if(ok)adoptTeacher();})]);
+const loadVRM=()=>Promise.all([loadOne(VRMM.girl).then(ok=>{if(ok)adopt(swKid,{h:kidH(),noGlasses:true,tint:HAIRTINT[2]});}),loadOne(VRMM.boy).then(ok=>{if(ok)adopt(runner,{boy:true,h:kidH(),tint:HAIRTINT_B[2]});}),loadOne(VRMM.teacher).then(ok=>{if(ok)adoptTeacher();})]);
 // the teacher becomes the VRoid adult character (160 cm); her name label stays on the same group
-function adoptTeacher(){const tv=vrmPerson({model:'teacher',h:1.60});VRMS.splice(VRMS.indexOf(tv),1);
-  [...teacher.g.children].forEach(ch=>{if(!ch.isSprite)teacher.g.remove(ch);else ch.position.y=1.95;});teacher.g.scale.setScalar(1);teacher.g.add(tv.g);
-  teacher.j=tv.j;teacher.vrm=tv.vrm;teacher.sc=1;setPose(teacher,'walk');}
+function adopt(c,o){const tv=vrmPerson(o);VRMS.splice(VRMS.indexOf(tv),1);
+  [...c.g.children].forEach(ch=>{if(!ch.isSprite)c.g.remove(ch);else ch.position.y=1.95;});c.g.scale.setScalar(1);c.g.add(tv.g);
+  c.j=tv.j;c.vrm=tv.vrm;c.sc=1;setPose(c,c.pose);FIXEDV.push(c);}
+const FIXEDV=[];
+function adoptTeacher(){adopt(teacher,{model:'teacher',h:1.60});}
 const kidH=()=>0.95+Math.random()*0.15; // classmates 95-110 cm
 let BASE_H={};function sizeTo(c,h){const k=c.d===DIM.adult?'a':'c';if(!BASE_H[k]){const p=c.pose;setPose(c,'walk');c.g.updateMatrixWorld(true);BASE_H[k]=new THREE.Box3().setFromObject(c.g).getSize(new THREE.Vector3()).y;setPose(c,p);}c.sc=h/BASE_H[k];c.g.scale.setScalar(c.sc);setPose(c,c.pose);return c;}
 const HAIRTINT=[null,'#5A4636','#3A2E2A','#8A6A4E'],HAIRTINT_B=[null,'#7A5A44','#B08A66','#4A3A30'];
@@ -690,12 +692,12 @@ function vrmSync(c,dt){const v=c.vrm,B=v.B,R=v.rest,j=c.j,S=v.S,M=v.M;
   v.blinkT-=dt;let bl=0;if(v.blinkT<0){bl=1;if(v.blinkT<-0.12)v.blinkT=2+Math.random()*3;}
   v.faces.forEach(m=>{m.morphTargetInfluences[M.blink]=bl;m.morphTargetInfluences[M.happy]=bl?0:0.3;});}
 const kidGroup=new THREE.Group();scene.add(kidGroup);const kids=[];
-function kid(x,z,col,pose,face,inChair){const girl=Math.random()<0.5,h=kidH(),M=VRMM[girl?'girl':'boy'],nV=VRMS.filter(q=>q.vrm.M===M).length,useV=M.ok&&nV<5&&Math.random()<0.6;
-  const c=useV?vrmPerson({pose,boy:!girl,h,tint:(girl?HAIRTINT:HAIRTINT_B)[nV%4],noGlasses:nV%2===1}):sizeTo(person(Object.assign(kidOpts(girl,col),{pose})),h);const g=seated(c,inChair);
+function kid(x,z,col,pose,face,inChair){const girl=Math.random()<0.5,h=kidH(),M=VRMM[girl?'girl':'boy'],nV=VRMS.filter(q=>q.vrm.M===M).length,useV=M.ok;
+  const c=useV?vrmPerson({pose,boy:!girl,h,tint:(girl?HAIRTINT:HAIRTINT_B)[nV%4],noGlasses:true}):sizeTo(person(Object.assign(kidOpts(girl,col),{pose})),h);const g=seated(c,inChair);
   g.position.set(x,0,z);if(face)g.rotation.y=Math.atan2(face[0]-x,face[1]-z);kidGroup.add(g);kids.push(c);return c;}
 const WALK=[[3.25,3.2],[5,3.2],[6.7,3.2],[6.7,6.2],[5,6.2],[3.25,6.2]],walkers=[];
 function addWalkers(){walkers.forEach(w=>scene.remove(w.c.g));walkers.length=0;
-  [0,3].forEach((start,i)=>{const c=sizeTo(person(kidOpts(i===0,'#FFFFFF')),kidH());scene.add(c.g);OBS.push(null);walkers.push({c,seg:start,t:Math.random(),oi:OBS.length-1,dir:i?1:-1});});}
+  [0,3].forEach((start,i)=>{const M=VRMM[i===0?'girl':'boy'],c=M.ok?vrmPerson({boy:i!==0,h:kidH(),tint:(i===0?HAIRTINT:HAIRTINT_B)[1+i],noGlasses:true}):sizeTo(person(kidOpts(i===0,'#FFFFFF')),kidH());scene.add(c.g);OBS.push(null);walkers.push({c,seg:start,t:Math.random(),oi:OBS.length-1,dir:i?1:-1});});}
 function walkStep(w,dt,tt){const n=WALK.length,a=WALK[w.seg],b=WALK[(w.seg+(w.dir>0?1:n-1))%n],L=Math.hypot(b[0]-a[0],b[1]-a[1]);
   const x=a[0]+(b[0]-a[0])*w.t,z=a[1]+(b[1]-a[1])*w.t,ux=(b[0]-a[0])/L,uz=(b[1]-a[1])/L;
   const stop=S.x!==undefined&&Math.hypot(S.x-(x+ux*0.5),S.y-(z+uz*0.5))<0.6;
@@ -720,12 +722,12 @@ function teacherStep(dt,tt){let mv=false;teacher.wave=(S.waveUntil||0)>tt;
 const swKid=sizeTo(person(Object.assign(kidOpts(true,'#FFFFFF'),{pose:'sit'})),kidH());SWG[0].g.add(swKid.g);swKid.g.position.set(0,-SWG[0].L+0.02-0.315,0);
 const runner=sizeTo(person(kidOpts(false,'#FFFFFF')),kidH());runner.stepRate=14;runner.amp=0.85;scene.add(runner.g);let runA=0;
 function outdoorStep(dt,tt){const th=0.45*Math.sin(tt*2.2);SWG[0].g.rotation.x=-th;animate(swKid,tt,dt,false);
-  const j=swKid.j;j.shL.rotation.set(-2.6,0,0.25);j.shR.rotation.set(-2.6,0,-0.25);j.elL.rotation.x=j.elR.rotation.x=-0.25;j.torso.rotation.x=-th*0.3;
+  const j=swKid.j;if(swKid.vrm)swKid.g.position.y=-SWG[0].L+0.02-0.315;j.shL.rotation.set(-2.6,0,0.25);j.shR.rotation.set(-2.6,0,-0.25);j.elL.rotation.x=j.elR.rotation.x=-0.25;j.torso.rotation.x=-th*0.3;
   runA+=dt*1.5/0.75;const x=3.6+0.75*Math.cos(runA),z=13.4+0.75*Math.sin(runA);runner.g.position.set(x,0,z);runner.g.rotation.y=Math.atan2(-Math.sin(runA),Math.cos(runA));animate(runner,tt,dt,true);}
 const me=new THREE.Group();scene.add(me);let meC=null;
 {const tag=label('你',0,1.32,0,'#E07A3F',0.5);scene.remove(tag);me.add(tag);me.userData.tag=tag;}
 function buildMe(girl,wc){[...me.children].forEach(ch=>{if(ch!==me.userData.tag)me.remove(ch);});
-  const PM=VRMM[girl?'girl':'boy'];meC=PM.ok?vrmPerson({boy:!girl,h:1.0}):sizeTo(person({girl,hair:girl?'twin':'short',hairC:'#2A1E19',skin:'#F9DCC8',eye:'#5A3A22',badge:'#E07A3F'}),1.0);me.add(seated(meC,wc));
+  const PM=VRMM[girl?'girl':'boy'];meC=PM.ok?vrmPerson({boy:!girl,h:1.0,noGlasses:true}):sizeTo(person({girl,hair:girl?'twin':'short',hairC:'#2A1E19',skin:'#F9DCC8',eye:'#5A3A22',badge:'#E07A3F'}),1.0);me.add(seated(meC,wc));
   meC.j.shoes.forEach(m=>m.material=mat('#3E7CC0',0.6)); // outdoor shoes
   const bp=new THREE.Mesh(new THREE.BoxGeometry(0.17,0.2,0.08),mat('#E07A3F'));bp.position.set(0,meC.d.torso*0.5,-meC.d.bodyR-0.03);bp.castShadow=true;
   if(meC.bagParent){bp.scale.setScalar(1/meC.vrm.S);bp.position.set(0,0.02,-0.15);meC.bagParent.add(bp);}else meC.j.torso.add(bp);meC.bag=bp;}
@@ -1182,7 +1184,7 @@ function frame(ts){requestAnimationFrame(frame);
   kids.forEach(c=>{if(!LINE.on||!LINE.members.some(m=>m.c===c))animate(c,tt,dt,false);});walkers.forEach(w=>walkStep(w,dt,tt));teacherStep(dt,tt);
   if(S.x!==undefined&&meC){me.position.set(S.x,S.my||0,S.y);me.rotation.y=hdg;animate(meC,tt,dt,moving);if(S.ride&&S.ride.anim)S.ride.anim(meC,tt);}
   me.visible=S.x!==undefined;
-  VRMS.forEach(c=>vrmSync(c,dt));if(teacher.vrm)vrmSync(teacher,dt);
+  VRMS.forEach(c=>vrmSync(c,dt));FIXEDV.forEach(c=>vrmSync(c,dt));
   placeCam(dt);
   if(toastT&&ts>toastT){document.getElementById('toast').style.display='none';toastT=0;}
   renderer.render(scene,cam);drawMini();}
