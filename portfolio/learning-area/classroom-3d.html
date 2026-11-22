@@ -671,6 +671,8 @@ function vrmPerson(o){const M=VRMM[o.model||(o.boy?'boy':'girl')],root=THREE.Ske
   const B={hips:bone('hips'),spine:bone('spine'),chest:bone('chest'),head:bone('head'),uL:bone('leftUpperLeg'),uR:bone('rightUpperLeg'),lL:bone('leftLowerLeg'),lR:bone('rightLowerLeg'),
     aL:bone('leftUpperArm'),aR:bone('rightUpperArm'),fL:bone('leftLowerArm'),fR:bone('rightLowerArm')};
   const rest={};for(const k in B)rest[k]=B[k].quaternion.clone();const shoeMats=[];
+  // rest orientation of each driven bone in the model's own space (facing +z, up +y), used to pose bones in body-aligned axes
+  root.updateMatrixWorld(true);const rootInv=root.getWorldQuaternion(new THREE.Quaternion()).invert(),restM={};for(const k in B)restM[k]=rootInv.clone().multiply(B[k].getWorldQuaternion(new THREE.Quaternion()));
   root.traverse(m=>{if(!m.isMesh)return;const arr=Array.isArray(m.material),mats=arr?m.material:[m.material];
     const nm=mats.map(mt=>{const n=mt.name||'';if(/Shoes/.test(n)){const c=mt.clone();shoeMats.push(c);return c;}if(o.tint&&/HAIR/.test(n)){const c=mt.clone();c.color=lin(o.tint);return c;}if(o.noGlasses&&/Glasses/.test(n)){const c=mt.clone();c.visible=false;return c;}return mt;});
     m.material=arr?nm:nm[0];m.castShadow=true;m.frustumCulled=false;});
@@ -679,20 +681,28 @@ function vrmPerson(o){const M=VRMM[o.model||(o.boy?'boy':'girl')],root=THREE.Ske
   j.shL.rotation.z=0.14;j.shR.rotation.z=-0.14;
   // shoe changes recolour this character's own shoe material (it stays skinned), like the Q-style figures' shoes
   j.shoes=[{set material(m){shoeMats.forEach(sm=>{sm.map=null;sm.color.copy(m.color);sm.needsUpdate=true;});}}];
-  const c={g,j,d:DIM.child,pose:o.pose||'walk',ph:Math.random()*6.28,w:0,cyc:0,talk:0,vrm:{B,rest,faces,blinkT:1+Math.random()*3,S,M,hipsY:B.hips.position.y},bagParent:B.chest};
+  const c={g,j,d:DIM.child,pose:o.pose||'walk',ph:Math.random()*6.28,w:0,cyc:0,talk:0,vrm:{B,rest,restM,root,faces,blinkT:1+Math.random()*3,S,M,hipsY:B.hips.position.y},bagParent:B.chest};
   g.userData.c=c;setPose(c,c.pose);VRMS.push(c);return c;}
-// copy the joint rotations onto the VRM bones; arms are swung in an "arm hanging down" frame
-const _q=new THREE.Quaternion(),_e=new THREE.Euler(),_ax=new THREE.Vector3(0,0,1);
-const ARM_L=new THREE.Quaternion().setFromAxisAngle(_ax,-1.32),ARM_R=new THREE.Quaternion().setFromAxisAngle(_ax,1.32),ARM_Li=ARM_L.clone().invert(),ARM_Ri=ARM_R.clone().invert();
-const qOf=o=>_q.setFromEuler(_e.set(o.rotation.x,o.rotation.y,o.rotation.z,o.rotation.order));
-function vrmSync(c,dt){const v=c.vrm,B=v.B,R=v.rest,j=c.j,S=v.S,M=v.M;
-  const set=(k,o)=>B[k].quaternion.copy(qOf(o)).multiply(R[k]);
-  set('uL',j.hipL);set('uR',j.hipR);set('lL',j.kneeL);set('lR',j.kneeR);set('spine',j.torso);set('head',j.head);
-  B.aL.quaternion.copy(qOf(j.shL)).multiply(ARM_L).multiply(R.aL);B.aR.quaternion.copy(qOf(j.shR)).multiply(ARM_R).multiply(R.aR);
-  B.fL.quaternion.copy(ARM_Li).multiply(qOf(j.elL)).multiply(ARM_L).multiply(R.fL);B.fR.quaternion.copy(ARM_Ri).multiply(qOf(j.elR)).multiply(ARM_R).multiply(R.fR);
+// copy the joint rotations onto the VRM bones. Every rotation is built in the body's own axes (x = across the body,
+// y = up, z = forward), exactly like the Q-style rig, then converted into each bone's local space through its parent's
+// current orientation, so arms swing forward/back and elbows bend forward however the shoulder bones are tilted.
+const _q=new THREE.Quaternion(),_e=new THREE.Euler(),_ax=new THREE.Vector3(0,0,1),_pw=new THREE.Quaternion(),_ri=new THREE.Quaternion(),_d=new THREE.Quaternion(),_a=new THREE.Quaternion();
+const ARM_DOWN=1.75; // from the T-pose to arms hanging at the sides (the joints add a little outward lean)
+const ARM_L=new THREE.Quaternion().setFromAxisAngle(_ax,-ARM_DOWN),ARM_R=new THREE.Quaternion().setFromAxisAngle(_ax,ARM_DOWN);
+const qOf=(o,q)=>(q||_q).setFromEuler(_e.set(o.rotation.x,o.rotation.y,o.rotation.z,o.rotation.order));
+function poseBone(bone,desired){bone.parent.getWorldQuaternion(_pw);bone.quaternion.copy(_ri).multiply(_pw).invert().multiply(desired);bone.updateMatrixWorld(true);}
+function vrmSync(c,dt){const v=c.vrm,B=v.B,M=v.restM,j=c.j,S=v.S,MD=v.M;
   const P=c.pose,h=P==='sit'?0.33:P==='wheel'?0.47:P==='floor'?0.1:v.hipsY*S+(j.pelvis.position.y-c.d.hip);B.hips.position.y=h/S;
+  v.root.updateMatrixWorld(true);_ri.copy(v.root.getWorldQuaternion(_a)).invert(); // inverse of the model root's world rotation
+  const T=qOf(j.torso,new THREE.Quaternion());
+  poseBone(B.spine,_d.copy(T).multiply(M.spine));
+  poseBone(B.head,_d.copy(T).multiply(qOf(j.head)).multiply(M.head));
+  [['L','uL','lL'],['R','uR','lR']].forEach(([s,u,l])=>{const H=qOf(j['hip'+s],new THREE.Quaternion());
+    poseBone(B[u],_d.copy(H).multiply(M[u]));poseBone(B[l],_d.copy(H).multiply(qOf(j['knee'+s])).multiply(M[l]));});
+  [['L','aL','fL',ARM_L],['R','aR','fR',ARM_R]].forEach(([s,a,f,D])=>{const Sw=T.clone().multiply(qOf(j['sh'+s]));
+    poseBone(B[a],_d.copy(Sw).multiply(D).multiply(M[a]));poseBone(B[f],_d.copy(Sw).multiply(qOf(j['el'+s])).multiply(D).multiply(M[f]));});
   v.blinkT-=dt;let bl=0;if(v.blinkT<0){bl=1;if(v.blinkT<-0.12)v.blinkT=2+Math.random()*3;}
-  v.faces.forEach(m=>{m.morphTargetInfluences[M.blink]=bl;m.morphTargetInfluences[M.happy]=bl?0:0.3;});}
+  v.faces.forEach(m=>{m.morphTargetInfluences[MD.blink]=bl;m.morphTargetInfluences[MD.happy]=bl?0:0.3;});}
 const kidGroup=new THREE.Group();scene.add(kidGroup);const kids=[];
 function kid(x,z,col,pose,face,inChair){const girl=Math.random()<0.5,h=kidH(),M=VRMM[girl?'girl':'boy'],nV=VRMS.filter(q=>q.vrm.M===M).length,useV=M.ok;
   const c=useV?vrmPerson({pose,boy:!girl,h,tint:(girl?HAIRTINT:HAIRTINT_B)[nV%4],noGlasses:true}):sizeTo(person(Object.assign(kidOpts(girl,col),{pose})),h);const g=seated(c,inChair);
