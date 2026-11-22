@@ -112,7 +112,7 @@ label.chk{display:flex;align-items:center;gap:8px;font-size:15px;cursor:pointer}
     <div class="act" id="act"></div>
     <div class="pad" id="pad" aria-label="移動按鈕">
       <span></span><button type="button" data-k="f" aria-label="前進">▲</button><span></span>
-      <button type="button" data-k="l" aria-label="左轉">◀</button><button type="button" data-k="b" aria-label="後退">▼</button><button type="button" data-k="r" aria-label="右轉">▶</button>
+      <button type="button" data-k="l" aria-label="左轉">◀</button><button type="button" data-k="b" aria-label="轉身往回走">▼</button><button type="button" data-k="r" aria-label="右轉">▶</button>
     </div>
     <div class="view row"><button type="button" class="btn" id="specBtn">規格檢查</button><button type="button" class="btn" id="viewBtn">俯視</button></div>
 
@@ -124,7 +124,7 @@ label.chk{display:flex;align-items:center;gap:8px;font-size:15px;cursor:pointer}
         <label class="chk"><input type="radio" name="who" value="boy"> 男生</label>
         <label class="chk"><input type="checkbox" id="wc"> 我坐輪椅</label>
       </div>
-      <p class="note">電腦：方向鍵或 W A S D 走路與轉彎，拖曳畫面看四周，E 鍵或按鈕互動。手機：左下方向鍵，拖曳畫面轉視角。</p>
+      <p class="note">電腦：方向鍵或 W A S D 走路與轉彎（往下鍵是轉身往回走），拖曳畫面看四周，E 鍵或按鈕互動。手機：左下方向鍵，拖曳畫面轉視角。</p>
       <div class="row"><button type="button" class="btn primary" id="go">開始</button></div>
     </div></div>
 
@@ -765,12 +765,16 @@ function blocked(x,y,r){
   return false;}
 let stuckFlag=false,moving=false;
 function move(dt){
-  const f=(keys.f?1:0)-(keys.b?1:0),turn=(keys.l?1:0)-(keys.r?1:0);
+  // children never walk backwards: holding "back" turns the character around on the spot, then they walk forward
+  let f=keys.f?1:0;const turn=(keys.l?1:0)-(keys.r?1:0);
   hdg+=turn*dt*2.1;moving=false;
+  if(keys.b&&!keys.f){if(S.turnRem===undefined)S.turnRem=Math.PI;
+    if(S.turnRem>0){const st=Math.min(S.turnRem,dt*6);hdg+=st;S.turnRem-=st;camOff+=st;moving=true;return;}f=1;}
+  else S.turnRem=undefined;
   if(!f){stuckFlag=false;return;}
   camOff*=Math.max(0,1-dt*3);camPitch*=Math.max(0,1-dt*3);
   const grass=S.wc&&onGrass(S.x,S.y);if(grass&&f&&(!S.grassMsg||performance.now()-S.grassMsg>5000)){toast('草地不好推輪椅，走橘色的橡膠步道比較順');S.grassMsg=performance.now();}
-  const sp=S.speed*(grass?0.45:1)*(f>0?1:-0.6)*dt,dx=Math.sin(hdg)*sp,dy=Math.cos(hdg)*sp;
+  const sp=S.speed*(grass?0.45:1)*dt,dx=Math.sin(hdg)*sp,dy=Math.cos(hdg)*sp;
   const nx=S.x+dx,ny=S.y+dy;let moved=false;
   if(S.stage>=10&&ny<7.0){ // same line as the exit transition (S.y crossing 7.0)
     if(!S.shoeMsg||performance.now()-S.shoeMsg>2500){toast('放學了，在戶外玩，不用再進教室');S.shoeMsg=performance.now();}return;}
