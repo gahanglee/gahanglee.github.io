@@ -533,8 +533,8 @@ function startGame(lv){S.level=lv;gB.innerHTML='';const boxEl=el('div','gbox'),m
   MG={zone:S.zone,lv,box:boxEl,say,done:()=>gameDone()};GAMES[S.zone](MG);}
 function gameDone(){const z=Z[S.zone];gH.textContent='';gB.innerHTML='';const b=el('div','gbox');b.append(el('div','big','🎉 完成了！'),el('p',null,'你在「我完成了」紀錄表貼上自己的名條。'),el('p','note','培養的核心素養：'+z.core));gB.appendChild(b);
   gF.innerHTML='';const bt=el('button','btn primary','收拾教具');bt.type='button';bt.id='gDone';bt.addEventListener('click',()=>{show('pGame',false);S.stage=4;setTask();toast('玩得很開心！收拾時間到',true);});gF.appendChild(bt);MG=null;}
-function ask(G,rounds,make){let r=0;const next=()=>{if(r===rounds)return G.done();G.box.innerHTML='';G.say('');const q=make(r);G.ans=q.ans;G.box.append(el('p','note','第 '+(r+1)+' / '+rounds+' 題　'+q.text),q.view);
-    const o=el('div','opts');shuffle(q.opts.slice()).forEach(v=>{const b=el('button','opt',String(v));b.type='button';b.dataset.v=v;b.addEventListener('click',()=>{if(v===q.ans){b.classList.add('yes');G.say('答對了！',true);r++;setTimeout(next,DEV?0:650);}else{b.classList.add('no');b.disabled=true;G.say(q.retry||'再試一次');}});o.appendChild(b);});G.box.appendChild(o);};next();}
+function ask(G,rounds,make){let r=0;const next=()=>{if(r===rounds)return G.done();G.box.innerHTML='';G.say('');let lock=false;const q=make(r);G.ans=q.ans;G.box.append(el('p','note','第 '+(r+1)+' / '+rounds+' 題　'+q.text),q.view);
+    const o=el('div','opts');shuffle(q.opts.slice()).forEach(v=>{const b=el('button','opt',String(v));b.type='button';b.dataset.v=v;b.addEventListener('click',()=>{if(lock)return;if(v===q.ans){lock=true;b.classList.add('yes');G.say('答對了！',true);r++;setTimeout(next,DEV?0:650);}else{b.classList.add('no');b.disabled=true;G.say(q.retry||'再試一次');}});o.appendChild(b);});G.box.appendChild(o);};next();}
 const GAMES={
   math(G){gH.textContent=['數一數有幾個（5 以內）','數一數有幾個（10 以內）','兩堆合起來是多少？'][G.lv-1];const em=['🍎','🍊','⭐','🐟','🌼'];
     ask(G,3,r=>{let n,html;if(G.lv===3){const a=2+Math.floor(Math.random()*4),b=1+Math.floor(Math.random()*(9-a));n=a+b;html=em[r].repeat(a)+' ＋ '+em[r+1].repeat(b);}
