@@ -253,7 +253,27 @@ box(0,0,0.02,H,0,0.1,baseM,true);box(W-0.02,0,W,H,0,0.1,baseM,true);box(0,0,W,0.
    const m=new THREE.Mesh(new THREE.PlaneGeometry(0.4,0.4),new THREE.MeshStandardMaterial({map:t,roughness:0.9}));m.position.set(6.75+(i%3)*0.5,1.35+Math.floor(i/3)*0.5,0.012);m.rotation.z=(i%2?1:-1)*0.04;scene.add(m);}
  label('作品展示',7.25,2.35,0.02,'#1B3A5C',0.7);}
 // outside: shoe cabinets, sinks
-const outM=mat('#E3D2B8');box(0.6,7.15,2.7,7.47,0,0.9,outM);box(7.4,7.15,9.5,7.47,0,0.9,outM);box(3.95,7.15,6.1,7.45,0,0.75,mat('#BFDCDF'));
+// outside shoe cabinets: open cubbies (10 x 4), one pair per child, the bottom row reachable from a wheelchair
+const SHOESLOT={front:[0.6+0.105+5*0.21,7.34],back:[7.4+0.105+5*0.21,7.34]};
+const shoeG=new THREE.SphereGeometry(0.045,12,10);
+function shoePair(x,y,z,col,parent){[-1,1].forEach(sd=>{const m=new THREE.Mesh(shoeG,mat(col,0.6));m.scale.set(1,0.6,1.8);m.position.set(x+sd*0.045,y+0.03,z);m.castShadow=true;(parent||scene).add(m);});}
+function shoeCabinet(x0,keep){const z0=7.15,z1=7.47,w=2.1,h=0.9,wood=mat('#E3C9A0'),back=mat('#D9BE95');
+  box(x0,z0,x0+w,z0+0.02,0,h,back);box(x0,z0,x0+w,z1,h-0.025,h,wood);box(x0,z0,x0+w,z1,0,0.025,wood);
+  [0.245,0.47,0.695].forEach(y=>box(x0,z0,x0+w,z1,y-0.012,y+0.012,wood,true));
+  for(let i=0;i<=10;i++){const x=x0+i*0.21;box(x-0.011,z0,x+0.011,z1,0,h,wood,true);}
+  const cols=['#E05A47','#3E7CC0','#F4B6C2','#1E9E5A','#E0B21B','#8A5CB8','#FFFFFF','#E07A3F'];
+  for(let r=0;r<4;r++)for(let c=0;c<10;c++){const x=x0+0.105+c*0.21,y=[0.025,0.257,0.482,0.707][r];
+    if(Math.abs(x-keep)<0.01&&r===0)continue; // the player's own slot stays empty
+    box(x-0.04,z1-0.004,x+0.04,z1+0.002,y+0.17,y+0.2,mat('#FFFFFF'),true); // name tag
+    if((r*10+c)%7!==3)shoePair(x,y,7.34,cols[(r*3+c)%cols.length]);}
+  box(keep-0.04,z1-0.004,keep+0.04,z1+0.002,0.195,0.225,mat('#E07A3F'),true);}
+shoeCabinet(0.6,SHOESLOT.front[0]);shoeCabinet(7.4,SHOESLOT.back[0]);
+// outside sink: counter with three low basins and faucets
+{const x0=3.95,x1=6.1,z0=7.15,z1=7.45;box(x0,z0,x1,z1,0,0.66,mat('#BFDCDF'));box(x0-0.02,z0,x1+0.02,z1+0.03,0.66,0.7,mat('#F4F7F7',0.4));
+ for(let i=0;i<3;i++){const cx=x0+0.36+i*0.72,b=new THREE.Mesh(new THREE.CircleGeometry(0.2,28),mat('#9FB7BD',0.3));b.rotation.x=-Math.PI/2;b.scale.set(1,0.7,1);b.position.set(cx,0.702,7.32);scene.add(b);
+   const f=new THREE.Mesh(new THREE.CylinderGeometry(0.015,0.015,0.16,8),mat('#C9D0D6',0.25));f.position.set(cx,0.78,7.19);scene.add(f);
+   const sp=new THREE.Mesh(new THREE.CylinderGeometry(0.012,0.012,0.1,8),mat('#C9D0D6',0.25));sp.rotation.x=Math.PI/2;sp.position.set(cx,0.85,7.23);scene.add(sp);}
+ box(x0,z0-0.005,x1,z0,0.75,1.55,mat('#DDEBEE',0.2),true);}
 label('門外鞋櫃',1.65,1.15,7.3,'#5B7083',0.8);label('門外鞋櫃',8.45,1.15,7.3,'#5B7083',0.8);label('門外洗手台',5.02,1.05,7.3,'#007C89',0.8);
 label('前門・進來',3.25,2.35,7.0,'#1E9E5A',1);label('後門・出去',6.7,2.35,7.0,'#C2453A',1);
 // footprints (decals) and the dashed ring corridor
@@ -588,7 +608,7 @@ function buildMe(girl,wc){[...me.children].forEach(ch=>{if(ch!==me.userData.tag)
   const bp=new THREE.Mesh(new THREE.BoxGeometry(0.17,0.2,0.08),mat('#E07A3F'));bp.position.set(0,meC.d.torso*0.5,-meC.d.bodyR-0.03);bp.castShadow=true;meC.j.torso.add(bp);meC.bag=bp;}
 const placed=new THREE.Group();scene.add(placed);
 function shoesOff(){meC.j.shoes.forEach(m=>m.material=mat('#FFFFFF',0.6));
-  [-1,1].forEach(sd=>{const sh=new THREE.Mesh(sphG(0.045,12,10),mat('#3E7CC0',0.6));sh.scale.set(1,0.6,1.8);sh.position.set(1.65+sd*0.05,0.07,SHOEC[3]-0.06);placed.add(sh);});}
+  shoePair(SHOESLOT.front[0],0.025,SHOESLOT.front[1],'#3E7CC0',placed);}
 function placeItem(k){if(k==='bag'){if(meC.bag)meC.bag.visible=false;const sl=BAGSLOT.find(b=>b.mine);const b=new THREE.Mesh(new THREE.BoxGeometry(0.14,0.26,0.25),mat('#E07A3F'));b.position.set(sl.x,sl.y0+0.13,(BAGC[1]+BAGC[3])/2+0.01);b.castShadow=true;placed.add(b);}
   if(k==='bottle'){const b=new THREE.Mesh(new THREE.CylinderGeometry(0.03,0.03,0.2,12),mat('#E07A3F'));b.position.set(RACK[0]+0.06+9*0.075,0.475,(RACK[1]+RACK[3])/2);placed.add(b);}
   if(k==='cut'){const b=new THREE.Mesh(new THREE.BoxGeometry(0.06,0.03,0.14),mat('#E07A3F'));b.position.set(5.0,0.83,6.9);placed.add(b);}}
@@ -705,7 +725,7 @@ const nearShelf=()=>nearShelfAt(S.x,S.y);
 function logic(){let a=[];
   if(S.ride){setAct([]);actFn=null;return;}
   if(S.stage===9&&nearBox(BSHOE,S.x,S.y))a=[['換外出鞋',()=>{meC.j.shoes.forEach(m=>m.material=mat('#3E7CC0',0.6));
-      [-1,1].forEach(sd=>{const sh=new THREE.Mesh(sphG(0.045,12,10),mat('#FFFFFF',0.6));sh.scale.set(1,0.6,1.8);sh.position.set(8.45+sd*0.05,0.07,BSHOE[3]-0.06);placed.add(sh);});
+      shoePair(SHOESLOT.back[0],0.025,SHOESLOT.back[1],'#FFFFFF',placed);
       S.stage=10;setTask();toast('換好外出鞋了！去戶外遊戲場玩',true);}]];
   if(S.stage===10){OUTS.forEach(o=>{if(Math.hypot(S.x-o.spot[0],S.y-o.spot[1])<0.75+S.r)a.push(['玩'+outName(o)+(S.out[o.k]?'（再玩一次）':''),()=>startRide(o)]);});
     if(OUTS.filter(o=>S.out[o.k]).length>=3)a.push(['玩夠了，放學回家',finish]);}
