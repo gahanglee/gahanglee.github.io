@@ -105,6 +105,14 @@ label.chk{display:flex;align-items:center;gap:8px;font-size:15px;cursor:pointer}
 .msg{font-weight:700;min-height:1.6em;text-align:center}
 .msg.bad{color:var(--bad)}.msg.good{color:var(--go)}
 @media (max-width:700px){.sched{top:auto;bottom:136px;left:auto;right:12px;max-height:120px}.sched li b,.sched li span{display:none}.sched li{grid-template-columns:22px}.hud{right:12px;top:auto;bottom:136px}#mini{width:140px;height:116px}.task{font-size:14px}}
+.photo{position:absolute;left:14px;bottom:132px;width:min(280px,40%);background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:8px;display:none;flex-direction:column;gap:6px;box-shadow:0 6px 18px rgba(0,0,0,.18);z-index:3}
+.photo.on{display:flex}
+.photo img{width:100%;aspect-ratio:4/3;object-fit:cover;border-radius:10px;background:var(--line)}
+.photo .ph-top{display:flex;align-items:center;justify-content:space-between;gap:6px;font-size:13px;font-weight:700}
+.photo .ph-cap{font-size:13px;line-height:1.45;margin:0}
+.photo .ph-nav{display:flex;align-items:center;justify-content:space-between;font-size:12px;color:var(--muted)}
+.photo button{font:inherit;font-size:14px;min-width:34px;min-height:30px;border-radius:8px;border:1px solid var(--line);background:var(--bg);color:var(--fg);cursor:pointer}
+@media (max-width:700px){.photo{bottom:auto;top:12px;left:12px;width:150px;padding:6px}.photo .ph-cap{font-size:12px}}
 </style>
 </head>
 <body>
@@ -112,7 +120,7 @@ label.chk{display:flex;align-items:center;gap:8px;font-size:15px;cursor:pointer}
   <header>
     <p style="margin:0 0 6px"><a href="/portfolio/learning-area/" style="font-size:14px">← 回到幼兒學習環境設計實作</a>　<a href="/portfolio/learning-area/flow-sim.html" style="font-size:14px">動線模擬（俯視）</a></p>
     <h1>學習區 3D 教室：當一天的幼兒</h1>
-    <p class="lead">跟著你的角色照<b>白鹿班一日作息表</b>過一天：先在門外鞋櫃放鞋子，從前門進來，把書包、水壺、餐具放好，到選區板插卡，到學習區從簡單到挑戰拿教具玩小遊戲、物歸原位，到中間低區集合，到教室旁的廁所上廁所、洗手，從後門出去換外出鞋，再到戶外遊戲場玩溜滑梯、盪鞦韆等大肌肉遊戲。可以選擇坐輪椅，體驗走道夠不夠寬。</p>
+    <p class="lead">跟著你的角色照<b>白鹿班一日作息表</b>過一天：先在門外鞋櫃放鞋子，從前門進來，把書包、水壺、餐具放好，到選區板插卡，到學習區從簡單到挑戰拿教具玩小遊戲、物歸原位，到中間低區集合，到教室旁的廁所上廁所、洗手，從後門出去換外出鞋，再到戶外遊戲場玩溜滑梯、盪鞦韆等大肌肉遊戲。可以選擇坐輪椅，體驗走道夠不夠寬。走近學習區時，畫面左下會出現該區的實景照片（參訪幼兒園拍攝，不含幼兒與姓名）。</p>
   </header>
 
   <div class="stage" id="stage">
@@ -126,11 +134,17 @@ label.chk{display:flex;align-items:center;gap:8px;font-size:15px;cursor:pointer}
     <div class="trans" id="trans" role="status"></div>
     <div class="dark" id="dark"><b>zZ 午睡中…</b><span>12:40 → 14:30</span></div>
     <div class="act" id="act"></div>
+    <figure class="photo" id="photo" aria-live="polite" style="margin:0">
+      <div class="ph-top"><span id="phZone">實景照片</span><button type="button" id="phClose" aria-label="關閉實景照片">×</button></div>
+      <img id="phImg" alt="">
+      <figcaption class="ph-cap" id="phCap"></figcaption>
+      <div class="ph-nav"><button type="button" id="phPrev" aria-label="上一張">◀</button><span id="phNum"></span><button type="button" id="phNext" aria-label="下一張">▶</button></div>
+    </figure>
     <div class="pad" id="pad" aria-label="移動按鈕">
       <span></span><button type="button" data-k="f" aria-label="前進">▲</button><span></span>
       <button type="button" data-k="l" aria-label="左轉">◀</button><button type="button" data-k="b" aria-label="轉身往回走">▼</button><button type="button" data-k="r" aria-label="右轉">▶</button>
     </div>
-    <div class="view row"><button type="button" class="btn" id="specBtn">規格檢查</button><button type="button" class="btn" id="viewBtn">俯視</button></div>
+    <div class="view row"><button type="button" class="btn" id="photoBtn" aria-pressed="true">實景照片：開</button><button type="button" class="btn" id="specBtn">規格檢查</button><button type="button" class="btn" id="viewBtn">俯視</button></div>
 
     <div class="panel on" id="pStart"><div class="card">
       <h2>當一天的幼兒</h2>
@@ -597,35 +611,37 @@ function person(o){ // o: {adult, girl, hair, hairC, skin, eye, pose, badge}
 function setPose(c,P){c.pose=P;const j=c.j,d=c.d;['hipL','hipR'].forEach(k=>{j[k].rotation.order='YXZ';j[k].rotation.set(0,0,0);});
   j.torso.rotation.set(0,0,0);
   if(P==='sit'||P==='wheel'){j.pelvis.position.y=((P==='wheel'?0.44:0.315)+d.legR*(c.sc||1))/(c.sc||1); // seat height stays the same whatever the child's height
-    j.hipL.rotation.x=j.hipR.rotation.x=-Math.PI/2+0.06;j.kneeL.rotation.x=j.kneeR.rotation.x=Math.PI/2-0.06;}
-  else if(P==='floor'){j.pelvis.position.y=d.legR*1.2;j.hipL.rotation.set(-Math.PI/2+0.12,0.7,0);j.hipR.rotation.set(-Math.PI/2+0.12,-0.7,0);j.kneeL.rotation.x=j.kneeR.rotation.x=2.35;j.torso.rotation.x=0.18;}
+    j.hipL.rotation.x=j.hipR.rotation.x=-Math.PI/2+0.06;j.kneeL.rotation.x=j.kneeR.rotation.x=Math.PI/2-0.06;if(c.girl){j.hipL.rotation.y=-0.06;j.hipR.rotation.y=0.06;}}
+  else if(P==='floor'&&c.girl){j.pelvis.position.y=d.legR*1.2;j.hipL.rotation.set(-Math.PI/2+0.2,-0.05,0);j.hipR.rotation.set(-Math.PI/2+0.2,0.05,0);j.kneeL.rotation.x=j.kneeR.rotation.x=2.95;j.torso.rotation.x=0.05;} // kneeling (seiza) keeps the skirt down
+  else if(P==='floor'){j.pelvis.position.y=d.legR*1.2;j.hipL.rotation.set(-Math.PI/2+0.12,0.7,0);j.hipR.rotation.set(-Math.PI/2+0.12,-0.7,0);j.kneeL.rotation.x=j.kneeR.rotation.x=2.6;j.torso.rotation.x=0.18;}
   else{j.pelvis.position.y=d.hip;j.kneeL.rotation.x=j.kneeR.rotation.x=0.05;}}
 // NPC behaviour: every classmate cycles through small actions so the room feels alive
-const ACTS={sit:['work','work','work','raise','talk','cheer','look','clap'],wheel:['work','raise','talk','cheer','look','clap'],floor:['build','build','build','reach','cheer','talk']};
+const ACTS={sit:['rest','rest','rest','work','work','raise','talk','look','clap','cheer'],wheel:['rest','rest','rest','work','raise','talk','look','clap'],floor:['rest','rest','build','build','reach','talk','cheer'],circle:['lap','lap','lap','lap','clap','raise','look']};
 const ease=(o,k,v,a)=>{o[k]+=(v-o[k])*a;};
 function npcAct(c,t,dt){const j=c.j,ph=c.ph,a=Math.min(1,dt*6),P=c.pose;
-  if(!c.act||t>c.actEnd){const o=ACTS[P];let n=o[Math.floor(Math.random()*o.length)];if(n===c.act&&n!=='work'&&n!=='build')n=o[0];c.act=n;c.actEnd=t+(n==='work'||n==='build'?3+Math.random()*4:1.6+Math.random()*1.6);c.side=Math.random()<0.5?-1:1;}
+  if(!c.act||t>c.actEnd){const o=ACTS[(P==='floor'||P==='wheel')&&CIRCLE.on?'circle':P];let n=o[Math.floor(Math.random()*o.length)];if(n===c.act&&n!=='work'&&n!=='build'&&n!=='rest'&&n!=='lap')n=o[0];c.act=n;c.actEnd=t+(n==='rest'||n==='lap'?4+Math.random()*5:n==='work'||n==='build'?3+Math.random()*4:1.6+Math.random()*1.6);c.side=Math.random()<0.5?-1:1;}
   const A=c.act,sd=c.side,base=P==='floor'?-0.95:-0.75;let L=[base,-0.85,0.14],R=[base,-0.85,-0.14],hx=0.2,hy=Math.sin(t*0.5+ph)*0.15,tx=P==='floor'?0.18:0.1;
-  if(A==='work'){L=[base+Math.sin(t*1.3+ph)*0.12,-0.85+Math.sin(t*2.7+ph)*0.35,0.14];R=[base+Math.sin(t*1.1+ph+1)*0.12,-0.85+Math.sin(t*2.2+ph+1.9)*0.35,-0.14];hx=0.3;}
-  else if(A==='build'){const u=Math.sin(t*3+ph);L=[-1.2+u*0.45,-0.5-u*0.3,0.2];R=[-1.2-u*0.45,-0.5+u*0.3,-0.2];hx=0.32;tx=0.3;}
+  if(A==='rest'||A==='lap'){L=[-0.45,-1.0,0.2];R=[-0.45,-1.0,-0.2];hx=0.1+Math.sin(t*0.7+ph)*0.05;tx=P==='floor'?0.12:0.06;} // hands resting on the lap / table
+  else if(A==='work'){L=[base+Math.sin(t*1.0+ph)*0.06,-0.85+Math.sin(t*1.6+ph)*0.15,0.14];R=[base+Math.sin(t*0.9+ph+1)*0.06,-0.85+Math.sin(t*1.4+ph+1.9)*0.15,-0.14];hx=0.3;}
+  else if(A==='build'){const u=Math.sin(t*1.8+ph);L=[-1.2+u*0.25,-0.5-u*0.2,0.2];R=[-1.2-u*0.25,-0.5+u*0.2,-0.2];hx=0.32;tx=0.3;}
   else if(A==='reach'){L=[-1.5,-0.15,0.1];R=[-1.5,-0.15,-0.1];tx=0.5;hx=0.15;}
-  else if(A==='raise'){R=[-2.95,-0.15,-0.18+Math.sin(t*9)*0.22];hx=-0.15;}
+  else if(A==='raise'){R=[-2.8,-0.25,-0.12+Math.sin(t*4)*0.06];hx=-0.15;}
   else if(A==='talk'){hy=sd*0.8;hx=0.02;const g=Math.sin(t*5+ph);(sd>0?L:R)[0]=-1.05+g*0.25;(sd>0?L:R)[1]=-1.25+g*0.3;}
-  else if(A==='cheer'){const b=Math.sin(t*10)*0.2;L=[-2.7+b,-0.25,0.45];R=[-2.7-b,-0.25,-0.45];hx=-0.12;tx=0.02;}
-  else if(A==='clap'){const b=Math.sin(t*14);L=[-1.25,-0.9-b*0.25,-0.35];R=[-1.25,-0.9-b*0.25,0.35];hx=0.05;}
+  else if(A==='cheer'){const b=Math.sin(t*6)*0.1;L=[-2.5+b,-0.35,0.3];R=[-2.5-b,-0.35,-0.3];hx=-0.12;tx=0.02;}
+  else if(A==='clap'){const b=Math.sin(t*9);L=[-0.75,-1.35-b*0.25,-0.30];R=[-0.75,-1.35-b*0.25,0.30];hx=0.05;}
   else if(A==='look'){hx=-0.3;hy=sd*0.45;}
   ease(j.shL.rotation,'x',L[0],a);ease(j.elL.rotation,'x',L[1],a);ease(j.shL.rotation,'z',L[2],a);
   ease(j.shR.rotation,'x',R[0],a);ease(j.elR.rotation,'x',R[1],a);ease(j.shR.rotation,'z',R[2],a);
   ease(j.head.rotation,'x',hx+Math.sin(t*1.6+ph)*0.03,a);ease(j.head.rotation,'y',hy,a);j.head.rotation.z=Math.sin(t*0.9+ph)*0.05;
   ease(j.torso.rotation,'x',tx+Math.sin(t*0.8+ph)*0.03,a);}
 function animate(c,t,dt,mv){const j=c.j,ph=c.ph,P=c.pose;
-  if(P==='walk'){c.w+=((mv?1:0)-c.w)*Math.min(1,dt*8);c.cyc+=dt*(c.stepRate||9.5)*c.w;const s=Math.sin(c.cyc)*(c.amp||(c.stepRate?0.35:0.72))*c.w,i=1-c.w,a=Math.min(1,dt*8);
+  if(P==='walk'){c.w+=((mv?1:0)-c.w)*Math.min(1,dt*8);c.cyc+=dt*(c.stepRate||9.5)*c.w;const s=Math.sin(c.cyc)*(c.amp||(c.stepRate?0.35:0.45))*c.w,i=1-c.w,a=Math.min(1,dt*8);
     j.hipL.rotation.x=s;j.hipR.rotation.x=-s;j.kneeL.rotation.x=Math.max(0,-s)*1.25+0.05;j.kneeR.rotation.x=Math.max(0,s)*1.25+0.05;
     // idle on the spot: breathing sway; waving hello (classmates) or explaining with a hand (teacher)
-    let rx=s*0.85+Math.sin(t*1.5+ph)*0.07*i,rz=-0.14,re=-0.22-Math.max(0,-s)*0.5,lx=-s*0.85+Math.sin(t*1.5+ph+2)*0.07*i,le=-0.22-Math.max(0,s)*0.5;
-    if(c.wave&&!mv){rx=-2.75;rz=-0.35+Math.sin(t*9)*0.35;re=-0.3;}
-    else if(c.gesture&&!mv){const g=Math.sin(t*3+ph);rx=-1.0+g*0.3;re=-1.0+g*0.25;lx=-0.5;le=-0.9;}
-    ease(j.shR.rotation,'x',rx,a);ease(j.shR.rotation,'z',rz,a);ease(j.elR.rotation,'x',re,a);ease(j.shL.rotation,'x',lx,a);ease(j.elL.rotation,'x',le,a);
+    let rx=s*0.6+Math.sin(t*1.5+ph)*0.04*i,rz=-(c.armOut||0.14),re=-0.2-Math.max(0,-s)*0.35,lx=-s*0.6+Math.sin(t*1.5+ph+2)*0.04*i,le=-0.2-Math.max(0,s)*0.35;
+    if(c.wave&&!mv){rx=-1.15;rz=-0.5+Math.sin(t*6)*0.15;re=-1.45;}
+    else if(c.gesture&&!mv&&(t+ph*3)%8<2.4){const u=((t+ph*3)%8)/2.4,k=Math.sin(Math.PI*u);rx=-0.4*k;re=-0.25-0.85*k;} // now and then a short explaining gesture, otherwise the hands rest
+    ease(j.shR.rotation,'x',rx,a);ease(j.shR.rotation,'z',rz,a);ease(j.shL.rotation,'z',c.armOut||0.14,a);ease(j.elR.rotation,'x',re,a);ease(j.shL.rotation,'x',lx,a);ease(j.elL.rotation,'x',le,a);
     j.pelvis.position.y=c.d.hip+Math.abs(Math.cos(c.cyc))*0.014*c.w+Math.sin(t*2+ph)*0.004*i;j.torso.rotation.z=Math.sin(c.cyc)*0.035*c.w;j.torso.rotation.x=0.05*c.w;
     j.head.rotation.y=c.wave?0:Math.sin(t*0.6+ph)*0.25*i;j.head.rotation.x=c.wave?-0.1:0;j.head.rotation.z=(c.wave?0.12:Math.sin(t*1.1+ph)*0.04)-Math.sin(c.cyc)*0.03*c.w;return;}
   if(P==='wheel'&&(mv||c.w>0.05)){c.w+=((mv?1:0)-c.w)*Math.min(1,dt*8);c.cyc+=dt*6*c.w;const s=Math.sin(c.cyc)*0.35*c.w;j.shL.rotation.x=j.shR.rotation.x=0.15+s;j.shL.rotation.z=0.32;j.shR.rotation.z=-0.32;j.elL.rotation.x=j.elR.rotation.x=-0.55-s;j.torso.rotation.x=0.04+0.06*c.w;
@@ -650,11 +666,17 @@ function seated(c,inChair){if(!inChair)return c.g;const g=new THREE.Group(),wc=w
 // ---------- 「沐」: the class's own VRoid character (VRM 1.0), driven by the same joints as the Q-style children ----------
 // model by 晃 (VRoid Studio); licence in the file: personal non-profit use, redistribution allowed, credit required
 const VRMM={girl:{file:'assets/mu.vrm',h:1.251,ok:false},boy:{file:'assets/boy.vrm',h:1.269,ok:false},teacher:{file:'assets/teacher.vrm',h:1.598,ok:false}};const VRMS=[];
+// the girls' black under-shorts are recoloured to the skirt's navy so they read as part of the uniform
+function navyShorts(sc){sc.traverse(q=>{if(!q.isMesh)return;(Array.isArray(q.material)?q.material:[q.material]).forEach(mt=>{if(!/Body_00_SKIN/.test(mt.name||'')||!mt.map||!mt.map.image||mt.map.__navy)return;
+  try{const im=mt.map.image,w=im.width,h=im.height,cv=document.createElement('canvas');cv.width=w;cv.height=h;const x=cv.getContext('2d');x.drawImage(im,0,0);
+    const y0=0,y1=Math.ceil(h*0.85),d=x.getImageData(0,y0,w,y1-y0),p=d.data;
+    for(let i=0;i<p.length;i+=4)if(p[i+3]>0&&p[i]<60&&p[i+1]<60&&p[i+2]<60){p[i]=44;p[i+1]=57;p[i+2]=100;}
+    x.putImageData(d,0,y0);mt.map.image=cv;mt.map.__navy=true;mt.map.needsUpdate=true;}catch(e){console.warn('shorts',e);}});});}
 function loadOne(m){return new Promise(res=>{if(!THREE.GLTFLoader||!THREE.SkeletonUtils){res(false);return;}
   new THREE.GLTFLoader().load(m.file,g=>{try{const js=g.parser.json,ext=js.extensions.VRMC_vrm,hb=ext.humanoid.humanBones;m.names={};
       for(const k in hb)m.names[k]=js.nodes[hb[k].node].name;const ex=ext.expressions.preset;
       m.blink=ex.blink.morphTargetBinds[0].index;m.happy=ex.happy.morphTargetBinds[0].index;
-      g.scene.traverse(q=>{if(q.isMesh){q.castShadow=true;q.frustumCulled=false;}});m.proto=g.scene;m.ok=true;res(true);}catch(e){console.warn('VRM',e);res(false);}},
+      g.scene.traverse(q=>{if(q.isMesh){q.castShadow=true;q.frustumCulled=false;}});if(m===VRMM.girl)navyShorts(g.scene);m.proto=g.scene;m.ok=true;res(true);}catch(e){console.warn('VRM',e);res(false);}},
     undefined,e=>{console.warn('VRM load failed',m.file,e);res(false);});});}
 const loadVRM=()=>Promise.all([loadOne(VRMM.girl).then(ok=>{if(ok)adopt(swKid,{h:kidH(),noGlasses:true,tint:HAIRTINT[2]});}),loadOne(VRMM.boy).then(ok=>{if(ok)adopt(runner,{boy:true,h:kidH(),tint:HAIRTINT_B[2]});}),loadOne(VRMM.teacher).then(ok=>{if(ok)adoptTeacher();})]);
 // the teacher becomes the VRoid adult character (160 cm); her name label stays on the same group
@@ -669,7 +691,7 @@ const HAIRTINT=[null,'#5A4636','#3A2E2A','#8A6A4E'],HAIRTINT_B=[null,'#7A5A44','
 function vrmPerson(o){const M=VRMM[o.model||(o.boy?'boy':'girl')],root=THREE.SkeletonUtils.clone(M.proto),g=new THREE.Group(),S=(o.h||1.0)/M.h;root.scale.setScalar(S);g.add(root);
   const bone=n=>root.getObjectByName(M.names[n]);
   const B={hips:bone('hips'),spine:bone('spine'),chest:bone('chest'),head:bone('head'),uL:bone('leftUpperLeg'),uR:bone('rightUpperLeg'),lL:bone('leftLowerLeg'),lR:bone('rightLowerLeg'),
-    aL:bone('leftUpperArm'),aR:bone('rightUpperArm'),fL:bone('leftLowerArm'),fR:bone('rightLowerArm')};
+    aL:bone('leftUpperArm'),ftL:bone('leftFoot'),ftR:bone('rightFoot'),aR:bone('rightUpperArm'),fL:bone('leftLowerArm'),fR:bone('rightLowerArm')};
   const rest={};for(const k in B)rest[k]=B[k].quaternion.clone();const shoeMats=[];
   root.traverse(m=>{if(!m.isMesh)return;const arr=Array.isArray(m.material),mats=arr?m.material:[m.material];
     const nm=mats.map(mt=>{const n=mt.name||'';if(/Shoes/.test(n)){const c=mt.clone();shoeMats.push(c);return c;}if(o.tint&&/HAIR/.test(n)){const c=mt.clone();c.color=lin(o.tint);return c;}if(o.noGlasses&&/Glasses/.test(n)){const c=mt.clone();c.visible=false;return c;}return mt;});
@@ -679,18 +701,19 @@ function vrmPerson(o){const M=VRMM[o.model||(o.boy?'boy':'girl')],root=THREE.Ske
   j.shL.rotation.z=0.14;j.shR.rotation.z=-0.14;
   // shoe changes recolour this character's own shoe material (it stays skinned), like the Q-style figures' shoes
   j.shoes=[{set material(m){shoeMats.forEach(sm=>{sm.map=null;sm.color.copy(m.color);sm.needsUpdate=true;});}}];
-  const c={g,j,d:DIM.child,pose:o.pose||'walk',ph:Math.random()*6.28,w:0,cyc:0,talk:0,vrm:{B,rest,faces,blinkT:1+Math.random()*3,S,M,hipsY:B.hips.position.y},bagParent:B.chest};
+  const c={g,j,d:DIM.child,armOut:o.model==='teacher'?0.3:o.boy?0.14:0.22,girl:!o.boy&&o.model!=='teacher',pose:o.pose||'walk',ph:Math.random()*6.28,w:0,cyc:0,talk:0,vrm:{B,rest,faces,blinkT:1+Math.random()*3,S,M,hipsY:B.hips.position.y},bagParent:B.chest};
   g.userData.c=c;setPose(c,c.pose);VRMS.push(c);return c;}
 // copy the joint rotations onto the VRM bones; arms are swung in an "arm hanging down" frame
-const _q=new THREE.Quaternion(),_e=new THREE.Euler(),_ax=new THREE.Vector3(0,0,1);
-const ARM_L=new THREE.Quaternion().setFromAxisAngle(_ax,-1.32),ARM_R=new THREE.Quaternion().setFromAxisAngle(_ax,1.32),ARM_Li=ARM_L.clone().invert(),ARM_Ri=ARM_R.clone().invert();
+const ARM_A=1.6,_q=new THREE.Quaternion(),_k=new THREE.Quaternion(),_e=new THREE.Euler(),_ax=new THREE.Vector3(0,0,1);
+const ARM_L=new THREE.Quaternion().setFromAxisAngle(_ax,-ARM_A),ARM_R=new THREE.Quaternion().setFromAxisAngle(_ax,ARM_A),ARM_Li=ARM_L.clone().invert(),ARM_Ri=ARM_R.clone().invert();
 const qOf=o=>_q.setFromEuler(_e.set(o.rotation.x,o.rotation.y,o.rotation.z,o.rotation.order));
 function vrmSync(c,dt){const v=c.vrm,B=v.B,R=v.rest,j=c.j,S=v.S,M=v.M;
   const set=(k,o)=>B[k].quaternion.copy(qOf(o)).multiply(R[k]);
   set('uL',j.hipL);set('uR',j.hipR);set('lL',j.kneeL);set('lR',j.kneeR);set('spine',j.torso);set('head',j.head);
   B.aL.quaternion.copy(qOf(j.shL)).multiply(ARM_L).multiply(R.aL);B.aR.quaternion.copy(qOf(j.shR)).multiply(ARM_R).multiply(R.aR);
-  B.fL.quaternion.copy(ARM_Li).multiply(qOf(j.elL)).multiply(ARM_L).multiply(R.fL);B.fR.quaternion.copy(ARM_Ri).multiply(qOf(j.elR)).multiply(ARM_R).multiply(R.fR);
-  const P=c.pose,h=P==='sit'?0.33:P==='wheel'?0.47:P==='floor'?0.1:v.hipsY*S+(j.pelvis.position.y-c.d.hip);B.hips.position.y=h/S;
+  _k.copy(ARM_L).multiply(R.aL);B.fL.quaternion.copy(_k).invert().multiply(qOf(j.elL)).multiply(_k).multiply(R.fL);_k.copy(ARM_R).multiply(R.aR);B.fR.quaternion.copy(_k).invert().multiply(qOf(j.elR)).multiply(_k).multiply(R.fR);
+  if(B.ftL&&B.ftR){B.ftL.quaternion.copy(R.ftL);B.ftR.quaternion.copy(R.ftR);if(c.pose==='floor'&&!c.girl){B.ftL.rotateX(1.4);B.ftR.rotateX(1.4);}}
+  const P=c.pose,h=P==='sit'?0.33:P==='wheel'?0.47:P==='floor'?(c.girl?0.13:0.14):v.hipsY*S+(j.pelvis.position.y-c.d.hip);B.hips.position.y=h/S;
   v.blinkT-=dt;let bl=0;if(v.blinkT<0){bl=1;if(v.blinkT<-0.12)v.blinkT=2+Math.random()*3;}
   v.faces.forEach(m=>{m.morphTargetInfluences[M.blink]=bl;m.morphTargetInfluences[M.happy]=bl?0:0.3;});}
 const kidGroup=new THREE.Group();scene.add(kidGroup);const kids=[];
@@ -724,10 +747,10 @@ function teacherStep(dt,tt){let mv=false;teacher.wave=(S.waveUntil||0)>tt;
       if(d-st<0.01){TW.i=n;TW.wait=3+Math.random()*3;TW.face=tg[2];}}}
   teacher.g.position.set(TW.x,0,TW.z);OBS[TOI]=[TW.x-0.2,TW.z-0.2,TW.x+0.2,TW.z+0.2];teacher.gesture=!mv;animate(teacher,tt,dt,mv);}
 // outdoor NPCs: a classmate swinging and one running laps on the lawn
-const swKid=sizeTo(person(Object.assign(kidOpts(true,'#FFFFFF'),{pose:'sit'})),kidH());SWG[0].g.add(swKid.g);swKid.g.position.set(0,-SWG[0].L+0.02-0.315,0);
+const swKid=sizeTo(person(Object.assign(kidOpts(true,'#FFFFFF'),{pose:'sit'})),kidH());SWG[0].g.add(swKid.g);swKid.g.position.set(0,-SWG[0].L+0.06-0.315,0);
 const runner=sizeTo(person(kidOpts(false,'#FFFFFF')),kidH());runner.stepRate=14;runner.amp=0.85;scene.add(runner.g);let runA=0;
 function outdoorStep(dt,tt){const th=0.45*Math.sin(tt*2.2);SWG[0].g.rotation.x=-th;animate(swKid,tt,dt,false);
-  const j=swKid.j;if(swKid.vrm)swKid.g.position.y=-SWG[0].L+0.02-0.315;j.shL.rotation.set(-2.6,0,0.25);j.shR.rotation.set(-2.6,0,-0.25);j.elL.rotation.x=j.elR.rotation.x=-0.25;j.torso.rotation.x=-th*0.3;
+  const j=swKid.j;if(swKid.vrm)swKid.g.position.y=-SWG[0].L+0.06-0.315;j.shL.rotation.set(-1.3,0,1.5);j.shR.rotation.set(-1.3,0,-1.5);j.elL.rotation.x=j.elR.rotation.x=-1.7;j.torso.rotation.x=-th*0.3;
   runA+=dt*1.5/0.75;const x=3.6+0.75*Math.cos(runA),z=13.4+0.75*Math.sin(runA);runner.g.position.set(x,0,z);runner.g.rotation.y=Math.atan2(-Math.sin(runA),Math.cos(runA));animate(runner,tt,dt,true);}
 const me=new THREE.Group();scene.add(me);let meC=null;
 {const tag=label('你',0,1.32,0,'#E07A3F',0.5);scene.remove(tag);me.add(tag);me.userData.tag=tag;}
@@ -833,8 +856,8 @@ function toiletRide(kind,onDone){const R={k:kind,i:0,t:0,pts:[],hold:null,back:[
     const steps=kind==='wash'?['濕：打開水龍頭淋濕雙手','搓：抹肥皂，手心手背搓 20 秒','沖：用清水沖乾淨','捧：捧水沖洗水龍頭','擦：用擦手紙擦乾']:['擠一點點牙膏','上排牙齒上下刷','下排牙齒上下刷','裡面、外面都要刷到','漱口，把牙刷洗乾淨'];let shown=-1;
     R.hold=t=>{hdg=0;const k=Math.min(4,Math.floor(t/1.2));if(k!==shown){shown=k;toast(steps[k],true);}return t>=6;};
     R.anim=(c,t)=>{if(!R.hold)return;const q=Math.sin(t*14);
-      if(kind==='wash'){c.j.shL.rotation.set(-1.15,0,-0.35+q*0.12);c.j.shR.rotation.set(-1.15,0,0.35-q*0.12);c.j.elL.rotation.x=c.j.elR.rotation.x=-0.9;}
-      else{c.j.shR.rotation.set(-1.35,0,-0.1+q*0.12);c.j.elR.rotation.x=-2.1;c.j.shL.rotation.set(-0.4,0,0.2);}};}
+      if(kind==='wash'){c.j.shL.rotation.set(-0.55,0,-0.35+q*0.12);c.j.shR.rotation.set(-0.55,0,0.35-q*0.12);c.j.elL.rotation.x=c.j.elR.rotation.x=-1.0;}
+      else{c.j.shR.rotation.set(c.girl?-0.3:-0.45,0.7,-1.2+q*0.12);c.j.elR.rotation.x=-2.2;c.j.shL.rotation.set(-0.4,0,0.2);}};}
   R.done=onDone;S.ride=R;setAct([]);}
 // sit at the fixed seat and eat (snack or lunch)
 function seatRide(food,onDone){const R={k:'eat',i:0,t:0,pts:[],hold:null,back:[],anim:null},wc=S.wc,ch=CHAIRS.find(c=>Math.abs(c.x-SEAT.x)<0.01&&Math.abs(c.z-SEAT.z)<0.01);let dish=null;
@@ -844,15 +867,15 @@ function seatRide(food,onDone){const R={k:'eat',i:0,t:0,pts:[],hold:null,back:[]
       if(food==='lunch'){const bw=new THREE.Mesh(new THREE.CylinderGeometry(0.06,0.045,0.06,14),mat('#E07A3F',0.5));bw.position.set(0.16,0.03,0);dish.add(bw);}
       dish.position.set(SEAT.x,0.535,4.7);placed.add(dish);}})];
   R.hold=t=>{hdg=Math.PI;if(t>=4){if(!wc)setPose(meC,'walk');return true;}};
-  R.anim=(c,t)=>{if(!R.hold)return;const q=(Math.sin(t*5)+1)/2;c.j.shR.rotation.set(-0.9-q*0.9,0,-0.25);c.j.elR.rotation.x=-1.2-q*0.9;};
+  R.anim=(c,t)=>{if(!R.hold)return;const q=(Math.sin(t*5)+1)/2;c.j.shR.rotation.set(-0.6+q*(c.girl?0.3:0.15),q*0.7,0.2-q*1.4);c.j.elR.rotation.x=-1.2-q*1.0;};
   R.back=[P(SEAT.x,0,5.65)];R.done=()=>{if(dish)placed.remove(dish);if(wc&&ch)ch.g.visible=true;onDone();};S.ride=R;setAct([]);}
 // morning circle: classmates and the teacher sit round the rug; songs, weather, today's schedule, plans for the learning areas
 const CIRCLE={on:false,saved:[]};
 function circleRide(onDone){const R={k:'circle',i:0,t:0,pts:[],hold:null,back:[],anim:null},wc=S.wc,n=kids.length+2;
-  const spot=i=>{const a=Math.PI/2+i/n*Math.PI*2;return [CIRC.x+Math.cos(a)*(CIRC.r-0.2),CIRC.z+Math.sin(a)*(CIRC.r-0.2),Math.atan2(-Math.cos(a),-Math.sin(a))];};
-  const me0=spot(0);R.pts=[P(me0[0],0,me0[1],0.7,{cb:()=>{hdg=me0[2];if(!wc)setPose(meC,'floor');
+  const spot=i=>{const a=Math.PI/2+i/n*Math.PI*2;return [CIRC.x+Math.cos(a)*(CIRC.r-0.03),CIRC.z+Math.sin(a)*(CIRC.r-0.03),Math.atan2(-Math.cos(a),-Math.sin(a))];};
+  const me0=spot(0);R.pts=[P(me0[0],0,me0[1],0.7,{cb:()=>{hdg=me0[2];if(!wc){setPose(meC,'floor');const J=meC.j;J.shL.rotation.set(-0.45,0,0.2);J.shR.rotation.set(-0.45,0,-0.2);J.elL.rotation.x=J.elR.rotation.x=-1.0;}
     CIRCLE.on=true;CIRCLE.saved=kids.map(c=>{const g=c.g.parent===kidGroup?c.g:c.g.parent;return {c,g,p:g.position.clone(),ry:g.rotation.y,pose:c.pose};});
-    CIRCLE.saved.forEach((q,i)=>{const sp=spot(i+1);q.g.position.set(sp[0],0,sp[1]);q.g.rotation.y=sp[2];if(q.pose!=='wheel')setPose(q.c,'floor');});
+    CIRCLE.saved.forEach((q,i)=>{const sp=spot(i+1);q.g.position.set(sp[0],0,sp[1]);q.g.rotation.y=sp[2];if(q.pose!=='wheel')setPose(q.c,'floor');q.c.act=null;});
     walkers.forEach(w=>w.c.g.visible=false);}})];
   const talk=['老師：大家早安！我們一起唱早安歌 🎵','今天的天氣：晴天 ☀️ 記得多喝水','看看作息表：等一下吃點心，再去戶外玩','說說看：今天想去哪一個學習區？'];let shown=-1;
   R.hold=t=>{hdg=me0[2];const k=Math.min(3,Math.floor(t/1.6));if(k!==shown){shown=k;toast(talk[k],true);}
@@ -894,11 +917,13 @@ const outTxt=()=>OUTS.map(o=>S.out&&S.out[o.k]?outName(o)+' ✓':'<b>'+outName(o
 const P=(x,y,z,v,o)=>Object.assign({x,y,z,v:v||1.0},o||{});
 function startRide(o){const R={k:o.k,i:0,t:0,pts:[],hold:null,back:[],anim:null},sx=o.spot[0],sz=o.spot[1],wc=S.wc,base=wc?'wheel':'walk';
   if(o.k==='slide'){R.pts=[P(6.0,0,11.6),P(0.6,0.45,11.6,0.9),P(-0.2,0.45,11.85),P(-0.2,0.45,12.3,0.8,{cb:()=>{if(wc){scene.attach(meC.wcg);}setPose(meC,'sit');S.my=0.45-0.27;hdg=0;}}),
-      P(-0.2,0.05-0.27,14.4,2.6,{glide:true,keep:true}),P(-0.2,-0.27,14.9,1.2,{glide:true,keep:true,cb:()=>{if(wc){const g=meC.g.parent;g.add(meC.wcg);meC.wcg.position.set(0,0,0);meC.wcg.rotation.set(0,0,0);toast('老師把輪椅推下來，坐回輪椅');}setPose(meC,base);S.my=0;}})];}
-  if(o.k==='swing'){const sw=wc?SWG[2]:SWG[1],off=wc?0.03:0.02-0.315;
+      P(-0.2,0.05-0.27,14.4,2.6,{glide:true,keep:true}),P(-0.2,-0.27,14.9,1.2,{glide:true,keep:true,cb:()=>{if(wc){const g=meC.g.parent;g.add(meC.wcg);meC.wcg.position.set(0,0,0);meC.wcg.rotation.set(0,0,0);toast('老師把輪椅推下來，坐回輪椅');}setPose(meC,base);S.my=0;}})];
+    R.anim=c=>{if(c.pose==='sit'){c.j.hipL.rotation.x=c.j.hipR.rotation.x=-Math.PI/2+0.2;c.j.kneeL.rotation.x=c.j.kneeR.rotation.x=0.05;c.j.shL.rotation.set(0.1,0,0.2);c.j.shR.rotation.set(0.1,0,-0.2);c.j.elL.rotation.x=c.j.elR.rotation.x=-0.3;}};}
+  if(o.k==='swing'){const sw=wc?SWG[2]:SWG[1],off=wc?0.03:0.06-0.315;
     R.pts=[P(sw.x,0,12.45),P(sw.x,wc?0.18:0,11.0,0.8,{cb:()=>{if(!wc)setPose(meC,'sit');hdg=0;}})];
     R.hold=t=>{const A=(wc?0.3:0.5)*Math.sin(Math.PI*Math.min(1,t/5)),th=A*Math.sin(t*2.3);sw.g.rotation.x=-th;S.x=sw.x;S.y=11.0+sw.L*Math.sin(th);S.my=2.2-sw.L*Math.cos(th)+off;hdg=0;
       if(t>=5){sw.g.rotation.x=0;S.my=wc?0.18:0;setPose(meC,base);return true;}};
+    R.anim=c=>{if(c.pose==='sit'&&R.hold){c.j.shL.rotation.set(-1.3,0,1.5);c.j.shR.rotation.set(-1.3,0,-1.5);c.j.elL.rotation.x=c.j.elR.rotation.x=-1.7;}};
     R.back=[P(sw.x,0,12.45),P(sx,0,sz)];}
   if(o.k==='merry'){const r=0.65;R.pts=[P(MERRY.x+r,0.04,MERRY.z,0.8)];
     R.hold=t=>{const a=Math.min(1,t/6)*4*Math.PI;S.x=MERRY.x+r*Math.cos(a);S.y=MERRY.z+r*Math.sin(a);MERRY.g.rotation.y=-a;hdg=Math.atan2(-Math.sin(a),Math.cos(a));return t>=6;};
@@ -912,7 +937,7 @@ function startRide(o){const R={k:o.k,i:0,t:0,pts:[],hold:null,back:[],anim:null}
     R.hold=t=>{hdg=-Math.PI/2;if(t<0.5)BALL.position.set(...from);else if(t<1.7){const u=(t-0.5)/1.2;BALL.position.set(from[0]+(to[0]-from[0])*u,from[1]+(to[1]-from[1])*u+1.4*4*u*(1-u),from[2]+(to[2]-from[2])*u);}
       else BALL.position.set(1.35,0.1,14.25);if(t>=2.4){BALL.position.set(...BALLREST);return true;}};
     R.anim=(c,t)=>{if(!R.hold)return;const k=R.t;if(wc){c.j.shR.rotation.x=k<0.35?-2.9:k<0.6?-2.9+(k-0.35)*8:-0.9;c.j.elR.rotation.x=-0.3;}
-      else{c.j.hipR.rotation.x=k<0.25?0.7*(k/0.25):k<0.5?0.7-1.9*((k-0.25)/0.25):-1.2+Math.min(1,(k-0.5)*3)*1.2;c.j.kneeR.rotation.x=k<0.3?0.9:0.1;}};}
+      else{c.j.hipR.rotation.x=k<0.25?0.7*(k/0.25):k<0.5?0.7-1.4*((k-0.25)/0.25):-0.7+Math.min(1,(k-0.5)*3)*0.7;c.j.kneeR.rotation.x=k<0.3?0.9:0.1;}};}
   S.ride=R;setAct([]);}
 function rideStep(dt){const R=S.ride;moving=false;
   if(R.i<R.pts.length){const q=R.pts[R.i],dx=q.x-S.x,dz=q.z-S.y,dy=q.y-S.my,d=Math.hypot(dx,dz,dy),st=q.v*dt;
@@ -1201,6 +1226,18 @@ function reachSections(z,r){const skip=[TOI,...walkers.map(w=>w.oi)],save=skip.m
   while(q.length){const [i,j]=q.pop(),x=i*st,y=j*st;if(nearShelfAt(x,y)&&isIn(z,x,y)||nearShelfAt(x,y))ok[secAt(z,x,y)]=1;
     for(const [di,dj] of [[1,0],[-1,0],[0,1],[0,-1]]){const a=i+di,b=j+dj;if(a<0||b<0||a>NX||b>NY||seen[b*(NX+1)+a])continue;seen[b*(NX+1)+a]=1;if(!blocked(a*st,b*st,r))q.push([a,b]);}}
   skip.forEach((i,k)=>OBS[i]=save[k]);S.zone=oz;return ok.slice(1);}
+// ---------- real classroom photos: walk near an area and its photos appear ----------
+{const PHOTOS={"lang": [["fb9b5111", "聽故事步驟圖：開電源、按 2、按 3 播放、關機、擦耳機"], ["697c866b", "播放器按鍵貼數字，對應步驟圖"], ["5cf92c6f", "繪本架與圓形閱讀地墊"], ["be6f2991", "繪本封面朝外，看圖選書"], ["0fe1fa6a", "配合主題輪換選書"], ["5dacc35b", "注音印章依序排放，用完放回原位"], ["6a6ab756", "搭配注音主題繪本"], ["902838cc", "注音配對板"], ["61d00387", "說演區：服裝用衣架掛起"], ["420ad141", "說演區：配件依類別分籃"], ["e31a20fe", "說演區：道具分抽屜"]], "math": [["56301dbf", "「拼圖高手」隔板兼作區域名牌"], ["e28abbb0", "數字 1–10 與數量配對"], ["d7670705", "教具依目標分托盤"]], "blk": [["25f255df", "彩虹積木依大小疊放"], ["1f878353", "彩虹積木"], ["2a0a0efe", "範例手冊 01：平面搭建"], ["820d1c0c", "範例手冊 STAGE 1：平面搭建"], ["1b1c93f0", "範例手冊 STAGE 2：立體平衡"], ["9e015255", "範例手冊 STAGE 2：立體平衡"], ["5d3c414d", "拱形積木堆高"], ["a1623ef9", "單位積木作品與搭建步驟圖卡"], ["a8190bf2", "原木 KAPLA 大量供應"], ["b2b821b7", "彩色 KAPLA 依色分格"], ["4cf44d97", "彩色木片依色分格，旁邊有紙筒"], ["3ec50eff", "紙筒依大小分放"], ["17b165f9", "KAPLA 窗戶搭建步驟圖"], ["cf82c4e0", "KAPLA 屋頂搭建步驟圖"], ["kapla-house", "本組照步驟圖搭的 KAPLA 房子"], ["65ff1234", "得寶依顏色分箱，上層是作品展示區"]], "con": [["2bb7efc6", "LaQ 零件依色相排列的透明抽屜"], ["af17c8c2", "Plus-Plus 依顏色分格，附範例圖卡"], ["a43be17b", "磁力片依形狀分疊，一籃收齊"], ["6f44189f", "磁性白板做平面創作"], ["8c9910ff", "收納籃放在幼兒拿得到的高度"]], "art": [["e25cfbcb", "光桌與編號範例卡，由易到難"], ["8a014cfb", "自然素材一籃一種形狀與色系"], ["6cb13bde", "剪貼步驟圖卡"], ["e618f4e1", "工具分格：鐵環與夾子"]]};
+ const el=id=>document.getElementById(id),box=el('photo'),img=el('phImg');
+ let on=true,zone=null,idx=0,closedZone=null;
+ const show=()=>{const l=PHOTOS[zone];if(!l)return;const [id,cap]=l[idx];img.src='photos/'+id+'.jpg';img.alt=cap;el('phCap').textContent=cap;
+   el('phZone').textContent=Z[zone].n+'・實景照片';el('phNum').textContent=(idx+1)+' / '+l.length;box.classList.add('on');};
+ const nearZone=()=>{if(S.x===undefined)return null;for(const k of ZK){const r=Z[k].r;if(S.x>r[0]-0.5&&S.x<r[0]+r[2]+0.5&&S.y>r[1]-0.5&&S.y<r[1]+r[3]+0.5)return k;}return null;};
+ setInterval(()=>{const z=on&&!document.querySelector('.panel.on')?nearZone():null;if(z!==zone){zone=z;idx=0;if(z&&z!==closedZone)show();else box.classList.remove('on');if(!z)closedZone=null;}},300);
+ el('phPrev').addEventListener('click',()=>{const l=PHOTOS[zone];if(!l)return;idx=(idx+l.length-1)%l.length;show();});
+ el('phNext').addEventListener('click',()=>{const l=PHOTOS[zone];if(!l)return;idx=(idx+1)%l.length;show();});
+ el('phClose').addEventListener('click',()=>{closedZone=zone;box.classList.remove('on');});
+ const b=el('photoBtn');b.addEventListener('click',()=>{on=!on;b.textContent='實景照片：'+(on?'開':'關');b.setAttribute('aria-pressed',String(on));if(!on){box.classList.remove('on');zone=null;}});}
 if(DEV)window.__g={walkers:()=>walkers.map(w=>{const g=w.c.g.position;const n=WALK.length,a=WALK[w.seg],b=WALK[(w.seg+(w.dir>0?1:n-1))%n],L=Math.hypot(b[0]-a[0],b[1]-a[1]);return [g.x,g.z,(b[0]-a[0])/L,(b[1]-a[1])/L,'wave:'+!!w.c.wave,'wait:'+(w.wait||0).toFixed(1),'t:'+w.t.toFixed(2)];}),shoeColor:()=>{let c=null;me.traverse(m=>{if(m.isMesh&&m.material&&/Shoes/.test(m.material.name||'')&&!c)c='#'+m.material.color.clone().convertLinearToSRGB().getHexString()+(m.material.map?' (texture)':' (solid)');});return c;},vrmCount:()=>VRMS.map(c=>c.vrm.M===VRMM.boy?'B':'G').join(''),heights:()=>{const m=o=>{o.updateMatrixWorld(true);const s=new THREE.Box3().setFromObject(o).getSize(new THREE.Vector3());return +s.y.toFixed(2);};return {teacher:m(teacher.g),me:m(me),walkers:walkers.map(w=>m(w.c.g))};},teacherPos:()=>[teacher.g.position.x,teacher.g.position.z],go:id=>{go(id);},cur:()=>cur(),slot:()=>{const q=linePos(-S.slot*SPACING);return q;},outs:()=>OUTS.map(o=>[o.k,o.spot]),ride:()=>S.ride&&[S.ride.k,S.ride.i,S.ride.pts.length,!!S.ride.hold],reachBox:(b,r)=>{const st=0.05,NX=300,NY=186,seen=new Uint8Array(301*187),q=[[65,159]];seen[159*301+65]=1;let ok=false;const sv=[TOI,...walkers.map(w=>w.oi)].map(i=>[i,OBS[i]]);sv.forEach(([i])=>OBS[i]=null);while(q.length){const [i,j]=q.pop(),x=i*st,y=j*st;if(Math.hypot(Math.max(b[0]-x,0,x-b[2]),Math.max(b[1]-y,0,y-b[3]))<r+0.6){ok=true;break;}for(const [di,dj] of [[1,0],[-1,0],[0,1],[0,-1]]){const a=i+di,c=j+dj;if(a<0||c<0||a>NX||c>NY||seen[c*301+a])continue;seen[c*301+a]=1;if(!blocked(a*st,c*st,r))q.push([a,c]);}}sv.forEach(([i,o])=>OBS[i]=o);return ok;},boxes:()=>({BAGC,RACK,SERV,SHOEC}),tw:()=>[TW.x,TW.z,TW.wait,teacher.w],acts:()=>({kids:kids.map(c=>c.act),walk:walkers.map(w=>[w.c.wave,+w.c.j.shR.rotation.x.toFixed(2)]),teacher:teacher.gesture}),wk:()=>walkers.map(w=>{const g=w.c.g.position;return [g.x,g.z,Math.sin(w.c.g.rotation.y),Math.cos(w.c.g.rotation.y)];}),dbg:()=>({kids:kids.map(c=>[c.pose,+c.g.parent.position.x.toFixed(2)||+c.g.position.x.toFixed(2),+(c.g.parent===kidGroup?c.g.position.z:c.g.parent.position.z).toFixed(2)]),walkers:walkers.length}),reach:reachSections,S:()=>S,MG:()=>MG,tp:(x,y,h)=>{S.x=x;S.y=y;S.lastZ=y;if(h!==undefined)hdg=h;camReady=false;},cam:(o,p)=>{camOff=o;camPitch=p||0;camReady=false;}};
 })();
 </script>
