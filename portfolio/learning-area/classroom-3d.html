@@ -623,10 +623,10 @@ function npcAct(c,t,dt){const j=c.j,ph=c.ph,a=Math.min(1,dt*6),P=c.pose;
   if(A==='work'){L=[base+Math.sin(t*1.3+ph)*0.12,-0.85+Math.sin(t*2.7+ph)*0.35,0.14];R=[base+Math.sin(t*1.1+ph+1)*0.12,-0.85+Math.sin(t*2.2+ph+1.9)*0.35,-0.14];hx=0.3;}
   else if(A==='build'){const u=Math.sin(t*3+ph);L=[-1.2+u*0.45,-0.5-u*0.3,0.2];R=[-1.2-u*0.45,-0.5+u*0.3,-0.2];hx=0.32;tx=0.3;}
   else if(A==='reach'){L=[-1.5,-0.15,0.1];R=[-1.5,-0.15,-0.1];tx=0.5;hx=0.15;}
-  else if(A==='raise'){R=[-2.95,-0.15,-0.18+Math.sin(t*9)*0.22];hx=-0.15;}
+  else if(A==='raise'){R=[-2.8,-0.25,-0.12+Math.sin(t*4)*0.06];hx=-0.15;}
   else if(A==='talk'){hy=sd*0.8;hx=0.02;const g=Math.sin(t*5+ph);(sd>0?L:R)[0]=-1.05+g*0.25;(sd>0?L:R)[1]=-1.25+g*0.3;}
-  else if(A==='cheer'){const b=Math.sin(t*10)*0.2;L=[-2.7+b,-0.25,0.45];R=[-2.7-b,-0.25,-0.45];hx=-0.12;tx=0.02;}
-  else if(A==='clap'){const b=Math.sin(t*14);L=[-1.25,-0.9-b*0.25,-0.35];R=[-1.25,-0.9-b*0.25,0.35];hx=0.05;}
+  else if(A==='cheer'){const b=Math.sin(t*6)*0.1;L=[-2.5+b,-0.35,0.3];R=[-2.5-b,-0.35,-0.3];hx=-0.12;tx=0.02;}
+  else if(A==='clap'){const b=Math.sin(t*9);L=[-1.25,-0.9-b*0.25,-0.35];R=[-1.25,-0.9-b*0.25,0.35];hx=0.05;}
   else if(A==='look'){hx=-0.3;hy=sd*0.45;}
   ease(j.shL.rotation,'x',L[0],a);ease(j.elL.rotation,'x',L[1],a);ease(j.shL.rotation,'z',L[2],a);
   ease(j.shR.rotation,'x',R[0],a);ease(j.elR.rotation,'x',R[1],a);ease(j.shR.rotation,'z',R[2],a);
@@ -636,9 +636,9 @@ function animate(c,t,dt,mv){const j=c.j,ph=c.ph,P=c.pose;
   if(P==='walk'){c.w+=((mv?1:0)-c.w)*Math.min(1,dt*8);c.cyc+=dt*(c.stepRate||9.5)*c.w;const s=Math.sin(c.cyc)*(c.amp||(c.stepRate?0.35:0.72))*c.w,i=1-c.w,a=Math.min(1,dt*8);
     j.hipL.rotation.x=s;j.hipR.rotation.x=-s;j.kneeL.rotation.x=Math.max(0,-s)*1.25+0.05;j.kneeR.rotation.x=Math.max(0,s)*1.25+0.05;
     // idle on the spot: breathing sway; waving hello (classmates) or explaining with a hand (teacher)
-    let rx=s*0.85+Math.sin(t*1.5+ph)*0.07*i,rz=-0.14,re=-0.22-Math.max(0,-s)*0.5,lx=-s*0.85+Math.sin(t*1.5+ph+2)*0.07*i,le=-0.22-Math.max(0,s)*0.5;
-    if(c.wave&&!mv){rx=-2.75;rz=-0.35+Math.sin(t*9)*0.35;re=-0.3;}
-    else if(c.gesture&&!mv){const g=Math.sin(t*3+ph);rx=-1.0+g*0.3;re=-1.0+g*0.25;lx=-0.5;le=-0.9;}
+    let rx=s*0.6+Math.sin(t*1.5+ph)*0.04*i,rz=-0.14,re=-0.2-Math.max(0,-s)*0.35,lx=-s*0.6+Math.sin(t*1.5+ph+2)*0.04*i,le=-0.2-Math.max(0,s)*0.35;
+    if(c.wave&&!mv){rx=-1.15;rz=-0.5+Math.sin(t*6)*0.15;re=-1.45;}
+    else if(c.gesture&&!mv){const g=Math.sin(t*2+ph);rx=-0.4+g*0.1;re=-1.1+g*0.2;lx=-0.1;le=-0.3;}
     ease(j.shR.rotation,'x',rx,a);ease(j.shR.rotation,'z',rz,a);ease(j.elR.rotation,'x',re,a);ease(j.shL.rotation,'x',lx,a);ease(j.elL.rotation,'x',le,a);
     j.pelvis.position.y=c.d.hip+Math.abs(Math.cos(c.cyc))*0.014*c.w+Math.sin(t*2+ph)*0.004*i;j.torso.rotation.z=Math.sin(c.cyc)*0.035*c.w;j.torso.rotation.x=0.05*c.w;
     j.head.rotation.y=c.wave?0:Math.sin(t*0.6+ph)*0.25*i;j.head.rotation.x=c.wave?-0.1:0;j.head.rotation.z=(c.wave?0.12:Math.sin(t*1.1+ph)*0.04)-Math.sin(c.cyc)*0.03*c.w;return;}
@@ -696,14 +696,14 @@ function vrmPerson(o){const M=VRMM[o.model||(o.boy?'boy':'girl')],root=THREE.Ske
   const c={g,j,d:DIM.child,pose:o.pose||'walk',ph:Math.random()*6.28,w:0,cyc:0,talk:0,vrm:{B,rest,faces,blinkT:1+Math.random()*3,S,M,hipsY:B.hips.position.y},bagParent:B.chest};
   g.userData.c=c;setPose(c,c.pose);VRMS.push(c);return c;}
 // copy the joint rotations onto the VRM bones; arms are swung in an "arm hanging down" frame
-const _q=new THREE.Quaternion(),_e=new THREE.Euler(),_ax=new THREE.Vector3(0,0,1);
-const ARM_L=new THREE.Quaternion().setFromAxisAngle(_ax,-1.32),ARM_R=new THREE.Quaternion().setFromAxisAngle(_ax,1.32),ARM_Li=ARM_L.clone().invert(),ARM_Ri=ARM_R.clone().invert();
+const ARM_A=1.6,_q=new THREE.Quaternion(),_k=new THREE.Quaternion(),_e=new THREE.Euler(),_ax=new THREE.Vector3(0,0,1);
+const ARM_L=new THREE.Quaternion().setFromAxisAngle(_ax,-ARM_A),ARM_R=new THREE.Quaternion().setFromAxisAngle(_ax,ARM_A),ARM_Li=ARM_L.clone().invert(),ARM_Ri=ARM_R.clone().invert();
 const qOf=o=>_q.setFromEuler(_e.set(o.rotation.x,o.rotation.y,o.rotation.z,o.rotation.order));
 function vrmSync(c,dt){const v=c.vrm,B=v.B,R=v.rest,j=c.j,S=v.S,M=v.M;
   const set=(k,o)=>B[k].quaternion.copy(qOf(o)).multiply(R[k]);
   set('uL',j.hipL);set('uR',j.hipR);set('lL',j.kneeL);set('lR',j.kneeR);set('spine',j.torso);set('head',j.head);
   B.aL.quaternion.copy(qOf(j.shL)).multiply(ARM_L).multiply(R.aL);B.aR.quaternion.copy(qOf(j.shR)).multiply(ARM_R).multiply(R.aR);
-  B.fL.quaternion.copy(ARM_Li).multiply(qOf(j.elL)).multiply(ARM_L).multiply(R.fL);B.fR.quaternion.copy(ARM_Ri).multiply(qOf(j.elR)).multiply(ARM_R).multiply(R.fR);
+  _k.copy(ARM_L).multiply(R.aL);B.fL.quaternion.copy(_k).invert().multiply(qOf(j.elL)).multiply(_k).multiply(R.fL);_k.copy(ARM_R).multiply(R.aR);B.fR.quaternion.copy(_k).invert().multiply(qOf(j.elR)).multiply(_k).multiply(R.fR);
   const P=c.pose,h=P==='sit'?0.33:P==='wheel'?0.47:P==='floor'?0.1:v.hipsY*S+(j.pelvis.position.y-c.d.hip);B.hips.position.y=h/S;
   v.blinkT-=dt;let bl=0;if(v.blinkT<0){bl=1;if(v.blinkT<-0.12)v.blinkT=2+Math.random()*3;}
   v.faces.forEach(m=>{m.morphTargetInfluences[M.blink]=bl;m.morphTargetInfluences[M.happy]=bl?0:0.3;});}
