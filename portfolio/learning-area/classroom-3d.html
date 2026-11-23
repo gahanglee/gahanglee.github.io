@@ -640,7 +640,7 @@ function animate(c,t,dt,mv){const j=c.j,ph=c.ph,P=c.pose;
     // idle on the spot: breathing sway; waving hello (classmates) or explaining with a hand (teacher)
     let rx=s*0.6+Math.sin(t*1.5+ph)*0.04*i,rz=-(c.armOut||0.14),re=-0.2-Math.max(0,-s)*0.35,lx=-s*0.6+Math.sin(t*1.5+ph+2)*0.04*i,le=-0.2-Math.max(0,s)*0.35;
     if(c.wave&&!mv){rx=-1.15;rz=-0.5+Math.sin(t*6)*0.15;re=-1.45;}
-    else if(c.gesture&&!mv){const g=Math.sin(t*2+ph);rx=-0.4+g*0.1;re=-1.1+g*0.2;lx=-0.1;le=-0.3;}
+    else if(c.gesture&&!mv&&(t+ph*3)%8<2.4){const u=((t+ph*3)%8)/2.4,k=Math.sin(Math.PI*u);rx=-0.4*k;re=-0.25-0.85*k;} // now and then a short explaining gesture, otherwise the hands rest
     ease(j.shR.rotation,'x',rx,a);ease(j.shR.rotation,'z',rz,a);ease(j.shL.rotation,'z',c.armOut||0.14,a);ease(j.elR.rotation,'x',re,a);ease(j.shL.rotation,'x',lx,a);ease(j.elL.rotation,'x',le,a);
     j.pelvis.position.y=c.d.hip+Math.abs(Math.cos(c.cyc))*0.014*c.w+Math.sin(t*2+ph)*0.004*i;j.torso.rotation.z=Math.sin(c.cyc)*0.035*c.w;j.torso.rotation.x=0.05*c.w;
     j.head.rotation.y=c.wave?0:Math.sin(t*0.6+ph)*0.25*i;j.head.rotation.x=c.wave?-0.1:0;j.head.rotation.z=(c.wave?0.12:Math.sin(t*1.1+ph)*0.04)-Math.sin(c.cyc)*0.03*c.w;return;}
