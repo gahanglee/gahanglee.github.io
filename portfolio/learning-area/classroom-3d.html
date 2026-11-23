@@ -611,8 +611,8 @@ function person(o){ // o: {adult, girl, hair, hairC, skin, eye, pose, badge}
 function setPose(c,P){c.pose=P;const j=c.j,d=c.d;['hipL','hipR'].forEach(k=>{j[k].rotation.order='YXZ';j[k].rotation.set(0,0,0);});
   j.torso.rotation.set(0,0,0);
   if(P==='sit'||P==='wheel'){j.pelvis.position.y=((P==='wheel'?0.44:0.315)+d.legR*(c.sc||1))/(c.sc||1); // seat height stays the same whatever the child's height
-    j.hipL.rotation.x=j.hipR.rotation.x=-Math.PI/2+0.06;j.kneeL.rotation.x=j.kneeR.rotation.x=Math.PI/2-0.06;}
-  else if(P==='floor'&&c.girl){j.pelvis.position.y=d.legR*1.2;j.hipL.rotation.set(-Math.PI/2+0.6,0.06,0);j.hipR.rotation.set(-Math.PI/2+0.6,-0.06,0);j.kneeL.rotation.x=j.kneeR.rotation.x=2.95;j.torso.rotation.x=0.05;} // kneeling (seiza) keeps the skirt down
+    j.hipL.rotation.x=j.hipR.rotation.x=-Math.PI/2+0.06;j.kneeL.rotation.x=j.kneeR.rotation.x=Math.PI/2-0.06;if(c.girl){j.hipL.rotation.y=-0.06;j.hipR.rotation.y=0.06;}}
+  else if(P==='floor'&&c.girl){j.pelvis.position.y=d.legR*1.2;j.hipL.rotation.set(-Math.PI/2+1.0,-0.05,0);j.hipR.rotation.set(-Math.PI/2+1.0,0.05,0);j.kneeL.rotation.x=j.kneeR.rotation.x=2.95;j.torso.rotation.x=0.05;} // kneeling (seiza) keeps the skirt down
   else if(P==='floor'){j.pelvis.position.y=d.legR*1.2;j.hipL.rotation.set(-Math.PI/2+0.12,0.7,0);j.hipR.rotation.set(-Math.PI/2+0.12,-0.7,0);j.kneeL.rotation.x=j.kneeR.rotation.x=2.35;j.torso.rotation.x=0.18;}
   else{j.pelvis.position.y=d.hip;j.kneeL.rotation.x=j.kneeR.rotation.x=0.05;}}
 // NPC behaviour: every classmate cycles through small actions so the room feels alive
@@ -706,7 +706,7 @@ function vrmSync(c,dt){const v=c.vrm,B=v.B,R=v.rest,j=c.j,S=v.S,M=v.M;
   set('uL',j.hipL);set('uR',j.hipR);set('lL',j.kneeL);set('lR',j.kneeR);set('spine',j.torso);set('head',j.head);
   B.aL.quaternion.copy(qOf(j.shL)).multiply(ARM_L).multiply(R.aL);B.aR.quaternion.copy(qOf(j.shR)).multiply(ARM_R).multiply(R.aR);
   _k.copy(ARM_L).multiply(R.aL);B.fL.quaternion.copy(_k).invert().multiply(qOf(j.elL)).multiply(_k).multiply(R.fL);_k.copy(ARM_R).multiply(R.aR);B.fR.quaternion.copy(_k).invert().multiply(qOf(j.elR)).multiply(_k).multiply(R.fR);
-  const P=c.pose,h=P==='sit'?0.33:P==='wheel'?0.47:P==='floor'?(c.girl?0.08:0.1):v.hipsY*S+(j.pelvis.position.y-c.d.hip);B.hips.position.y=h/S;
+  const P=c.pose,h=P==='sit'?0.33:P==='wheel'?0.47:P==='floor'?(c.girl?0.03:0.1):v.hipsY*S+(j.pelvis.position.y-c.d.hip);B.hips.position.y=h/S;
   v.blinkT-=dt;let bl=0;if(v.blinkT<0){bl=1;if(v.blinkT<-0.12)v.blinkT=2+Math.random()*3;}
   v.faces.forEach(m=>{m.morphTargetInfluences[M.blink]=bl;m.morphTargetInfluences[M.happy]=bl?0:0.3;});}
 const kidGroup=new THREE.Group();scene.add(kidGroup);const kids=[];
