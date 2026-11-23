@@ -105,6 +105,14 @@ label.chk{display:flex;align-items:center;gap:8px;font-size:15px;cursor:pointer}
 .msg{font-weight:700;min-height:1.6em;text-align:center}
 .msg.bad{color:var(--bad)}.msg.good{color:var(--go)}
 @media (max-width:700px){.sched{top:auto;bottom:136px;left:auto;right:12px;max-height:120px}.sched li b,.sched li span{display:none}.sched li{grid-template-columns:22px}.hud{right:12px;top:auto;bottom:136px}#mini{width:140px;height:116px}.task{font-size:14px}}
+.photo{position:absolute;left:14px;bottom:132px;width:min(280px,40%);background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:8px;display:none;flex-direction:column;gap:6px;box-shadow:0 6px 18px rgba(0,0,0,.18);z-index:3}
+.photo.on{display:flex}
+.photo img{width:100%;aspect-ratio:4/3;object-fit:cover;border-radius:10px;background:var(--line)}
+.photo .ph-top{display:flex;align-items:center;justify-content:space-between;gap:6px;font-size:13px;font-weight:700}
+.photo .ph-cap{font-size:13px;line-height:1.45;margin:0}
+.photo .ph-nav{display:flex;align-items:center;justify-content:space-between;font-size:12px;color:var(--muted)}
+.photo button{font:inherit;font-size:14px;min-width:34px;min-height:30px;border-radius:8px;border:1px solid var(--line);background:var(--bg);color:var(--fg);cursor:pointer}
+@media (max-width:700px){.photo{bottom:auto;top:12px;left:12px;width:150px;padding:6px}.photo .ph-cap{font-size:12px}}
 </style>
 </head>
 <body>
@@ -112,7 +120,7 @@ label.chk{display:flex;align-items:center;gap:8px;font-size:15px;cursor:pointer}
   <header>
     <p style="margin:0 0 6px"><a href="/portfolio/learning-area/" style="font-size:14px">← 回到幼兒學習環境設計實作</a>　<a href="/portfolio/learning-area/flow-sim.html" style="font-size:14px">動線模擬（俯視）</a></p>
     <h1>學習區 3D 教室：當一天的幼兒</h1>
-    <p class="lead">跟著你的角色照<b>白鹿班一日作息表</b>過一天：先在門外鞋櫃放鞋子，從前門進來，把書包、水壺、餐具放好，到選區板插卡，到學習區從簡單到挑戰拿教具玩小遊戲、物歸原位，到中間低區集合，到教室旁的廁所上廁所、洗手，從後門出去換外出鞋，再到戶外遊戲場玩溜滑梯、盪鞦韆等大肌肉遊戲。可以選擇坐輪椅，體驗走道夠不夠寬。</p>
+    <p class="lead">跟著你的角色照<b>白鹿班一日作息表</b>過一天：先在門外鞋櫃放鞋子，從前門進來，把書包、水壺、餐具放好，到選區板插卡，到學習區從簡單到挑戰拿教具玩小遊戲、物歸原位，到中間低區集合，到教室旁的廁所上廁所、洗手，從後門出去換外出鞋，再到戶外遊戲場玩溜滑梯、盪鞦韆等大肌肉遊戲。可以選擇坐輪椅，體驗走道夠不夠寬。走近學習區時，畫面左下會出現該區的實景照片（參訪幼兒園拍攝，不含幼兒與姓名）。</p>
   </header>
 
   <div class="stage" id="stage">
@@ -126,11 +134,17 @@ label.chk{display:flex;align-items:center;gap:8px;font-size:15px;cursor:pointer}
     <div class="trans" id="trans" role="status"></div>
     <div class="dark" id="dark"><b>zZ 午睡中…</b><span>12:40 → 14:30</span></div>
     <div class="act" id="act"></div>
+    <figure class="photo" id="photo" aria-live="polite" style="margin:0">
+      <div class="ph-top"><span id="phZone">實景照片</span><button type="button" id="phClose" aria-label="關閉實景照片">×</button></div>
+      <img id="phImg" alt="">
+      <figcaption class="ph-cap" id="phCap"></figcaption>
+      <div class="ph-nav"><button type="button" id="phPrev" aria-label="上一張">◀</button><span id="phNum"></span><button type="button" id="phNext" aria-label="下一張">▶</button></div>
+    </figure>
     <div class="pad" id="pad" aria-label="移動按鈕">
       <span></span><button type="button" data-k="f" aria-label="前進">▲</button><span></span>
       <button type="button" data-k="l" aria-label="左轉">◀</button><button type="button" data-k="b" aria-label="轉身往回走">▼</button><button type="button" data-k="r" aria-label="右轉">▶</button>
     </div>
-    <div class="view row"><button type="button" class="btn" id="specBtn">規格檢查</button><button type="button" class="btn" id="viewBtn">俯視</button></div>
+    <div class="view row"><button type="button" class="btn" id="photoBtn" aria-pressed="true">實景照片：開</button><button type="button" class="btn" id="specBtn">規格檢查</button><button type="button" class="btn" id="viewBtn">俯視</button></div>
 
     <div class="panel on" id="pStart"><div class="card">
       <h2>當一天的幼兒</h2>
@@ -1198,6 +1212,18 @@ function reachSections(z,r){const skip=[TOI,...walkers.map(w=>w.oi)],save=skip.m
   while(q.length){const [i,j]=q.pop(),x=i*st,y=j*st;if(nearShelfAt(x,y)&&isIn(z,x,y)||nearShelfAt(x,y))ok[secAt(z,x,y)]=1;
     for(const [di,dj] of [[1,0],[-1,0],[0,1],[0,-1]]){const a=i+di,b=j+dj;if(a<0||b<0||a>NX||b>NY||seen[b*(NX+1)+a])continue;seen[b*(NX+1)+a]=1;if(!blocked(a*st,b*st,r))q.push([a,b]);}}
   skip.forEach((i,k)=>OBS[i]=save[k]);S.zone=oz;return ok.slice(1);}
+// ---------- real classroom photos: walk near an area and its photos appear ----------
+{const PHOTOS={"lang": [["fb9b5111", "聽故事步驟圖：開電源、按 2、按 3 播放、關機、擦耳機"], ["697c866b", "播放器按鍵貼數字，對應步驟圖"], ["5cf92c6f", "繪本架與圓形閱讀地墊"], ["be6f2991", "繪本封面朝外，看圖選書"], ["0fe1fa6a", "配合主題輪換選書"], ["5dacc35b", "注音印章依序排放，用完放回原位"], ["6a6ab756", "搭配注音主題繪本"], ["902838cc", "注音配對板"], ["61d00387", "說演區：服裝用衣架掛起"], ["420ad141", "說演區：配件依類別分籃"], ["e31a20fe", "說演區：道具分抽屜"]], "math": [["56301dbf", "「拼圖高手」隔板兼作區域名牌"], ["e28abbb0", "數字 1–10 與數量配對"], ["d7670705", "教具依目標分托盤"]], "blk": [["25f255df", "彩虹積木依大小疊放"], ["1f878353", "彩虹積木"], ["2a0a0efe", "範例手冊 01：平面搭建"], ["820d1c0c", "範例手冊 STAGE 1：平面搭建"], ["1b1c93f0", "範例手冊 STAGE 2：立體平衡"], ["9e015255", "範例手冊 STAGE 2：立體平衡"], ["5d3c414d", "拱形積木堆高"], ["a1623ef9", "單位積木作品與搭建步驟圖卡"], ["a8190bf2", "原木 KAPLA 大量供應"], ["b2b821b7", "彩色 KAPLA 依色分格"], ["4cf44d97", "彩色木片依色分格，旁邊有紙筒"], ["3ec50eff", "紙筒依大小分放"], ["17b165f9", "KAPLA 窗戶搭建步驟圖"], ["cf82c4e0", "KAPLA 屋頂搭建步驟圖"], ["65ff1234", "得寶依顏色分箱，上層是作品展示區"]], "con": [["2bb7efc6", "LaQ 零件依色相排列的透明抽屜"], ["af17c8c2", "Plus-Plus 依顏色分格，附範例圖卡"], ["a43be17b", "磁力片依形狀分疊，一籃收齊"], ["6f44189f", "磁性白板做平面創作"], ["8c9910ff", "收納籃放在幼兒拿得到的高度"]], "art": [["e25cfbcb", "光桌與編號範例卡，由易到難"], ["8a014cfb", "自然素材一籃一種形狀與色系"], ["6cb13bde", "剪貼步驟圖卡"], ["e618f4e1", "工具分格：鐵環與夾子"]]};
+ const el=id=>document.getElementById(id),box=el('photo'),img=el('phImg');
+ let on=true,zone=null,idx=0,closedZone=null;
+ const show=()=>{const l=PHOTOS[zone];if(!l)return;const [id,cap]=l[idx];img.src='photos/'+id+'.jpg';img.alt=cap;el('phCap').textContent=cap;
+   el('phZone').textContent=Z[zone].n+'・實景照片';el('phNum').textContent=(idx+1)+' / '+l.length;box.classList.add('on');};
+ const nearZone=()=>{if(S.x===undefined)return null;for(const k of ZK){const r=Z[k].r;if(S.x>r[0]-0.5&&S.x<r[0]+r[2]+0.5&&S.y>r[1]-0.5&&S.y<r[1]+r[3]+0.5)return k;}return null;};
+ setInterval(()=>{const z=on&&!document.querySelector('.panel.on')?nearZone():null;if(z!==zone){zone=z;idx=0;if(z&&z!==closedZone)show();else box.classList.remove('on');if(!z)closedZone=null;}},300);
+ el('phPrev').addEventListener('click',()=>{const l=PHOTOS[zone];if(!l)return;idx=(idx+l.length-1)%l.length;show();});
+ el('phNext').addEventListener('click',()=>{const l=PHOTOS[zone];if(!l)return;idx=(idx+1)%l.length;show();});
+ el('phClose').addEventListener('click',()=>{closedZone=zone;box.classList.remove('on');});
+ const b=el('photoBtn');b.addEventListener('click',()=>{on=!on;b.textContent='實景照片：'+(on?'開':'關');b.setAttribute('aria-pressed',String(on));if(!on){box.classList.remove('on');zone=null;}});}
 if(DEV)window.__g={shoeColor:()=>{let c=null;me.traverse(m=>{if(m.isMesh&&m.material&&/Shoes/.test(m.material.name||'')&&!c)c='#'+m.material.color.clone().convertLinearToSRGB().getHexString()+(m.material.map?' (texture)':' (solid)');});return c;},vrmCount:()=>VRMS.map(c=>c.vrm.M===VRMM.boy?'B':'G').join(''),heights:()=>{const m=o=>{o.updateMatrixWorld(true);const s=new THREE.Box3().setFromObject(o).getSize(new THREE.Vector3());return +s.y.toFixed(2);};return {teacher:m(teacher.g),me:m(me),walkers:walkers.map(w=>m(w.c.g))};},teacherPos:()=>[teacher.g.position.x,teacher.g.position.z],go:id=>{go(id);},cur:()=>cur(),slot:()=>{const q=linePos(-S.slot*SPACING);return q;},outs:()=>OUTS.map(o=>[o.k,o.spot]),ride:()=>S.ride&&[S.ride.k,S.ride.i,S.ride.pts.length,!!S.ride.hold],reachBox:(b,r)=>{const st=0.05,NX=300,NY=186,seen=new Uint8Array(301*187),q=[[65,159]];seen[159*301+65]=1;let ok=false;const sv=[TOI,...walkers.map(w=>w.oi)].map(i=>[i,OBS[i]]);sv.forEach(([i])=>OBS[i]=null);while(q.length){const [i,j]=q.pop(),x=i*st,y=j*st;if(Math.hypot(Math.max(b[0]-x,0,x-b[2]),Math.max(b[1]-y,0,y-b[3]))<r+0.6){ok=true;break;}for(const [di,dj] of [[1,0],[-1,0],[0,1],[0,-1]]){const a=i+di,c=j+dj;if(a<0||c<0||a>NX||c>NY||seen[c*301+a])continue;seen[c*301+a]=1;if(!blocked(a*st,c*st,r))q.push([a,c]);}}sv.forEach(([i,o])=>OBS[i]=o);return ok;},boxes:()=>({BAGC,RACK,SERV,SHOEC}),tw:()=>[TW.x,TW.z,TW.wait,teacher.w],acts:()=>({kids:kids.map(c=>c.act),walk:walkers.map(w=>[w.c.wave,+w.c.j.shR.rotation.x.toFixed(2)]),teacher:teacher.gesture}),wk:()=>walkers.map(w=>{const g=w.c.g.position;return [g.x,g.z,Math.sin(w.c.g.rotation.y),Math.cos(w.c.g.rotation.y)];}),dbg:()=>({kids:kids.map(c=>[c.pose,+c.g.parent.position.x.toFixed(2)||+c.g.position.x.toFixed(2),+(c.g.parent===kidGroup?c.g.position.z:c.g.parent.position.z).toFixed(2)]),walkers:walkers.length}),reach:reachSections,S:()=>S,MG:()=>MG,tp:(x,y,h)=>{S.x=x;S.y=y;S.lastZ=y;if(h!==undefined)hdg=h;camReady=false;},cam:(o,p)=>{camOff=o;camPitch=p||0;camReady=false;}};
 })();
 </script>
