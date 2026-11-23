@@ -627,20 +627,20 @@ function npcAct(c,t,dt){const j=c.j,ph=c.ph,a=Math.min(1,dt*6),P=c.pose;
   else if(A==='raise'){R=[-2.8,-0.25,-0.12+Math.sin(t*4)*0.06];hx=-0.15;}
   else if(A==='talk'){hy=sd*0.8;hx=0.02;const g=Math.sin(t*5+ph);(sd>0?L:R)[0]=-1.05+g*0.25;(sd>0?L:R)[1]=-1.25+g*0.3;}
   else if(A==='cheer'){const b=Math.sin(t*6)*0.1;L=[-2.5+b,-0.35,0.3];R=[-2.5-b,-0.35,-0.3];hx=-0.12;tx=0.02;}
-  else if(A==='clap'){const b=Math.sin(t*9);L=[-1.25,-0.9-b*0.25,-0.35];R=[-1.25,-0.9-b*0.25,0.35];hx=0.05;}
+  else if(A==='clap'){const b=Math.sin(t*9);L=[-0.75,-1.35-b*0.25,-0.38];R=[-0.75,-1.35-b*0.25,0.38];hx=0.05;}
   else if(A==='look'){hx=-0.3;hy=sd*0.45;}
   ease(j.shL.rotation,'x',L[0],a);ease(j.elL.rotation,'x',L[1],a);ease(j.shL.rotation,'z',L[2],a);
   ease(j.shR.rotation,'x',R[0],a);ease(j.elR.rotation,'x',R[1],a);ease(j.shR.rotation,'z',R[2],a);
   ease(j.head.rotation,'x',hx+Math.sin(t*1.6+ph)*0.03,a);ease(j.head.rotation,'y',hy,a);j.head.rotation.z=Math.sin(t*0.9+ph)*0.05;
   ease(j.torso.rotation,'x',tx+Math.sin(t*0.8+ph)*0.03,a);}
 function animate(c,t,dt,mv){const j=c.j,ph=c.ph,P=c.pose;
-  if(P==='walk'){c.w+=((mv?1:0)-c.w)*Math.min(1,dt*8);c.cyc+=dt*(c.stepRate||9.5)*c.w;const s=Math.sin(c.cyc)*(c.amp||(c.stepRate?0.35:0.72))*c.w,i=1-c.w,a=Math.min(1,dt*8);
+  if(P==='walk'){c.w+=((mv?1:0)-c.w)*Math.min(1,dt*8);c.cyc+=dt*(c.stepRate||9.5)*c.w;const s=Math.sin(c.cyc)*(c.amp||(c.stepRate?0.35:0.45))*c.w,i=1-c.w,a=Math.min(1,dt*8);
     j.hipL.rotation.x=s;j.hipR.rotation.x=-s;j.kneeL.rotation.x=Math.max(0,-s)*1.25+0.05;j.kneeR.rotation.x=Math.max(0,s)*1.25+0.05;
     // idle on the spot: breathing sway; waving hello (classmates) or explaining with a hand (teacher)
-    let rx=s*0.6+Math.sin(t*1.5+ph)*0.04*i,rz=-0.14,re=-0.2-Math.max(0,-s)*0.35,lx=-s*0.6+Math.sin(t*1.5+ph+2)*0.04*i,le=-0.2-Math.max(0,s)*0.35;
+    let rx=s*0.6+Math.sin(t*1.5+ph)*0.04*i,rz=-(c.armOut||0.14),re=-0.2-Math.max(0,-s)*0.35,lx=-s*0.6+Math.sin(t*1.5+ph+2)*0.04*i,le=-0.2-Math.max(0,s)*0.35;
     if(c.wave&&!mv){rx=-1.15;rz=-0.5+Math.sin(t*6)*0.15;re=-1.45;}
     else if(c.gesture&&!mv){const g=Math.sin(t*2+ph);rx=-0.4+g*0.1;re=-1.1+g*0.2;lx=-0.1;le=-0.3;}
-    ease(j.shR.rotation,'x',rx,a);ease(j.shR.rotation,'z',rz,a);ease(j.elR.rotation,'x',re,a);ease(j.shL.rotation,'x',lx,a);ease(j.elL.rotation,'x',le,a);
+    ease(j.shR.rotation,'x',rx,a);ease(j.shR.rotation,'z',rz,a);ease(j.shL.rotation,'z',c.armOut||0.14,a);ease(j.elR.rotation,'x',re,a);ease(j.shL.rotation,'x',lx,a);ease(j.elL.rotation,'x',le,a);
     j.pelvis.position.y=c.d.hip+Math.abs(Math.cos(c.cyc))*0.014*c.w+Math.sin(t*2+ph)*0.004*i;j.torso.rotation.z=Math.sin(c.cyc)*0.035*c.w;j.torso.rotation.x=0.05*c.w;
     j.head.rotation.y=c.wave?0:Math.sin(t*0.6+ph)*0.25*i;j.head.rotation.x=c.wave?-0.1:0;j.head.rotation.z=(c.wave?0.12:Math.sin(t*1.1+ph)*0.04)-Math.sin(c.cyc)*0.03*c.w;return;}
   if(P==='wheel'&&(mv||c.w>0.05)){c.w+=((mv?1:0)-c.w)*Math.min(1,dt*8);c.cyc+=dt*6*c.w;const s=Math.sin(c.cyc)*0.35*c.w;j.shL.rotation.x=j.shR.rotation.x=0.15+s;j.shL.rotation.z=0.32;j.shR.rotation.z=-0.32;j.elL.rotation.x=j.elR.rotation.x=-0.55-s;j.torso.rotation.x=0.04+0.06*c.w;
@@ -694,7 +694,7 @@ function vrmPerson(o){const M=VRMM[o.model||(o.boy?'boy':'girl')],root=THREE.Ske
   j.shL.rotation.z=0.14;j.shR.rotation.z=-0.14;
   // shoe changes recolour this character's own shoe material (it stays skinned), like the Q-style figures' shoes
   j.shoes=[{set material(m){shoeMats.forEach(sm=>{sm.map=null;sm.color.copy(m.color);sm.needsUpdate=true;});}}];
-  const c={g,j,d:DIM.child,pose:o.pose||'walk',ph:Math.random()*6.28,w:0,cyc:0,talk:0,vrm:{B,rest,faces,blinkT:1+Math.random()*3,S,M,hipsY:B.hips.position.y},bagParent:B.chest};
+  const c={g,j,d:DIM.child,armOut:o.model==='teacher'?0.3:o.boy?0.14:0.22,pose:o.pose||'walk',ph:Math.random()*6.28,w:0,cyc:0,talk:0,vrm:{B,rest,faces,blinkT:1+Math.random()*3,S,M,hipsY:B.hips.position.y},bagParent:B.chest};
   g.userData.c=c;setPose(c,c.pose);VRMS.push(c);return c;}
 // copy the joint rotations onto the VRM bones; arms are swung in an "arm hanging down" frame
 const ARM_A=1.6,_q=new THREE.Quaternion(),_k=new THREE.Quaternion(),_e=new THREE.Euler(),_ax=new THREE.Vector3(0,0,1);
@@ -739,7 +739,7 @@ function teacherStep(dt,tt){let mv=false;teacher.wave=(S.waveUntil||0)>tt;
 const swKid=sizeTo(person(Object.assign(kidOpts(true,'#FFFFFF'),{pose:'sit'})),kidH());SWG[0].g.add(swKid.g);swKid.g.position.set(0,-SWG[0].L+0.02-0.315,0);
 const runner=sizeTo(person(kidOpts(false,'#FFFFFF')),kidH());runner.stepRate=14;runner.amp=0.85;scene.add(runner.g);let runA=0;
 function outdoorStep(dt,tt){const th=0.45*Math.sin(tt*2.2);SWG[0].g.rotation.x=-th;animate(swKid,tt,dt,false);
-  const j=swKid.j;if(swKid.vrm)swKid.g.position.y=-SWG[0].L+0.02-0.315;j.shL.rotation.set(-2.6,0,0.25);j.shR.rotation.set(-2.6,0,-0.25);j.elL.rotation.x=j.elR.rotation.x=-0.25;j.torso.rotation.x=-th*0.3;
+  const j=swKid.j;if(swKid.vrm)swKid.g.position.y=-SWG[0].L+0.02-0.315;j.shL.rotation.set(-1.3,0,1.5);j.shR.rotation.set(-1.3,0,-1.5);j.elL.rotation.x=j.elR.rotation.x=-1.7;j.torso.rotation.x=-th*0.3;
   runA+=dt*1.5/0.75;const x=3.6+0.75*Math.cos(runA),z=13.4+0.75*Math.sin(runA);runner.g.position.set(x,0,z);runner.g.rotation.y=Math.atan2(-Math.sin(runA),Math.cos(runA));animate(runner,tt,dt,true);}
 const me=new THREE.Group();scene.add(me);let meC=null;
 {const tag=label('你',0,1.32,0,'#E07A3F',0.5);scene.remove(tag);me.add(tag);me.userData.tag=tag;}
@@ -845,8 +845,8 @@ function toiletRide(kind,onDone){const R={k:kind,i:0,t:0,pts:[],hold:null,back:[
     const steps=kind==='wash'?['濕：打開水龍頭淋濕雙手','搓：抹肥皂，手心手背搓 20 秒','沖：用清水沖乾淨','捧：捧水沖洗水龍頭','擦：用擦手紙擦乾']:['擠一點點牙膏','上排牙齒上下刷','下排牙齒上下刷','裡面、外面都要刷到','漱口，把牙刷洗乾淨'];let shown=-1;
     R.hold=t=>{hdg=0;const k=Math.min(4,Math.floor(t/1.2));if(k!==shown){shown=k;toast(steps[k],true);}return t>=6;};
     R.anim=(c,t)=>{if(!R.hold)return;const q=Math.sin(t*14);
-      if(kind==='wash'){c.j.shL.rotation.set(-1.15,0,-0.35+q*0.12);c.j.shR.rotation.set(-1.15,0,0.35-q*0.12);c.j.elL.rotation.x=c.j.elR.rotation.x=-0.9;}
-      else{c.j.shR.rotation.set(-1.35,0,-0.1+q*0.12);c.j.elR.rotation.x=-2.1;c.j.shL.rotation.set(-0.4,0,0.2);}};}
+      if(kind==='wash'){c.j.shL.rotation.set(-0.55,0,-0.35+q*0.12);c.j.shR.rotation.set(-0.55,0,0.35-q*0.12);c.j.elL.rotation.x=c.j.elR.rotation.x=-1.0;}
+      else{c.j.shR.rotation.set(-1.2,0,0.9+q*0.12);c.j.elR.rotation.x=-1.7;c.j.shL.rotation.set(-0.4,0,0.2);}};}
   R.done=onDone;S.ride=R;setAct([]);}
 // sit at the fixed seat and eat (snack or lunch)
 function seatRide(food,onDone){const R={k:'eat',i:0,t:0,pts:[],hold:null,back:[],anim:null},wc=S.wc,ch=CHAIRS.find(c=>Math.abs(c.x-SEAT.x)<0.01&&Math.abs(c.z-SEAT.z)<0.01);let dish=null;
@@ -856,7 +856,7 @@ function seatRide(food,onDone){const R={k:'eat',i:0,t:0,pts:[],hold:null,back:[]
       if(food==='lunch'){const bw=new THREE.Mesh(new THREE.CylinderGeometry(0.06,0.045,0.06,14),mat('#E07A3F',0.5));bw.position.set(0.16,0.03,0);dish.add(bw);}
       dish.position.set(SEAT.x,0.535,4.7);placed.add(dish);}})];
   R.hold=t=>{hdg=Math.PI;if(t>=4){if(!wc)setPose(meC,'walk');return true;}};
-  R.anim=(c,t)=>{if(!R.hold)return;const q=(Math.sin(t*5)+1)/2;c.j.shR.rotation.set(-0.9-q*0.9,0,-0.25);c.j.elR.rotation.x=-1.2-q*0.9;};
+  R.anim=(c,t)=>{if(!R.hold)return;const q=(Math.sin(t*5)+1)/2;c.j.shR.rotation.set(-0.6-q*0.6,0,0.2+q*0.7);c.j.elR.rotation.x=-1.2-q*0.5;};
   R.back=[P(SEAT.x,0,5.65)];R.done=()=>{if(dish)placed.remove(dish);if(wc&&ch)ch.g.visible=true;onDone();};S.ride=R;setAct([]);}
 // morning circle: classmates and the teacher sit round the rug; songs, weather, today's schedule, plans for the learning areas
 const CIRCLE={on:false,saved:[]};
@@ -906,11 +906,13 @@ const outTxt=()=>OUTS.map(o=>S.out&&S.out[o.k]?outName(o)+' ✓':'<b>'+outName(o
 const P=(x,y,z,v,o)=>Object.assign({x,y,z,v:v||1.0},o||{});
 function startRide(o){const R={k:o.k,i:0,t:0,pts:[],hold:null,back:[],anim:null},sx=o.spot[0],sz=o.spot[1],wc=S.wc,base=wc?'wheel':'walk';
   if(o.k==='slide'){R.pts=[P(6.0,0,11.6),P(0.6,0.45,11.6,0.9),P(-0.2,0.45,11.85),P(-0.2,0.45,12.3,0.8,{cb:()=>{if(wc){scene.attach(meC.wcg);}setPose(meC,'sit');S.my=0.45-0.27;hdg=0;}}),
-      P(-0.2,0.05-0.27,14.4,2.6,{glide:true,keep:true}),P(-0.2,-0.27,14.9,1.2,{glide:true,keep:true,cb:()=>{if(wc){const g=meC.g.parent;g.add(meC.wcg);meC.wcg.position.set(0,0,0);meC.wcg.rotation.set(0,0,0);toast('老師把輪椅推下來，坐回輪椅');}setPose(meC,base);S.my=0;}})];}
+      P(-0.2,0.05-0.27,14.4,2.6,{glide:true,keep:true}),P(-0.2,-0.27,14.9,1.2,{glide:true,keep:true,cb:()=>{if(wc){const g=meC.g.parent;g.add(meC.wcg);meC.wcg.position.set(0,0,0);meC.wcg.rotation.set(0,0,0);toast('老師把輪椅推下來，坐回輪椅');}setPose(meC,base);S.my=0;}})];
+    R.anim=c=>{if(c.pose==='sit'){c.j.shL.rotation.set(0.1,0,0.2);c.j.shR.rotation.set(0.1,0,-0.2);c.j.elL.rotation.x=c.j.elR.rotation.x=-0.3;}};}
   if(o.k==='swing'){const sw=wc?SWG[2]:SWG[1],off=wc?0.03:0.02-0.315;
     R.pts=[P(sw.x,0,12.45),P(sw.x,wc?0.18:0,11.0,0.8,{cb:()=>{if(!wc)setPose(meC,'sit');hdg=0;}})];
     R.hold=t=>{const A=(wc?0.3:0.5)*Math.sin(Math.PI*Math.min(1,t/5)),th=A*Math.sin(t*2.3);sw.g.rotation.x=-th;S.x=sw.x;S.y=11.0+sw.L*Math.sin(th);S.my=2.2-sw.L*Math.cos(th)+off;hdg=0;
       if(t>=5){sw.g.rotation.x=0;S.my=wc?0.18:0;setPose(meC,base);return true;}};
+    R.anim=c=>{if(c.pose==='sit'&&R.hold){c.j.shL.rotation.set(-1.3,0,1.5);c.j.shR.rotation.set(-1.3,0,-1.5);c.j.elL.rotation.x=c.j.elR.rotation.x=-1.7;}};
     R.back=[P(sw.x,0,12.45),P(sx,0,sz)];}
   if(o.k==='merry'){const r=0.65;R.pts=[P(MERRY.x+r,0.04,MERRY.z,0.8)];
     R.hold=t=>{const a=Math.min(1,t/6)*4*Math.PI;S.x=MERRY.x+r*Math.cos(a);S.y=MERRY.z+r*Math.sin(a);MERRY.g.rotation.y=-a;hdg=Math.atan2(-Math.sin(a),Math.cos(a));return t>=6;};
