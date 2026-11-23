@@ -666,11 +666,17 @@ function seated(c,inChair){if(!inChair)return c.g;const g=new THREE.Group(),wc=w
 // ---------- 「沐」: the class's own VRoid character (VRM 1.0), driven by the same joints as the Q-style children ----------
 // model by 晃 (VRoid Studio); licence in the file: personal non-profit use, redistribution allowed, credit required
 const VRMM={girl:{file:'assets/mu.vrm',h:1.251,ok:false},boy:{file:'assets/boy.vrm',h:1.269,ok:false},teacher:{file:'assets/teacher.vrm',h:1.598,ok:false}};const VRMS=[];
+// the girls' black under-shorts are recoloured to the skirt's navy so they read as part of the uniform
+function navyShorts(sc){sc.traverse(q=>{if(!q.isMesh)return;(Array.isArray(q.material)?q.material:[q.material]).forEach(mt=>{if(!/Body_00_SKIN/.test(mt.name||'')||!mt.map||!mt.map.image||mt.map.__navy)return;
+  try{const im=mt.map.image,w=im.width,h=im.height,cv=document.createElement('canvas');cv.width=w;cv.height=h;const x=cv.getContext('2d');x.drawImage(im,0,0);
+    const y0=0,y1=Math.ceil(h*0.85),d=x.getImageData(0,y0,w,y1-y0),p=d.data;
+    for(let i=0;i<p.length;i+=4)if(p[i+3]>0&&p[i]<60&&p[i+1]<60&&p[i+2]<60){p[i]=44;p[i+1]=57;p[i+2]=100;}
+    x.putImageData(d,0,y0);mt.map.image=cv;mt.map.__navy=true;mt.map.needsUpdate=true;}catch(e){console.warn('shorts',e);}});});}
 function loadOne(m){return new Promise(res=>{if(!THREE.GLTFLoader||!THREE.SkeletonUtils){res(false);return;}
   new THREE.GLTFLoader().load(m.file,g=>{try{const js=g.parser.json,ext=js.extensions.VRMC_vrm,hb=ext.humanoid.humanBones;m.names={};
       for(const k in hb)m.names[k]=js.nodes[hb[k].node].name;const ex=ext.expressions.preset;
       m.blink=ex.blink.morphTargetBinds[0].index;m.happy=ex.happy.morphTargetBinds[0].index;
-      g.scene.traverse(q=>{if(q.isMesh){q.castShadow=true;q.frustumCulled=false;}});m.proto=g.scene;m.ok=true;res(true);}catch(e){console.warn('VRM',e);res(false);}},
+      g.scene.traverse(q=>{if(q.isMesh){q.castShadow=true;q.frustumCulled=false;}});if(m===VRMM.girl)navyShorts(g.scene);m.proto=g.scene;m.ok=true;res(true);}catch(e){console.warn('VRM',e);res(false);}},
     undefined,e=>{console.warn('VRM load failed',m.file,e);res(false);});});}
 const loadVRM=()=>Promise.all([loadOne(VRMM.girl).then(ok=>{if(ok)adopt(swKid,{h:kidH(),noGlasses:true,tint:HAIRTINT[2]});}),loadOne(VRMM.boy).then(ok=>{if(ok)adopt(runner,{boy:true,h:kidH(),tint:HAIRTINT_B[2]});}),loadOne(VRMM.teacher).then(ok=>{if(ok)adoptTeacher();})]);
 // the teacher becomes the VRoid adult character (160 cm); her name label stays on the same group
